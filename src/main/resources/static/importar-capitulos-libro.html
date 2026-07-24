@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Importar Capítulos de Libro - SVPC</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .contenedor {
+            width: 900px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1f3c88;
+            margin-bottom: 10px;
+        }
+
+        p {
+            text-align: center;
+            color: #555;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 18px;
+            padding: 12px;
+            background: #1f3c88;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #162f6a;
+        }
+
+        .btn-secundario {
+            background: #2e7d32;
+        }
+
+        .btn-secundario:hover {
+            background: #1b5e20;
+        }
+
+        .btn-limpiar {
+            background: #757575;
+        }
+
+        .btn-limpiar:hover {
+            background: #555;
+        }
+
+        .resultado {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+            font-size: 14px;
+            white-space: pre-line;
+        }
+
+        .exito {
+            background: #e6f7ec;
+            color: #1b7f3a;
+            border: 1px solid #9bd8ad;
+        }
+
+        .error {
+            background: #fdecea;
+            color: #a1281f;
+            border: 1px solid #f3aaa4;
+        }
+
+        .info {
+            margin-top: 25px;
+            background: #eef3ff;
+            border: 1px solid #b9c9f5;
+            color: #1f3c88;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .info ul {
+            margin-top: 8px;
+        }
+
+        .info li {
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="contenedor">
+        <h1>SVPC</h1>
+        <p>Importación y cálculo de puntajes de capítulos de libro</p>
+
+        <form id="formImportacion">
+            <label for="idProceso">ID del proceso de valoración</label>
+            <input type="number" id="idProceso" name="idProceso" value="1" required>
+
+            <label for="archivo">Archivo Excel de capítulos de libro</label>
+            <input type="file" id="archivo" name="archivo" accept=".xls,.xlsx" required>
+
+            <button type="submit">Importar capítulos de libro</button>
+
+            <button type="button" class="btn-secundario" onclick="calcularPuntajesCapitulosLibro()">
+                Calcular puntajes de capítulos de libro
+            </button>
+
+            <button type="button" class="btn-limpiar" onclick="limpiarResultado()">
+                Limpiar mensaje
+            </button>
+        </form>
+
+        <div id="resultado" class="resultado"></div>
+
+        <div class="info">
+            <strong>Reglas aplicadas para capítulos de libro:</strong>
+            <ul>
+                <li>Autor de capítulo: 5 puntos base.</li>
+                <li>Coautor de capítulo: 3 puntos base.</li>
+                <li>Autor solo: recibe el 100%.</li>
+                <li>Autor + 1 coautor: autor 60%, coautor 40%.</li>
+                <li>Autor + 2 o más coautores: autor 50%, coautores comparten el otro 50%.</li>
+                <li>Solo coautores: se divide el puntaje base de coautor entre todos los coautores.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("formImportacion");
+        const resultado = document.getElementById("resultado");
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const archivo = document.getElementById("archivo").files[0];
+            const idProceso = document.getElementById("idProceso").value;
+
+            if (!idProceso) {
+                mostrarResultado("Debe ingresar el ID del proceso.", false);
+                return;
+            }
+
+            if (!archivo) {
+                mostrarResultado("Debe seleccionar un archivo Excel.", false);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("archivo", archivo);
+            formData.append("idProceso", idProceso);
+
+            mostrarResultado("Importando capítulos de libro, espere un momento...", true);
+
+            try {
+                const response = await fetch("/api/importaciones/capitulos-libro", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const texto = await response.text();
+
+                if (response.ok) {
+                    mostrarResultado(texto, true);
+                } else {
+                    mostrarResultado(texto, false);
+                }
+
+            } catch (error) {
+                mostrarResultado("Error al conectar con el servidor: " + error.message, false);
+            }
+        });
+
+        async function calcularPuntajesCapitulosLibro() {
+            const idProceso = document.getElementById("idProceso").value;
+
+            if (!idProceso) {
+                mostrarResultado("Debe ingresar el ID del proceso.", false);
+                return;
+            }
+
+            mostrarResultado("Calculando puntajes de capítulos de libro...", true);
+
+            try {
+                const response = await fetch("/api/calculos/capitulos-libro?idProceso=" + encodeURIComponent(idProceso), {
+                    method: "POST"
+                });
+
+                const texto = await response.text();
+
+                if (response.ok) {
+                    mostrarResultado(texto, true);
+                } else {
+                    mostrarResultado(texto, false);
+                }
+
+            } catch (error) {
+                mostrarResultado("Error al conectar con el servidor: " + error.message, false);
+            }
+        }
+
+        function mostrarResultado(mensaje, exito) {
+            resultado.style.display = "block";
+            resultado.textContent = mensaje;
+
+            resultado.classList.remove("exito");
+            resultado.classList.remove("error");
+
+            if (exito) {
+                resultado.classList.add("exito");
+            } else {
+                resultado.classList.add("error");
+            }
+        }
+
+        function limpiarResultado() {
+            resultado.style.display = "none";
+            resultado.textContent = "";
+            resultado.classList.remove("exito");
+            resultado.classList.remove("error");
+        }
+    </script>
+
+</body>
+
+</html>
