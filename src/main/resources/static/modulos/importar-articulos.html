@@ -1,0 +1,126 @@
+<section class="module">
+
+    <div class="module-header">
+        <h2>Artículos Científicos de Impacto Mundial</h2>
+        <p>
+            Importe publicaciones indexadas en Scopus y Web of Science para el proceso de valoración seleccionado.
+        </p>
+    </div>
+
+    <div class="card">
+
+        <div class="form-grid">
+
+            <div class="campo">
+                <label for="idProcesoArticulos">
+                    Proceso de valoración
+                </label>
+
+                <select id="idProcesoArticulos">
+
+                    <option value="1">
+                        Proceso de Valoración 2026
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="campo">
+
+                <label for="archivoArticulos">
+
+                    Archivo Excel
+
+                </label>
+
+                <input type="file" id="archivoArticulos" accept=".xls,.xlsx">
+
+            </div>
+
+        </div>
+
+        <div class="acciones">
+
+            <button class="btn btn-primary" onclick="importarArticulos()">
+
+                <i class="fa-solid fa-upload"></i>
+
+                Importar
+
+            </button>
+
+            <button class="btn btn-success" onclick="calcularPuntajesArticulos()">
+
+                <i class="fa-solid fa-calculator"></i>
+
+                Calcular Puntajes
+
+            </button>
+
+            <button class="btn btn-warning" onclick="cargarRankingArticulos()">
+
+                <i class="fa-solid fa-ranking-star"></i>
+
+                Ver Ranking
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h3>
+
+            Resultado
+
+        </h3>
+
+        <div id="resultadoArticulos" class="resultado oculto">
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h3>
+
+            Ranking de Producción Científica
+
+        </h3>
+
+        <div class="table-responsive">
+
+            <table class="tabla">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Puesto</th>
+
+                        <th>Cédula</th>
+
+                        <th>Docente</th>
+
+                        <th>Carrera</th>
+
+                        <th>Puntaje</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tablaRankingArticulos">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>

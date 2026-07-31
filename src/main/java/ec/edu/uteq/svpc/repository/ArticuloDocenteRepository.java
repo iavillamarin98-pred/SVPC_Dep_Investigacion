@@ -23,4 +23,19 @@ public interface ArticuloDocenteRepository extends JpaRepository<ArticuloDocente
             GROUP BY ad.id.idDocente
             """)
     List<Object[]> sumarPuntajeArticulosPorDocente(@Param("idProceso") Long idProceso);
+
+    @Query("""
+            SELECT
+                ad.id.idDocente,
+                COALESCE(SUM(ad.puntajeObtenido),0)
+            FROM ArticuloDocente ad
+            JOIN Articulo a
+            ON ad.id.idArticulo = a.idArticulo
+            WHERE a.idProceso = :idProceso
+            AND UPPER(TRIM(a.estadoRevision))='APROBADO'
+            AND a.tipoProceeding IS NOT NULL
+            GROUP BY ad.id.idDocente
+            """)
+    List<Object[]> sumarPuntajeProceedingsPorDocente(
+            @Param("idProceso") Long idProceso);
 }
