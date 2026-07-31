@@ -1,0 +1,103 @@
+<div class="module">
+
+    <div class="module-header">
+
+        <h2>Proceedings</h2>
+
+        <p>
+            Importación, cálculo de puntajes y ranking de Proceedings.
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <form id="formImportacionProceedings">
+
+            <div class="form-grid">
+
+                <div class="campo">
+
+                    <label>ID del proceso</label>
+
+                    <input type="number" id="idProcesoProceedings" value="1" required>
+
+                </div>
+
+                <div class="campo">
+
+                    <label>Archivo Excel</label>
+
+                    <input type="file" id="archivoProceedings" accept=".xls,.xlsx" required>
+
+                </div>
+
+            </div>
+
+            <div class="acciones">
+
+                <button class="btn btn-primary" type="submit">
+
+                    Importar Proceedings
+
+                </button>
+
+                <button type="button" class="btn btn-success" onclick="calcularPuntajesProceedings()">
+
+                    Calcular Puntajes
+
+                </button>
+
+                <button type="button" class="btn btn-warning" onclick="cargarRankingProceedings()">
+
+                    Ver Ranking
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <div id="resultadoProceedings" class="resultado oculto">
+
+    </div>
+
+    <div id="tablaRankingContenedorProceedings" class="card oculto">
+
+        <h3>Ranking de Proceedings</h3>
+
+        <div class="table-responsive">
+
+            <table class="tabla">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Puesto</th>
+
+                        <th>Cédula</th>
+
+                        <th>Docente</th>
+
+                        <th>Carrera</th>
+
+                        <th>Puntaje</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tablaRankingProceedings">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

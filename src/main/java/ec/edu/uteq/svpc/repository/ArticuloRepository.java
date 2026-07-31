@@ -19,4 +19,15 @@ public interface ArticuloRepository extends JpaRepository<Articulo, Long> {
             AND UPPER(TRIM(a.estadoRevision)) = 'APROBADO'
             """)
     List<Articulo> buscarArticulosAprobadosPorProceso(@Param("idProceso") Long idProceso);
+
+    @Query("""
+            SELECT a
+            FROM Articulo a
+            WHERE a.idProceso = :idProceso
+            AND UPPER(TRIM(a.estadoRevision)) = 'APROBADO'
+            AND a.tipoProceeding IS NOT NULL
+            """)
+    List<Articulo> buscarProceedingsAprobadosPorProceso(
+            @Param("idProceso") Long idProceso);
+
 }

@@ -1,5 +1,8 @@
 package ec.edu.uteq.svpc.controller;
 
+import ec.edu.uteq.svpc.dto.RankingProceedingDTO;
+import ec.edu.uteq.svpc.service.CalculoPuntajeProceedingService;
+import ec.edu.uteq.svpc.service.RankingProceedingService;
 import ec.edu.uteq.svpc.dto.RankingArticuloDTO;
 import ec.edu.uteq.svpc.service.CalculoPuntajeArticuloService;
 import ec.edu.uteq.svpc.service.CalculoPuntajeLibroService;
@@ -18,16 +21,24 @@ public class CalculoPuntajeController {
     private final CalculoPuntajeLibroService calculoPuntajeLibroService;
     private final CalculoPuntajeCapituloLibroService calculoPuntajeCapituloLibroService;
     private final RankingArticuloService rankingArticuloService;
+    private final CalculoPuntajeProceedingService calculoPuntajeProceedingService;
+    private final RankingProceedingService rankingProceedingService;
 
     public CalculoPuntajeController(
             CalculoPuntajeArticuloService calculoPuntajeArticuloService,
             CalculoPuntajeLibroService calculoPuntajeLibroService,
             CalculoPuntajeCapituloLibroService calculoPuntajeCapituloLibroService,
-            RankingArticuloService rankingArticuloService) {
+            RankingArticuloService rankingArticuloService,
+            CalculoPuntajeProceedingService calculoPuntajeProceedingService,
+            RankingProceedingService rankingProceedingService) {
+
         this.calculoPuntajeArticuloService = calculoPuntajeArticuloService;
         this.calculoPuntajeLibroService = calculoPuntajeLibroService;
         this.calculoPuntajeCapituloLibroService = calculoPuntajeCapituloLibroService;
         this.rankingArticuloService = rankingArticuloService;
+
+        this.calculoPuntajeProceedingService = calculoPuntajeProceedingService;
+        this.rankingProceedingService = rankingProceedingService;
     }
 
     @PostMapping("/articulos")
@@ -57,4 +68,22 @@ public class CalculoPuntajeController {
         List<RankingArticuloDTO> ranking = rankingArticuloService.obtenerRankingArticulos(idProceso);
         return ResponseEntity.ok(ranking);
     }
+
+    @PostMapping("/proceedings")
+    public ResponseEntity<String> calcularPuntajesProceedings(
+            @RequestParam("idProceso") Long idProceso) {
+
+        String resultado = calculoPuntajeProceedingService.calcularPuntajesProceedings(idProceso);
+
+        return ResponseEntity.ok(resultado);
+    }
+
+    @GetMapping("/proceedings/ranking")
+    public ResponseEntity<List<RankingArticuloDTO>> obtenerRankingProceedings(
+            @RequestParam Long idProceso) {
+
+        return ResponseEntity.ok(
+                rankingProceedingService.obtenerRankingProceedings(idProceso));
+    }
+
 }
