@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Proyectos de Investigación - SVPC</title>
+
+    <link rel="stylesheet" href="/css/estilos.css">
+
+</head>
+
+<body>
+
+    <div class="module">
+
+        <div class="module-header">
+
+            <h2>Proyectos de Investigación</h2>
+
+            <p>
+                Registro manual de proyectos con financiamiento
+                externo, conjunto e interno.
+            </p>
+
+        </div>
+        <div class="card">
+
+            <div class="campo">
+
+                <label>Proceso de Valoración</label>
+
+                <select id="idProceso">
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <form id="formProyecto">
+
+                <div class="form-grid">
+
+                    <div class="campo">
+
+                        <label>Nombre del Proyecto</label>
+
+                        <input id="nombre" type="text" required>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <label>Tipo de Financiamiento</label>
+
+                        <select id="tipoFinanciamiento">
+
+                            <option value="EXTERNO">
+                                Externo
+                            </option>
+
+                            <option value="CONJUNTO">
+                                Conjunto
+                            </option>
+
+                            
+
+                        </select>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <label>Periodo</label>
+
+                        <input id="periodo" type="text">
+
+                    </div>
+
+                    <div class="campo">
+
+                        <label>Estado</label>
+
+                        <select id="estado">
+
+                            <option value="APROBADO">
+                                APROBADO
+                            </option>
+
+                            <option value="RECHAZADO">
+                                RECHAZADO
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="campo" style="margin-top:20px;">
+
+                    <label>Descripción</label>
+
+                    <input id="descripcion" type="text">
+
+                </div>
+
+                <!-- PARTICIPANTES -->
+
+                <hr style="margin:25px 0;">
+
+                <h3>Participantes del Proyecto</h3>
+
+                <div class="acciones">
+
+                    <button type="button" class="btn btn-primary" onclick="agregarParticipante()">
+
+                        Agregar Participante
+
+                    </button>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="tabla">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Cédula</th>
+                                <th>Docente</th>
+                                <th>Facultad</th>
+                                <th>Carrera</th>
+                                <th>Rol</th>
+                                <th>Acciones</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tablaParticipantes">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <!-- BOTONES -->
+
+                <div class="acciones">
+
+                    <button id="btnGuardarProyecto" type="button" class="btn btn-primary" onclick="guardarProyecto()">
+                    
+                        Guardar Proyecto
+                    
+                    </button>
+
+                    <button type="button" class="btn btn-warning" onclick="limpiarFormulario()">
+                    
+                        Limpiar
+                    
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <hr style="margin:30px 0;">
+        
+        <div class="card">
+        
+            <h3>Importar Proyectos con Financiamiento Interno</h3>
+        
+            <input type="file" id="archivoProyecto" accept=".xlsx,.xls">
+        
+            <button class="btn btn-primary" onclick="importarProyectosInternos()">
+        
+                Importar Excel
+        
+            </button>
+        
+            <button class="btn btn-success" onclick="calcularPuntajesProyectos()">
+        
+                Calcular Puntajes
+        
+            </button>
+
+
+            <button class="btn btn-primary" onclick="cargarRankingProyectos()">
+            
+                Ver Ranking
+            
+            </button>
+        
+        </div>
+
+
+
+
+
+        <!-- LISTADO DE PROYECTOS -->
+
+        <hr style="margin:30px 0;">
+
+        <div class="card">
+
+            <h3>Listado de Proyectos</h3>
+
+            <div class="table-responsive">
+
+                <table class="tabla">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Financiamiento</th>
+                            <th>Periodo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tablaProyectos">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <hr style="margin:30px 0;">
+        
+        <div class="card">
+        
+            <h3>Ranking de Proyectos</h3>
+        
+            <div class="table-responsive">
+        
+                <table class="tabla">
+        
+                    <thead>
+        
+                        <tr>
+        
+                            <th>#</th>
+                            <th>Cédula</th>
+                            <th>Docente</th>
+                            <th>Facultad</th>
+                            <th>Carrera</th>
+                            <th>Puntaje</th>
+        
+                        </tr>
+        
+                    </thead>
+        
+                    <tbody id="tablaRankingProyectos">
+        
+                    </tbody>
+        
+                </table>
+        
+            </div>
+        
+        </div>
+
+    </div>
+
+    <div id="contenedorBuscadorDocente"></div>
+
+    <script src="/js/buscar-docente.js"></script>
+    <script src="/js/proyectos.js"></script>
+
+</body>
+
+</html>
