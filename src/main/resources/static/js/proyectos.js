@@ -1,8 +1,9 @@
 const API = "/api/proyectos";
 
 let participantes = [];
+let proyectos = [];
 
-
+const ID_PROCESO = 1;
 
 let idProyectoEditar = null;
 
@@ -15,7 +16,7 @@ function agregarParticipante(){
 
         if(participantes.some(p => p.idDocente === docente.idDocente)){
 
-            alert("El docente ya fue agregado.");
+            Notificaciones.advertencia("El docente ya fue agregado.");
 
             return;
 
@@ -34,7 +35,7 @@ window.onRolSeleccionado = function(docente, rol){
         participantes.some(p=>p.rol==="DIRECTOR")
     ){
 
-        alert("Ya existe un Director.");
+       Notificaciones.error("Ya existe un Director.");
 
         return;
 
@@ -107,7 +108,7 @@ async function guardarProyecto() {
 
     if (participantes.length === 0) {
 
-        alert("Debe agregar al menos un participante.");
+        Notificaciones.advertencia("Debe agregar al menos un participante.");
 
         return;
 
@@ -115,7 +116,7 @@ async function guardarProyecto() {
 
     if (!participantes.some(p => p.rol === "DIRECTOR")) {
 
-        alert("Debe existir un Director.");
+        Notificaciones.error("Debe existir un Director.");
 
         return;
 
@@ -146,6 +147,12 @@ async function guardarProyecto() {
         }))
 
     };
+
+    Loader.mostrar(
+        idProyectoEditar == null
+            ? "Guardando proyecto..."
+            : "Actualizando proyecto..."
+    );
 
     try {
 
@@ -181,19 +188,25 @@ async function guardarProyecto() {
 
         }
 
-        alert(
+        Notificaciones.exito(
+
             idProyectoEditar == null
                 ? "Proyecto registrado correctamente."
                 : "Proyecto actualizado correctamente."
+
         );
 
         limpiarFormulario();
 
-        listarProyectos();
+        await listarProyectos();
 
     } catch (error) {
 
-        alert(error.message);
+        Notificaciones.error(error.message);
+
+    } finally {
+
+        Loader.ocultar();
 
     }
 
@@ -211,6 +224,7 @@ function limpiarFormulario() {
 
     document.getElementById("btnGuardarProyecto").textContent =
         "Guardar Proyecto";
+    document.getElementById("tipoFinanciamiento").disabled = false;
 
 }
 
@@ -218,7 +232,8 @@ window.onload = async function () {
 
     await cargarBuscadorDocente();
 
-    await cargarProcesos();
+
+    /*await cargarProcesos();*/
 
     listarProyectos();
 
@@ -228,14 +243,25 @@ async function listarProyectos() {
 
     const respuesta = await fetch(API);
 
-    const proyectos = await respuesta.json();
+    proyectos = await respuesta.json();
 
     const tbody =
         document.getElementById("tablaProyectos");
 
     tbody.innerHTML = "";
 
-    proyectos.forEach(proyecto => {
+    renderizarProyectos(proyectos);
+
+}
+
+function renderizarProyectos(lista){
+
+    const tbody =
+        document.getElementById("tablaProyectos");
+
+    tbody.innerHTML = "";
+
+    lista.forEach(proyecto => {
 
         tbody.innerHTML += `
 
@@ -279,22 +305,71 @@ async function listarProyectos() {
 
 }
 
+function filtrarProyectos(){
 
-async function eliminarProyecto(idProyecto) {
+    const texto =
+        document
+            .getElementById("buscarProyecto")
+            .value
+            .toLowerCase()
+            .trim();
 
-    if (!confirm("¿Desea eliminar este proyecto?")) {
+    const filtrados = proyectos.filter(p =>
 
-        return;
+        p.nombre.toLowerCase().includes(texto)
 
-    }
+    );
 
-    await fetch(API + "/" + idProyecto, {
+    renderizarProyectos(filtrados);
 
-        method: "DELETE"
+}
 
-    });
 
-    listarProyectos();
+
+
+function eliminarProyecto(idProyecto) {
+
+    Confirmacion.mostrar(
+
+        "Eliminar proyecto",
+
+        "¿Está seguro de eliminar este proyecto?",
+
+        async () => {
+
+            Loader.mostrar("Eliminando proyecto...");
+
+            try {
+
+                const respuesta = await fetch(API + "/" + idProyecto, {
+
+                    method: "DELETE"
+
+                });
+
+                if (!respuesta.ok) {
+
+                    throw new Error("No se pudo eliminar el proyecto.");
+
+                }
+
+                Notificaciones.exito("Proyecto eliminado correctamente.");
+
+                await listarProyectos();
+
+            } catch (error) {
+
+                Notificaciones.error(error.message);
+
+            } finally {
+
+                Loader.ocultar();
+
+            }
+
+        }
+
+    );
 
 }
 
@@ -323,6 +398,19 @@ async function editarProyecto(idProyecto){
 
     document.getElementById("tipoFinanciamiento").value =
         proyecto.tipoFinanciamiento;
+    const cmbTipo =
+    document.getElementById("tipoFinanciamiento");
+
+if (proyecto.tipoFinanciamiento === "INTERNO") {
+
+    cmbTipo.disabled = true;
+
+} else {
+
+    cmbTipo.disabled = false;
+
+}
+    
 
     document.getElementById("estado").value =
         proyecto.estado;
@@ -338,6 +426,17 @@ async function editarProyecto(idProyecto){
 
     actualizarTablaParticipantes();
 
+    // Cambiar automáticamente a la pestaña Registro
+Tabs.activar("tabRegistro");
+
+// Llevar la vista al inicio del formulario
+window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+});
+
+
+
 }
 
 
@@ -348,7 +447,7 @@ async function importarProyectosInternos() {
 
     if (!archivo) {
 
-        alert("Seleccione un archivo.");
+        Notificaciones.advertencia("Seleccione un archivo.");
 
         return;
 
@@ -358,30 +457,51 @@ async function importarProyectosInternos() {
 
     formData.append("archivo", archivo);
 
-    formData.append(
-    "idProceso",
-    document.getElementById("idProceso").value
-);
+    formData.append("idProceso", ID_PROCESO);
 
-    const respuesta = await fetch(
-        "/api/importaciones/proyectos",
-        {
-            method: "POST",
-            body: formData
-        });
+    Loader.mostrar("Importando proyectos...");
 
-    const mensaje = await respuesta.text();
+    try {
 
-    alert(mensaje);
+        const respuesta = await fetch(
 
-    listarProyectos();
+            "/api/importaciones/proyectos",
+
+            {
+                method: "POST",
+                body: formData
+            }
+
+        );
+
+        const mensaje = await respuesta.text();
+
+        if (!respuesta.ok) {
+
+            throw new Error(mensaje);
+
+        }
+
+        Notificaciones.exito(mensaje);
+
+        await listarProyectos();
+
+    } catch (error) {
+
+        Notificaciones.error(error.message);
+
+    } finally {
+
+        Loader.ocultar();
+
+    }
 
 }
 
-
 async function cargarRankingProyectos() {
 
-    const idProceso = document.getElementById("idProceso").value;
+    /*const idProceso = document.getElementById("ID_PROCESO").value;*/
+    const idProceso = ID_PROCESO;
 
     const respuesta = await fetch(
 
@@ -419,33 +539,67 @@ async function cargarRankingProyectos() {
 
 }
 
-async function calcularPuntajesProyectos() {
+function calcularPuntajesProyectos() {
 
-    const idProceso = document.getElementById("idProceso").value;
+    Confirmacion.mostrar(
 
-    const respuesta = await fetch(
+        "Calcular puntajes",
 
-        `/api/calculos/proyectos?idProceso=${idProceso}`,
+        "Se recalcularán los puntajes de todos los proyectos del proceso seleccionado. ¿Desea continuar?",
 
-        {
-            method: "POST"
-        }
+        ejecutarCalculoProyectos
 
     );
 
-    const mensaje = await respuesta.text();
-
-    alert(mensaje);
-
 }
 
+async function ejecutarCalculoProyectos() {
+
+    Loader.mostrar("Calculando puntajes...");
+
+    try {
+
+        const respuesta = await fetch(
+
+            `/api/calculos/proyectos?idProceso=${ID_PROCESO}`,
+
+            {
+                method: "POST"
+            }
+
+        );
+
+        const mensaje = await respuesta.text();
+
+        if (!respuesta.ok) {
+
+            throw new Error(mensaje);
+
+        }
+
+        Notificaciones.exito(mensaje);
+
+        await cargarRankingProyectos();
+
+    } catch (error) {
+
+        Notificaciones.error(error.message);
+
+    } finally {
+
+        Loader.ocultar();
+
+    }
+
+}
+/*
 async function cargarProcesos() {
 
     const respuesta = await fetch("/api/procesos");
 
     const procesos = await respuesta.json();
 
-    const combo = document.getElementById("idProceso");
+    const combo = document.getElementById("ID_PROCESO");
 
     combo.innerHTML = "";
 
@@ -459,5 +613,28 @@ async function cargarProcesos() {
 
     });
 
+}*/
+
+function confirmarLimpiarFormulario(){
+
+    Confirmacion.mostrar(
+
+        "Limpiar formulario",
+
+        "Se perderá toda la información ingresada. ¿Desea continuar?",
+
+        limpiarFormulario
+
+    );
+
 }
 
+function mostrarNombreArchivo() {
+
+    const archivo =
+        document.getElementById("archivoProyecto").files[0];
+
+    document.getElementById("nombreArchivo").textContent =
+        archivo ? archivo.name : "Ningún archivo seleccionado";
+
+}

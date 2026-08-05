@@ -127,6 +127,7 @@ public class CalculoPuntajeLibroService {
                         puntajeCalculado.setScale(2, RoundingMode.HALF_UP));
 
                 libroDocenteRepository.save(relacion);
+
                 relacionesProcesadas++;
             }
 

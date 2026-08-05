@@ -137,7 +137,18 @@ public class ImportacionLibroService {
                 relacion.setDocente(docenteGuardado);
                 relacion.setRolParticipante(rolParticipante);
 
-                libroDocenteRepository.save(relacion);
+                // ===== PRUEBA =====
+                LibroDocente guardado = libroDocenteRepository.save(relacion);
+                libroDocenteRepository.flush();
+
+                System.out.println("=================================");
+                System.out.println("Libro: " + guardado.getId().getIdLibro());
+                System.out.println("Docente: " + guardado.getId().getIdDocente());
+
+                boolean existe = libroDocenteRepository.existsById(idRelacion);
+
+                System.out.println("¿Existe en BD?: " + existe);
+                // ==================
 
                 if (existeRelacion) {
                     relacionesActualizadas++;

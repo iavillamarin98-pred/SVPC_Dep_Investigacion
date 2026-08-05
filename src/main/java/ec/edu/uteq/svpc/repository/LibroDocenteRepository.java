@@ -38,4 +38,5 @@ public interface LibroDocenteRepository extends JpaRepository<LibroDocente, Libr
             ORDER BY puntaje DESC
             """, nativeQuery = true)
     List<Map<String, Object>> resumenPuntajesLibros(Integer idProceso);
+
 }

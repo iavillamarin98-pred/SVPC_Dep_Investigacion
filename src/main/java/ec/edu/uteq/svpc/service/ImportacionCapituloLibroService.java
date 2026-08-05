@@ -39,6 +39,7 @@ public class ImportacionCapituloLibroService {
         int capitulosActualizados = 0;
         int docentesInsertados = 0;
         int docentesActualizados = 0;
+
         int relacionesGuardadas = 0;
         int relacionesActualizadas = 0;
         int filasOmitidas = 0;
@@ -58,20 +59,34 @@ public class ImportacionCapituloLibroService {
                     continue;
                 }
 
-                String codigo = obtenerTexto(fila, 0, formatter);
-                String titulo = obtenerTexto(fila, 1, formatter);
-                String isbn = obtenerTexto(fila, 2, formatter);
-                String editorial = obtenerTexto(fila, 3, formatter);
-                String periodo = obtenerTexto(fila, 4, formatter);
-                String estado = obtenerTexto(fila, 5, formatter);
+                String tipoExcel = obtenerTexto(fila, 0, formatter);
 
-                String cedula = obtenerTexto(fila, 6, formatter);
-                String apellidos = obtenerTexto(fila, 7, formatter);
-                String nombres = obtenerTexto(fila, 8, formatter);
-                String correo = obtenerTexto(fila, 9, formatter);
-                String facultad = obtenerTexto(fila, 10, formatter);
-                String carrera = obtenerTexto(fila, 11, formatter);
-                String rolParticipante = obtenerTexto(fila, 12, formatter);
+                String codigo = obtenerTexto(fila, 1, formatter);
+                String titulo = obtenerTexto(fila, 2, formatter);
+                String isbn = obtenerTexto(fila, 3, formatter);
+
+                String editorial = obtenerTexto(fila, 13, formatter); // Editor compilador
+                String periodo = obtenerTexto(fila, 5, formatter); // Fecha publicación
+                String estado = obtenerTexto(fila, 9, formatter);
+
+                // =====================================================
+                // DATOS DEL DOCENTE
+                // =====================================================
+
+                String cedula = obtenerTexto(fila, 10, formatter);
+
+                String rolParticipante = obtenerTexto(fila, 11, formatter);
+
+                String participante = obtenerTexto(fila, 12, formatter);
+
+                // El Excel no separa nombres y apellidos
+                String nombres = participante;
+                String apellidos = "";
+
+                // Estas columnas no existen en el Excel
+                String correo = "";
+                String facultad = "";
+                String carrera = "";
 
                 if (titulo.isBlank() || cedula.isBlank()) {
                     filasOmitidas++;
@@ -115,6 +130,16 @@ public class ImportacionCapituloLibroService {
 
                     capitulosInsertados++;
                 }
+
+                System.out.println("=================================");
+                System.out.println("codigo (" + codigo.length() + "): " + codigo);
+                System.out.println("titulo (" + titulo.length() + ")");
+                System.out.println("tipo (" + tipo.length() + "): " + tipo);
+                System.out.println("isbn (" + isbn.length() + "): " + isbn);
+                System.out.println("editorial (" + editorial.length() + ")");
+                System.out.println("periodo (" + periodo.length() + "): " + periodo);
+                System.out.println("estado (" + estado.length() + "): " + estado);
+                System.out.println("=================================");
 
                 capitulo = capituloLibroRepository.save(capitulo);
 

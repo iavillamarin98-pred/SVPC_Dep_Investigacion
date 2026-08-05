@@ -40,7 +40,9 @@ public class ImportacionProyectoService {
 
         EstadisticasImportacionProyecto estadisticas = new EstadisticasImportacionProyecto();
 
-        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+        for (int i = 3; i <= sheet.getLastRowNum(); i++) {
+
+            System.out.println("Fila Excel: " + (i + 1));
 
             Row fila = sheet.getRow(i);
 
@@ -49,12 +51,20 @@ public class ImportacionProyectoService {
             }
 
             try {
+                System.out.println(
+                        "Fila " + i +
+                                " Codigo=" + obtenerTexto(fila.getCell(0)) +
+                                " Nombre=" + obtenerTexto(fila.getCell(1)));
 
                 procesarFila(fila, idProceso, estadisticas);
 
             } catch (Exception e) {
 
-                estadisticas.filaOmitida();
+                System.err.println("===========================");
+                System.err.println("Error en fila Excel: " + (i + 1));
+                e.printStackTrace();
+
+                throw e;
 
             }
         }
@@ -73,11 +83,13 @@ public class ImportacionProyectoService {
 
         Docente director = obtenerOCrearDirector(fila, estadisticas);
 
-        guardarRelacion(
-                proyecto.getIdProyecto(),
-                director.getIdDocente(),
-                "DIRECTOR",
-                estadisticas);
+        if (director != null) {
+            guardarRelacion(
+                    proyecto.getIdProyecto(),
+                    director.getIdDocente(),
+                    "DIRECTOR",
+                    estadisticas);
+        }
 
         obtenerOCrearInvestigadores(
                 fila,
@@ -100,13 +112,37 @@ public class ImportacionProyectoService {
         boolean nuevo = proyecto.getIdProyecto() == null;
 
         proyecto.setIdProceso(idProceso);
+
+        // Columna A del Excel
+        proyecto.setCodigo(obtenerTexto(fila.getCell(0)));
+
+        // Columna B
         proyecto.setNombre(nombre);
+
+        // Columna W
         proyecto.setDescripcion(obtenerTexto(fila.getCell(22)));
+
+        // Columna U
         proyecto.setPeriodo(obtenerTexto(fila.getCell(20)));
+
         proyecto.setTipoFinanciamiento("INTERNO");
         proyecto.setEstado("APROBADO");
 
-        Proyecto guardado = proyectoRepository.save(proyecto);
+        System.out.println("==========");
+        System.out.println("Proceso: " + idProceso);
+        System.out.println("Nombre: " + proyecto.getNombre());
+        System.out.println("Periodo: " + proyecto.getPeriodo());
+        System.out.println("Descripcion: " + proyecto.getDescripcion());
+        System.out.println("Estado: " + proyecto.getEstado());
+        System.out.println("Financiamiento: " + proyecto.getTipoFinanciamiento());
+        System.out.println("Codigo: " + proyecto.getCodigo());
+
+        System.out.println("Código = " + obtenerTexto(fila.getCell(0)));
+        System.out.println("Nombre = " + obtenerTexto(fila.getCell(1)));
+        System.out.println("Periodo = " + obtenerTexto(fila.getCell(20)));
+        System.out.println("Descripcion = " + obtenerTexto(fila.getCell(22)));
+
+        Proyecto guardado = proyectoRepository.saveAndFlush(proyecto);
 
         if (nuevo) {
             estadisticas.proyectoInsertado();
@@ -123,19 +159,39 @@ public class ImportacionProyectoService {
 
         String cedula = obtenerTexto(fila.getCell(9));
 
+        System.out.println(">> Cedula RAW = [" + cedula + "]");
+        System.out.println(">> Longitud = " + (cedula == null ? "null" : cedula.length()));
+
+        if (cedula == null || cedula.trim().isEmpty()) {
+            System.out.println(">> Director omitido por cédula vacía");
+            return null;
+        }
+
+        cedula = cedula.trim();
+
+        String nombreCompleto = obtenerTexto(fila.getCell(8));
+        String[] partes = separarNombre(nombreCompleto);
+
+        String apellidos = partes[0];
+        String nombres = partes[1];
+
+        // 1. Buscar por cédula
         Docente docente = docenteRepository
                 .findByCedula(cedula)
-                .orElse(new Docente());
+                .orElseGet(() ->
+                // 2. Si no existe, buscar por nombre y apellido
+                docenteRepository
+                        .findByNombresIgnoreCaseAndApellidosIgnoreCase(
+                                nombres,
+                                apellidos)
+                        .orElse(new Docente()));
 
         boolean nuevo = docente.getIdDocente() == null;
 
-        String nombreCompleto = obtenerTexto(fila.getCell(8));
-
-        String[] partes = separarNombre(nombreCompleto);
-
+        // 3. Completar/actualizar información
         docente.setCedula(cedula);
-        docente.setApellidos(partes[0]);
-        docente.setNombres(partes[1]);
+        docente.setNombres(nombres);
+        docente.setApellidos(apellidos);
         docente.setCorreo(obtenerTexto(fila.getCell(11)));
         docente.setFacultad(obtenerTexto(fila.getCell(13)));
         docente.setCarrera(obtenerTexto(fila.getCell(14)));
@@ -144,6 +200,10 @@ public class ImportacionProyectoService {
 
         if (nuevo) {
             estadisticas.docenteInsertado();
+        } else {
+            System.out.println(">> Director existente actualizado: "
+                    + guardado.getNombres() + " "
+                    + guardado.getApellidos());
         }
 
         return guardado;
@@ -159,16 +219,14 @@ public class ImportacionProyectoService {
         String nombres = partes[1];
 
         return docenteRepository
-                .findByNombresContainingIgnoreCaseAndApellidosContainingIgnoreCase(
+                .findByNombresIgnoreCaseAndApellidosIgnoreCase(
                         nombres,
                         apellidos)
-                .stream()
-                .findFirst()
                 .orElseGet(() -> {
 
                     Docente docente = new Docente();
 
-                    docente.setCedula("");
+                    docente.setCedula(null);
                     docente.setNombres(nombres);
                     docente.setApellidos(apellidos);
 

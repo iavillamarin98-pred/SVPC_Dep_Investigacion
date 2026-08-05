@@ -25,104 +25,255 @@
             </p>
 
         </div>
-        <div class="card">
 
-            <div class="campo">
+        <!--=========================================
+                PESTAÑAS
+    ==========================================-->
 
-                <label>Proceso de Valoración</label>
+        <div class="tabs">
 
-                <select id="idProceso">
+            <button class="tab-btn activo" data-tab="tabRegistro" onclick="Tabs.activar('tabRegistro')">
 
-                </select>
+                Registro
+
+            </button>
+
+            <button class="tab-btn" data-tab="tabImportacion" onclick="Tabs.activar('tabImportacion')">
+
+                Importación
+
+            </button>
+
+            <button class="tab-btn" data-tab="tabListado" onclick="Tabs.activar('tabListado')">
+
+                Listado
+
+            </button>
+
+            <button class="tab-btn" data-tab="tabRanking" onclick="Tabs.activar('tabRanking')">
+
+                Ranking
+
+            </button>
+
+        </div>
+
+        <!--=========================================
+                REGISTRO
+    ==========================================-->
+
+        <div id="tabRegistro" class="tab-panel activo">
+
+            <div class="card">
+
+                <form id="formProyecto">
+
+                    <div class="form-grid">
+
+                        <div class="campo">
+
+                            <label>Nombre del Proyecto</label>
+
+                            <input id="nombre" type="text" required>
+
+                        </div>
+
+                        <div class="campo">
+
+                            <label>Tipo de Financiamiento</label>
+
+                            <select id="tipoFinanciamiento">
+
+                                <option value="EXTERNO">
+                                    Externo
+                                </option>
+
+                                <option value="CONJUNTO">
+                                    Conjunto
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="campo">
+
+                            <label>Periodo</label>
+
+                            <input id="periodo" type="text">
+
+                        </div>
+
+                        <div class="campo">
+
+                            <label>Estado</label>
+
+                            <select id="estado">
+
+                                <option value="APROBADO">
+                                    APROBADO
+                                </option>
+
+                                <option value="RECHAZADO">
+                                    RECHAZADO
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="campo" style="margin-top:20px;">
+
+                        <label>Descripción</label>
+
+                        <input id="descripcion" type="text">
+
+                    </div>
+
+                    <hr style="margin:25px 0;">
+
+                    <h3>Participantes del Proyecto</h3>
+
+                    <div class="acciones">
+
+                        <button type="button" class="btn btn-primary" onclick="agregarParticipante()">
+
+                            Agregar Participante
+
+                        </button>
+
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="tabla">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Cédula</th>
+                                    <th>Docente</th>
+                                    <th>Facultad</th>
+                                    <th>Carrera</th>
+                                    <th>Rol</th>
+                                    <th>Acciones</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="tablaParticipantes">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="acciones">
+
+                        <button id="btnGuardarProyecto" type="button" class="btn btn-primary"
+                            onclick="guardarProyecto()">
+
+                            Guardar Proyecto
+
+                        </button>
+
+                        <button type="button" class="btn btn-warning" onclick="confirmarLimpiarFormulario()">
+
+                            Limpiar
+
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
         </div>
 
-        <div class="card">
+        <!--=========================================
+                IMPORTACIÓN
+    ==========================================-->
 
-            <form id="formProyecto">
-
+        <div id="tabImportacion" class="tab-panel">
+        
+            <div class="card">
+        
+                <h3>Importar Proyectos con Financiamiento Interno</h3>
+        
                 <div class="form-grid">
-
+        
                     <div class="campo">
-
-                        <label>Nombre del Proyecto</label>
-
-                        <input id="nombre" type="text" required>
-
+                    
+                        <label>Archivo Excel</label>
+                    
+                        <input id="archivoProyecto" type="file" accept=".xlsx,.xls" hidden onchange="mostrarNombreArchivo()">
+                    
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('archivoProyecto').click()">
+                    
+                            Seleccionar archivo
+                    
+                        </button>
+                    
+                        <span id="nombreArchivo" style="margin-left:12px;color:#666;">
+                    
+                            Ningún archivo seleccionado
+                    
+                        </span>
+                    
                     </div>
-
-                    <div class="campo">
-
-                        <label>Tipo de Financiamiento</label>
-
-                        <select id="tipoFinanciamiento">
-
-                            <option value="EXTERNO">
-                                Externo
-                            </option>
-
-                            <option value="CONJUNTO">
-                                Conjunto
-                            </option>
-
-                            
-
-                        </select>
-
-                    </div>
-
-                    <div class="campo">
-
-                        <label>Periodo</label>
-
-                        <input id="periodo" type="text">
-
-                    </div>
-
-                    <div class="campo">
-
-                        <label>Estado</label>
-
-                        <select id="estado">
-
-                            <option value="APROBADO">
-                                APROBADO
-                            </option>
-
-                            <option value="RECHAZADO">
-                                RECHAZADO
-                            </option>
-
-                        </select>
-
-                    </div>
-
+        
                 </div>
-
-                <div class="campo" style="margin-top:20px;">
-
-                    <label>Descripción</label>
-
-                    <input id="descripcion" type="text">
-
-                </div>
-
-                <!-- PARTICIPANTES -->
-
-                <hr style="margin:25px 0;">
-
-                <h3>Participantes del Proyecto</h3>
-
+        
                 <div class="acciones">
-
-                    <button type="button" class="btn btn-primary" onclick="agregarParticipante()">
-
-                        Agregar Participante
-
+        
+                    <button class="btn btn-primary" onclick="importarProyectosInternos()">
+        
+                        Importar Excel
+        
                     </button>
+        
+                    <button class="btn btn-success" onclick="calcularPuntajesProyectos()">
+        
+                        Calcular Puntajes
+        
+                    </button>
+        
+                    <button class="btn btn-primary" onclick="cargarRankingProyectos()">
+        
+                        Ver Ranking
+        
+                    </button>
+        
+                </div>
+        
+            </div>
+        
+        </div>
 
+        
+
+        <!--=========================================
+                LISTADO
+    ==========================================-->
+
+        <div id="tabListado" class="tab-panel">
+
+            <div class="card">
+
+                <h3>Listado de Proyectos</h3>
+
+                <div class="campo" style="margin-bottom:20px;">
+                
+                    <label>Buscar proyecto</label>
+                
+                    <input id="buscarProyecto" type="text" placeholder="Escriba el nombre del proyecto..." onkeyup="filtrarProyectos()">
+                
                 </div>
 
                 <div class="table-responsive">
@@ -133,18 +284,18 @@
 
                             <tr>
 
-                                <th>Cédula</th>
-                                <th>Docente</th>
-                                <th>Facultad</th>
-                                <th>Carrera</th>
-                                <th>Rol</th>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Financiamiento</th>
+                                <th>Periodo</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
 
                             </tr>
 
                         </thead>
 
-                        <tbody id="tablaParticipantes">
+                        <tbody id="tablaProyectos">
 
                         </tbody>
 
@@ -152,133 +303,49 @@
 
                 </div>
 
-                <!-- BOTONES -->
+            </div>
 
-                <div class="acciones">
+        </div>
 
-                    <button id="btnGuardarProyecto" type="button" class="btn btn-primary" onclick="guardarProyecto()">
-                    
-                        Guardar Proyecto
-                    
-                    </button>
+        <!--=========================================
+                RANKING
+    ==========================================-->
 
-                    <button type="button" class="btn btn-warning" onclick="limpiarFormulario()">
-                    
-                        Limpiar
-                    
-                    </button>
+        <div id="tabRanking" class="tab-panel">
+
+            <div class="card">
+
+                <h3>Ranking de Proyectos</h3>
+
+                <div class="table-responsive">
+
+                    <table class="tabla">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+                                <th>Cédula</th>
+                                <th>Docente</th>
+                                <th>Facultad</th>
+                                <th>Carrera</th>
+                                <th>Puntaje</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tablaRankingProyectos">
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
-            </form>
-
-        </div>
-
-
-        <hr style="margin:30px 0;">
-        
-        <div class="card">
-        
-            <h3>Importar Proyectos con Financiamiento Interno</h3>
-        
-            <input type="file" id="archivoProyecto" accept=".xlsx,.xls">
-        
-            <button class="btn btn-primary" onclick="importarProyectosInternos()">
-        
-                Importar Excel
-        
-            </button>
-        
-            <button class="btn btn-success" onclick="calcularPuntajesProyectos()">
-        
-                Calcular Puntajes
-        
-            </button>
-
-
-            <button class="btn btn-primary" onclick="cargarRankingProyectos()">
-            
-                Ver Ranking
-            
-            </button>
-        
-        </div>
-
-
-
-
-
-        <!-- LISTADO DE PROYECTOS -->
-
-        <hr style="margin:30px 0;">
-
-        <div class="card">
-
-            <h3>Listado de Proyectos</h3>
-
-            <div class="table-responsive">
-
-                <table class="tabla">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Financiamiento</th>
-                            <th>Periodo</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="tablaProyectos">
-
-                    </tbody>
-
-                </table>
-
             </div>
 
-        </div>
-
-
-        <hr style="margin:30px 0;">
-        
-        <div class="card">
-        
-            <h3>Ranking de Proyectos</h3>
-        
-            <div class="table-responsive">
-        
-                <table class="tabla">
-        
-                    <thead>
-        
-                        <tr>
-        
-                            <th>#</th>
-                            <th>Cédula</th>
-                            <th>Docente</th>
-                            <th>Facultad</th>
-                            <th>Carrera</th>
-                            <th>Puntaje</th>
-        
-                        </tr>
-        
-                    </thead>
-        
-                    <tbody id="tablaRankingProyectos">
-        
-                    </tbody>
-        
-                </table>
-        
-            </div>
-        
         </div>
 
     </div>

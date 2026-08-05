@@ -5,7 +5,7 @@
 async function cargarModulo(nombre) {
 
     let archivo = "";
-    let script = "";
+    let scripts = [];
 
     switch (nombre) {
 
@@ -15,52 +15,57 @@ async function cargarModulo(nombre) {
 
         case "procesos":
             archivo = "modulos/procesos.html";
-            script = "js/procesos.js";
+            scripts = ["js/procesos.js"];
             break;
 
         case "articulos":
             archivo = "modulos/importar-articulos.html";
-            script = "js/articulos.js";
+            scripts = ["js/articulos.js"];
             break;
 
         case "libros":
             archivo = "modulos/importar-libros.html";
-            script = "js/libros.js";
+            scripts = ["js/libros.js"];
             break;
 
         case "capitulos":
-            archivo = "modulos/importar-capitulos-libro.html";
-            script = "js/capitulos.js";
-            break;
+    archivo = "modulos/importar-capitulos-libro.html";
+    scripts = [
+        "js/capitulos.js"
+    ];
+    break;
 
         case "proceedings":
             archivo = "modulos/importar-proceedings.html";
-            script = "js/proceedings.js";
+            scripts = ["js/proceedings.js"];
             break;
 
         case "proyectos":
             archivo = "modulos/proyectos.html";
-            script = "js/proyectos.js";
+            scripts = [
+                "js/buscar-docente.js",
+                "js/proyectos.js"
+            ];
             break;
 
         case "rankingGeneral":
             archivo = "modulos/ranking-general.html";
-            script = "js/ranking-general.js";
+            scripts = ["js/ranking-general.js"];
             break;
 
         case "rankingCarrera":
             archivo = "modulos/ranking-carrera.html";
-            script = "js/ranking-carrera.js";
+            scripts = ["js/ranking-carrera.js"];
             break;
 
         case "usuarios":
             archivo = "modulos/usuarios.html";
-            script = "js/usuarios.js";
+            scripts = ["js/usuarios.js"];
             break;
 
         case "configuracion":
             archivo = "modulos/configuracion.html";
-            script = "js/configuracion.js";
+            scripts = ["js/configuracion.js"];
             break;
 
         default:
@@ -74,23 +79,15 @@ async function cargarModulo(nombre) {
         document.getElementById("contenidoPrincipal").innerHTML =
             await respuesta.text();
 
-        if (script) {
+        eliminarScriptsModulo();
 
-            cargarScript(script);
-
+        for (const src of scripts) {
+            await cargarScript(src);
         }
 
     } catch (e) {
 
-        document.getElementById("contenidoPrincipal").innerHTML =
-
-            `<div class="card">
-
-                <h2>Módulo en construcción</h2>
-
-                <p>Este módulo estará disponible próximamente.</p>
-
-            </div>`;
+        console.error(e);
 
     }
 
@@ -102,23 +99,30 @@ async function cargarModulo(nombre) {
 // CARGA DINÁMICA DE JAVASCRIPT
 //==================================================
 
+function eliminarScriptsModulo() {
+
+    document.querySelectorAll(".scriptModulo")
+        .forEach(s => s.remove());
+
+}
+
 function cargarScript(src) {
 
-    const viejo = document.getElementById("scriptModulo");
+    return new Promise((resolve, reject) => {
 
-    if (viejo) {
+        const script = document.createElement("script");
 
-        viejo.remove();
+        script.src = src + "?v=" + Date.now();
 
-    }
+        script.className = "scriptModulo";
 
-    const script = document.createElement("script");
+        script.onload = resolve;
 
-    script.src = src + "?v=" + Date.now();
+        script.onerror = reject;
 
-    script.id = "scriptModulo";
+        document.body.appendChild(script);
 
-    document.body.appendChild(script);
+    });
 
 }
 
@@ -209,3 +213,15 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarModulo("dashboard");
 
 });
+
+setTimeout(() => {
+
+    const primera = document.querySelector(".tab-btn");
+
+    if(primera){
+
+        Tabs.abrir(primera.dataset.tab);
+
+    }
+
+},100);
