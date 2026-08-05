@@ -29,16 +29,13 @@ async function abrirBuscadorDocente(callback){
 
     await cargarBuscadorDocente();
 
-    document
-        .getElementById("modalDocente")
-        .classList
-        .remove("oculto");
+    Modal.abrir("modalDocente");
 
     document
         .getElementById("txtBuscarDocente")
         .focus();
 
-    buscarDocentes("");
+    await buscarDocentes("");
 
 }
 
@@ -47,10 +44,7 @@ async function abrirBuscadorDocente(callback){
  */
 function cerrarBuscadorDocente(){
 
-    document
-        .getElementById("modalDocente")
-        .classList
-        .add("oculto");
+    Modal.cerrar("modalDocente");
 
 }
 
@@ -131,11 +125,15 @@ async function seleccionarDocente(idDocente){
 
     cerrarBuscadorDocente();
 
-    if(callbackSeleccionDocente){
+    setTimeout(() => {
 
-        callbackSeleccionDocente(docente);
+        if(callbackSeleccionDocente){
 
-    }
+            callbackSeleccionDocente(docente);
+
+        }
+
+    },150);
 
 }
 
@@ -145,30 +143,24 @@ function abrirModalRol(docente){
 
     docentePendiente = docente;
 
-    document
-        .getElementById("modalRol")
-        .classList
-        .remove("oculto");
+    Modal.abrir("modalRol");
 
 }
 
 function cerrarModalRol(){
 
-    document
-        .getElementById("modalRol")
-        .classList
-        .add("oculto");
+    Modal.cerrar("modalRol");
 
 }
 
-function confirmarRol(){
+function confirmarRol() {
 
     const rol =
         document.getElementById("rolParticipante").value;
 
-    cerrarModalRol();
+    Modal.cerrar("modalRol");
 
-    if(window.onRolSeleccionado){
+    if (window.onRolSeleccionado) {
 
         window.onRolSeleccionado(docentePendiente, rol);
 

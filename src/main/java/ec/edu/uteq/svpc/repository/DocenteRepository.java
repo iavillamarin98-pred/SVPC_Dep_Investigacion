@@ -28,4 +28,8 @@ public interface DocenteRepository extends JpaRepository<Docente, Long> {
         List<Docente> findByNombresContainingIgnoreCaseAndApellidosContainingIgnoreCase(
                         String nombres,
                         String apellidos);
+
+        Optional<Docente> findByNombresIgnoreCaseAndApellidosIgnoreCase(
+                        String nombres,
+                        String apellidos);
 }

@@ -13,6 +13,10 @@ import ec.edu.uteq.svpc.service.RankingArticuloService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ec.edu.uteq.svpc.service.CalculoPuntajeProyectoService;
+import ec.edu.uteq.svpc.dto.RankingLibroDTO;
+import ec.edu.uteq.svpc.service.RankingLibroService;
+import ec.edu.uteq.svpc.dto.RankingCapituloDTO;
+import ec.edu.uteq.svpc.service.RankingCapituloService;
 
 import java.util.List;
 
@@ -28,6 +32,8 @@ public class CalculoPuntajeController {
     private final RankingProceedingService rankingProceedingService;
     private final CalculoPuntajeProyectoService calculoPuntajeProyectoService;
     private final RankingProyectoService rankingProyectoService;
+    private final RankingLibroService rankingLibroService;
+    private final RankingCapituloService rankingCapituloService;
 
     public CalculoPuntajeController(
             CalculoPuntajeArticuloService calculoPuntajeArticuloService,
@@ -37,7 +43,9 @@ public class CalculoPuntajeController {
             CalculoPuntajeProceedingService calculoPuntajeProceedingService,
             RankingProceedingService rankingProceedingService,
             CalculoPuntajeProyectoService calculoPuntajeProyectoService,
-            RankingProyectoService rankingProyectoService) {
+            RankingProyectoService rankingProyectoService,
+            RankingLibroService rankingLibroService,
+            RankingCapituloService rankingCapituloService) {
 
         this.calculoPuntajeArticuloService = calculoPuntajeArticuloService;
         this.calculoPuntajeLibroService = calculoPuntajeLibroService;
@@ -48,6 +56,8 @@ public class CalculoPuntajeController {
         this.rankingProceedingService = rankingProceedingService;
         this.calculoPuntajeProyectoService = calculoPuntajeProyectoService;
         this.rankingProyectoService = rankingProyectoService;
+        this.rankingLibroService = rankingLibroService;
+        this.rankingCapituloService = rankingCapituloService;
     }
 
     @PostMapping("/articulos")
@@ -64,11 +74,26 @@ public class CalculoPuntajeController {
         return ResponseEntity.ok(resultado);
     }
 
+    @GetMapping("/libros/ranking")
+    public List<RankingLibroDTO> rankingLibros(
+            @RequestParam Long idProceso) {
+
+        return rankingLibroService.obtenerRanking(idProceso);
+    }
+
     @PostMapping("/capitulos-libro")
     public ResponseEntity<String> calcularPuntajesCapitulosLibro(
             @RequestParam("idProceso") Integer idProceso) {
         String resultado = calculoPuntajeCapituloLibroService.calcularPuntajesCapitulosLibro(idProceso);
         return ResponseEntity.ok(resultado);
+    }
+
+    @GetMapping("/capitulos-libro/ranking")
+    public ResponseEntity<List<RankingCapituloDTO>> obtenerRankingCapitulosLibro(
+            @RequestParam Integer idProceso) {
+
+        return ResponseEntity.ok(
+                rankingCapituloService.obtenerRanking(idProceso));
     }
 
     @GetMapping("/articulos/ranking")

@@ -11,7 +11,7 @@ public class Docente {
     @Column(name = "id_docente")
     private Long idDocente;
 
-    @Column(name = "cedula", nullable = false, unique = true, length = 20)
+    @Column(name = "cedula", unique = true, length = 20)
     private String cedula;
 
     @Column(name = "nombres", nullable = false, length = 120)

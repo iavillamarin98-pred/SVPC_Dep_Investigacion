@@ -1,215 +1,167 @@
-<!DOCTYPE html>
-<html lang="es">
+<div class="module">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Importar Libros - SVPC</title>
+    <div class="module-header">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
-            padding: 0;
-        }
+        <h2>Libros</h2>
 
-        .contenedor {
-            width: 500px;
-            margin: 80px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
-        }
+        <p>
+            Importación, cálculo de puntajes y ranking de Libros.
+        </p>
 
-        h1 {
-            text-align: center;
-            color: #1f3c88;
-            margin-bottom: 10px;
-        }
-
-        p {
-            text-align: center;
-            color: #555;
-            font-size: 14px;
-        }
-
-        label {
-            display: block;
-            margin-top: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        input[type="number"],
-        input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            margin-top: 6px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        button {
-            width: 100%;
-            margin-top: 25px;
-            padding: 12px;
-            background: #1f3c88;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #162f6a;
-        }
-
-        .btn-secundario {
-            margin-top: 12px;
-            background: #2f855a;
-        }
-
-        .btn-secundario:hover {
-            background: #276749;
-        }
-
-        .resultado {
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 8px;
-            display: none;
-            font-size: 14px;
-            white-space: pre-line;
-        }
-
-        .exito {
-            background: #e6f7ec;
-            color: #1b7f3a;
-            border: 1px solid #9bd8ad;
-        }
-
-        .error {
-            background: #fdecea;
-            color: #a1281f;
-            border: 1px solid #f3aaa4;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="contenedor">
-        <h1>SVPC</h1>
-        <p>Importación de libros y capítulos de libro desde Excel</p>
-
-        <form id="formImportacion">
-            <label for="idProceso">ID del proceso de valoración</label>
-            <input type="number" id="idProceso" name="idProceso" value="1" required>
-
-            <label for="archivo">Archivo Excel</label>
-            <input type="file" id="archivo" name="archivo" accept=".xls,.xlsx" required>
-
-            <button type="submit">Importar libros</button>
-
-            <button type="button" class="btn-secundario" onclick="calcularPuntajesLibros()">
-                Calcular puntajes de libros
-            </button>
-        </form>
-
-        <div id="resultado" class="resultado"></div>
     </div>
 
-    <script>
-        const form = document.getElementById("formImportacion");
-        const resultado = document.getElementById("resultado");
+    <div class="card">
 
-        form.addEventListener("submit", async function (event) {
-            event.preventDefault();
+        <form id="formImportacionLibros">
 
-            const archivo = document.getElementById("archivo").files[0];
-            const idProceso = document.getElementById("idProceso").value;
+            <div class="form-grid">
 
-            if (!archivo) {
-                mostrarResultado("Debe seleccionar un archivo Excel.", false);
-                return;
-            }
+                <div class="campo">
 
-            if (!idProceso) {
-                mostrarResultado("Debe ingresar el ID del proceso.", false);
-                return;
-            }
+                    <label>ID del proceso</label>
 
-            const formData = new FormData();
-            formData.append("archivo", archivo);
-            formData.append("idProceso", idProceso);
+                    <input type="number" id="idProcesoLibros" value="1" required>
 
-            mostrarResultado("Importando libros, espere un momento...", true);
+                </div>
 
-            try {
-                const response = await fetch("/api/importaciones/libros", {
-                    method: "POST",
-                    body: formData
-                });
+                <div class="campo">
 
-                const texto = await response.text();
+                    <label>Archivo Excel</label>
 
-                if (response.ok) {
-                    mostrarResultado(texto, true);
-                } else {
-                    mostrarResultado(texto, false);
-                }
+                    <input type="file" id="archivoLibros" accept=".xls,.xlsx" required>
 
-            } catch (error) {
-                mostrarResultado("Error al conectar con el servidor: " + error.message, false);
-            }
-        });
+                </div>
 
-        async function calcularPuntajesLibros() {
-            const idProceso = document.getElementById("idProceso").value;
+            </div>
 
-            if (!idProceso) {
-                mostrarResultado("Debe ingresar el ID del proceso.", false);
-                return;
-            }
+            <div class="acciones">
 
-            mostrarResultado("Calculando puntajes de libros y capítulos...", true);
+                <button class="btn btn-primary" type="submit">
 
-            try {
-                const response = await fetch("/api/calculos/libros?idProceso=" + encodeURIComponent(idProceso), {
-                    method: "POST"
-                });
+                    Importar Libros
 
-                const texto = await response.text();
+                </button>
 
-                if (response.ok) {
-                    mostrarResultado(texto, true);
-                } else {
-                    mostrarResultado(texto, false);
-                }
+                <button type="button" class="btn btn-success" onclick="calcularPuntajesLibros()">
 
-            } catch (error) {
-                mostrarResultado("Error al conectar con el servidor: " + error.message, false);
-            }
-        }
+                    Calcular Puntajes
 
-        function mostrarResultado(mensaje, exito) {
-            resultado.style.display = "block";
-            resultado.textContent = mensaje;
+                </button>
 
-            resultado.classList.remove("exito");
-            resultado.classList.remove("error");
+                <button type="button" class="btn btn-warning" onclick="cargarRankingLibros()">
 
-            if (exito) {
-                resultado.classList.add("exito");
-            } else {
-                resultado.classList.add("error");
-            }
-        }
-    </script>
+                    Ver Ranking
 
-</body>
+                </button>
 
-</html>
+            </div>
+
+        </form>
+
+    </div>
+
+    <div id="resultadoLibros" class="resultado oculto">
+
+    </div>
+
+    <div class="filtros-ranking">
+    
+        <input type="text" id="filtroCedula" placeholder="Buscar por cédula">
+    
+        <input type="text" id="filtroDocente" placeholder="Buscar docente">
+    
+        <select id="filtroCarrera">
+    
+            <option value="">Todas las carreras</option>
+    
+        </select>
+    
+        <select id="filtroFacultad">
+    
+            <option value="">Todas las facultades</option>
+    
+            <option value="Facultad de Ciencias de la Computación y Diseño Web">
+                Ciencias de la Computación y Diseño Web
+            </option>
+    
+            <option value="Facultad de Ciencias Empresariales">
+                Ciencias Empresariales
+            </option>
+    
+            <option value="Facultad de Ciencias Pecuarias y Biológicas">
+                Ciencias Pecuarias y Biológicas
+            </option>
+    
+            <option value="Facultad de Ciencias de la Industria y Producción">
+                Ciencias de la Industria y Producción
+            </option>
+    
+            <option value="Facultad de Ciencias Agrarias y Forestales">
+                Ciencias Agrarias y Forestales
+            </option>
+    
+            <option value="Facultad de Ciencias de la Ingeniería">
+                Ciencias de la Ingeniería
+            </option>
+    
+            <option value="Facultad de Ciencias de la Educación">
+                Ciencias de la Educación
+            </option>
+    
+            <option value="Facultad de Ciencias de la Salud">
+                Ciencias de la Salud
+            </option>
+    
+            <option value="Facultad de Ciencias Sociales, Económicas y Financieras">
+                Ciencias Sociales, Económicas y Financieras
+            </option>
+    
+        </select>
+    
+        <select id="filtroTop">
+    
+            <option value="0">Todos</option>
+    
+            <option value="10">Top 10</option>
+    
+            <option value="20">Top 20</option>
+    
+            <option value="50">Top 50</option>
+    
+        </select>
+    
+    </div>
+
+    <div id="tablaRankingContenedorLibros" class="card oculto">
+
+        <h3>Ranking de Libros</h3>
+
+        <div class="table-responsive">
+
+            <table class="tabla">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Puesto</th>
+                        <th>Cédula</th>
+                        <th>Docente</th>
+                        <th>Carrera</th>
+                        <th>Puntaje</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tablaRankingLibros">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

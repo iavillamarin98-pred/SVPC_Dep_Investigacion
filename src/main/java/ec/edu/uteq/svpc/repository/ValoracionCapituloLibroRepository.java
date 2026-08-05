@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
 public class ValoracionCapituloLibroRepository {
@@ -15,6 +16,7 @@ public class ValoracionCapituloLibroRepository {
     }
 
     public void insertarSiNoExiste(Integer idProceso, Integer idDocente) {
+
         String sql = """
                 INSERT INTO valoraciones (
                     id_proceso,
@@ -34,7 +36,11 @@ public class ValoracionCapituloLibroRepository {
         jdbcTemplate.update(sql, idProceso, idDocente);
     }
 
-    public void actualizarPuntajeCapitulos(Integer idProceso, Integer idDocente, BigDecimal puntajeCapitulos) {
+    public void actualizarPuntajeCapitulos(
+            Integer idProceso,
+            Integer idDocente,
+            BigDecimal puntajeCapitulos) {
+
         String sql = """
                 UPDATE valoraciones
                 SET
@@ -49,6 +55,42 @@ public class ValoracionCapituloLibroRepository {
                   AND id_docente = ?
                 """;
 
-        jdbcTemplate.update(sql, puntajeCapitulos, puntajeCapitulos, idProceso, idDocente);
+        jdbcTemplate.update(
+                sql,
+                puntajeCapitulos,
+                puntajeCapitulos,
+                idProceso,
+                idDocente);
+    }
+
+    public List<Object[]> obtenerRankingCapitulos(Integer idProceso) {
+
+        String sql = """
+                SELECT
+                    d.cedula,
+                    d.apellidos,
+                    d.nombres,
+                    d.carrera,
+                    v.puntaje_capitulos_libro
+                FROM valoraciones v
+                INNER JOIN docentes d
+                    ON d.id_docente = v.id_docente
+                WHERE v.id_proceso = ?
+                ORDER BY
+                    v.puntaje_capitulos_libro DESC,
+                    d.apellidos,
+                    d.nombres
+                """;
+
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> new Object[] {
+                        rs.getString("cedula"),
+                        rs.getString("apellidos"),
+                        rs.getString("nombres"),
+                        rs.getString("carrera"),
+                        rs.getBigDecimal("puntaje_capitulos_libro")
+                },
+                idProceso);
     }
 }

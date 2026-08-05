@@ -31,13 +31,9 @@
                         <tr>
 
                             <th>Cédula</th>
-
                             <th>Docente</th>
-
                             <th>Facultad</th>
-
                             <th>Carrera</th>
-
                             <th></th>
 
                         </tr>
@@ -54,56 +50,61 @@
 
         </div>
 
-        <div id="modalRol" class="modal oculto">
-        
-            <div class="modal-content" style="max-width:400px;">
-        
-                <div class="modal-header">
-        
-                    <h3>Rol del participante</h3>
-        
-                </div>
-        
-                <div class="modal-body">
-        
-                    <div class="campo">
-        
-                        <label>Rol</label>
-        
-                        <select id="rolParticipante">
-        
-                            <option value="DIRECTOR">DIRECTOR</option>
-                            <option value="INTEGRANTE">INTEGRANTE</option>
-        
-                        </select>
-        
-                    </div>
-        
-                    <div class="acciones">
-        
-                        <button class="btn btn-primary" onclick="confirmarRol()">
-        
-                            Aceptar
-        
-                        </button>
-        
-                        <button class="btn btn-warning" onclick="cerrarModalRol()">
-        
-                            Cancelar
-        
-                        </button>
-        
-                    </div>
-        
-                </div>
-        
-            </div>
-        
+    </div>
+
+</div>
+
+<!-- ========================================= -->
+<!-- MODAL ROL -->
+<!-- ========================================= -->
+
+<div id="modalRol" class="modal oculto">
+
+    <div class="modal-content" style="max-width:400px;">
+
+        <div class="modal-header">
+
+            <h3>Rol del participante</h3>
+
         </div>
 
+        <div class="modal-body">
 
+            <div class="campo">
 
+                <label>Rol</label>
 
+                <select id="rolParticipante">
+
+                    <option value="DIRECTOR">
+                        DIRECTOR
+                    </option>
+
+                    <option value="INTEGRANTE">
+                        INTEGRANTE
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="acciones">
+
+                <button class="btn btn-primary" onclick="confirmarRol()">
+
+                    Aceptar
+
+                </button>
+
+                <button class="btn btn-warning" onclick="cerrarModalRol()">
+
+                    Cancelar
+
+                </button>
+
+            </div>
+
+        </div>
 
     </div>
 
