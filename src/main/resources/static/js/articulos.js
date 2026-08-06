@@ -1,3 +1,4 @@
+(() => {
 // ===============================
 // MÓDULO ARTÍCULOS MUNDIALES
 // SVPC
@@ -11,9 +12,7 @@ function obtenerTablaRanking() {
     return document.getElementById("tablaRankingArticulos");
 }
 
-function obtenerProceso() {
-    return document.getElementById("idProcesoArticulos").value;
-}
+
 
 function obtenerArchivo() {
     return document.getElementById("archivoArticulos").files[0];
@@ -23,10 +22,11 @@ function obtenerArchivo() {
 // IMPORTAR ARTÍCULOS
 // =======================================
 
-async function importarArticulos() {
+    async function importarArticulos() {
+    if (!validarProcesoEditable()) return;
 
     const archivo = obtenerArchivo();
-    const idProceso = obtenerProceso();
+    const idProceso = obtenerIdProceso();
 
     if (!archivo) {
         mostrarResultadoArticulos(
@@ -83,19 +83,12 @@ async function importarArticulos() {
 // CALCULAR PUNTAJES
 // =======================================
 
-async function calcularPuntajesArticulos() {
+    async function calcularPuntajesArticulos() {
+    if (!validarProcesoEditable()) return;
 
-    const idProceso = obtenerProceso();
+    const idProceso = obtenerIdProceso();
 
-    if (!idProceso) {
-
-        mostrarResultadoArticulos(
-            "Seleccione un proceso de valoración.",
-            false
-        );
-
-        return;
-    }
+    
 
     mostrarResultadoArticulos(
         "Calculando puntajes...",
@@ -150,17 +143,9 @@ async function calcularPuntajesArticulos() {
 
 async function cargarRankingArticulos() {
 
-    const idProceso = obtenerProceso();
+    const idProceso = obtenerIdProceso();
 
-    if (!idProceso) {
-
-        mostrarResultadoArticulos(
-            "Seleccione un proceso.",
-            false
-        );
-
-        return;
-    }
+    
 
     mostrarResultadoArticulos(
         "Cargando ranking...",
@@ -293,3 +278,19 @@ function mostrarResultadoArticulos(
     }
 
 }
+
+
+// Exponer solo las funciones que usa el HTML
+window.importarArticulos = importarArticulos;
+window.calcularPuntajesArticulos = calcularPuntajesArticulos;
+window.cargarRankingArticulos = cargarRankingArticulos;
+
+(async () => {
+    try {
+        await cargarProcesoActivo();
+    } catch (e) {
+        console.error(e);
+    }
+})();
+
+})();

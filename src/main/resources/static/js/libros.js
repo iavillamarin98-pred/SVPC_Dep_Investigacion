@@ -1,4 +1,4 @@
-
+(() => {
 let rankingCompleto = [];
 //=========================================
 // MÓDULO LIBROS
@@ -12,9 +12,7 @@ function obtenerTablaRankingLibros() {
     return document.getElementById("tablaRankingLibros");
 }
 
-function obtenerProcesoLibros() {
-    return document.getElementById("idProcesoLibros").value;
-}
+
 
 function obtenerArchivoLibros() {
     return document.getElementById("archivoLibros").files[0];
@@ -47,12 +45,12 @@ if (form) {
 //=========================================
 
 async function importarLibros() {
-
+if (!validarProcesoEditable()) return;
     
 
 
     const archivo = obtenerArchivoLibros();
-    const idProceso = obtenerProcesoLibros();
+    const idProceso = obtenerIdProceso();
 
     if (!archivo) {
 
@@ -109,9 +107,10 @@ async function importarLibros() {
 // CALCULAR
 //=========================================
 
-async function calcularPuntajesLibros() {
+    async function calcularPuntajesLibros() {
+    if (!validarProcesoEditable()) return;
 
-    const idProceso = obtenerProcesoLibros();
+    const idProceso = obtenerIdProceso();
 
     mostrarResultadoLibros(
         "Calculando puntajes...",
@@ -163,7 +162,7 @@ async function calcularPuntajesLibros() {
 
 async function cargarRankingLibros() {
 
-    const idProceso = obtenerProcesoLibros();
+    const idProceso = obtenerIdProceso();
 
     try {
 
@@ -194,8 +193,8 @@ cargarCarreras();
 aplicarFiltros();
 
 document
-    .getElementById("tablaRankingContenedorLibros")
-    .classList.remove("oculto");
+.getElementById("filtrosRankingLibros")
+.classList.remove("oculto");
 
     }
 
@@ -357,3 +356,12 @@ document.addEventListener("change", function(e){
 });
 
 
+window.importarLibros = importarLibros;
+window.calcularPuntajesLibros = calcularPuntajesLibros;
+window.cargarRankingLibros = cargarRankingLibros;
+
+(async () => {
+    await cargarProcesoActivo();
+})();
+
+})();
