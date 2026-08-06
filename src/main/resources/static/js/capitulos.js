@@ -1,3 +1,5 @@
+(() => {
+
 
 let rankingCompletoCapitulos = [];
 //=========================================
@@ -16,11 +18,7 @@ function obtenerTablaRankingCapitulos(){
 
 }
 
-function obtenerProcesoCapitulos(){
 
-    return document.getElementById("idProcesoCapitulos").value;
-
-}
 
 function obtenerArchivoCapitulos(){
 
@@ -52,11 +50,11 @@ if(form){
 
 async function importarCapitulos() {
 
-    
+    if (!validarProcesoEditable()) return;
 
 
     const archivo = obtenerArchivoCapitulos();
-const idProceso = obtenerProcesoCapitulos();
+const idProceso = obtenerIdProceso();
 
     if (!archivo) {
 
@@ -113,9 +111,10 @@ const idProceso = obtenerProcesoCapitulos();
 // CALCULAR
 //=========================================
 
-async function calcularPuntajesCapitulos() {
+    async function calcularPuntajesCapitulos() {
+    if (!validarProcesoEditable()) return;
 
-    const idProceso = obtenerProcesoCapitulos();
+    const idProceso = obtenerIdProceso();
 
     mostrarResultadoCapitulos(
         "Calculando puntajes...",
@@ -167,7 +166,7 @@ async function calcularPuntajesCapitulos() {
 
  async function cargarRankingCapitulos() {
 
-    const idProceso = obtenerProcesoCapitulos();
+    const idProceso = obtenerIdProceso();
 
     try {
 
@@ -364,3 +363,12 @@ document.addEventListener("change", function(e){
 });
 
 
+window.importarCapitulos = importarCapitulos;
+window.calcularPuntajesCapitulos = calcularPuntajesCapitulos;
+window.cargarRankingCapitulos = cargarRankingCapitulos;
+
+(async () => {
+    await cargarProcesoActivo();
+})();
+
+})();

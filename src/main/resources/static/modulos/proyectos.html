@@ -176,6 +176,7 @@
                     <div class="acciones">
 
                         <button id="btnGuardarProyecto" type="button" class="btn btn-primary"
+                        data-requiere-edicion
                             onclick="guardarProyecto()">
 
                             Guardar Proyecto
@@ -207,6 +208,19 @@
                 <h3>Importar Proyectos con Financiamiento Interno</h3>
         
                 <div class="form-grid">
+
+
+                    <div class="card" id="infoProcesoActivoProyectos">
+                    
+                        <strong>Proceso activo:</strong>
+                    
+                        <span id="nombreProcesoActivoProyectos">
+                    
+                            Cargando...
+                    
+                        </span>
+                    
+                    </div>
         
                     <div class="campo">
                     
@@ -232,19 +246,23 @@
         
                 <div class="acciones">
         
-                    <button class="btn btn-primary" onclick="importarProyectosInternos()">
+                    <button class="btn btn-primary" 
+                    data-requiere-edicion
+                    onclick="importarProyectosInternos()">
         
                         Importar Excel
         
                     </button>
         
-                    <button class="btn btn-success" onclick="calcularPuntajesProyectos()">
+                    <button class="btn btn-success" data-requiere-edicion onclick="calcularPuntajesProyectos()">
         
                         Calcular Puntajes
         
                     </button>
         
-                    <button class="btn btn-primary" onclick="cargarRankingProyectos()">
+                    <button class="btn btn-primary" 
+                    data-requiere-edicion
+                    onclick="cargarRankingProyectos()">
         
                         Ver Ranking
         
@@ -352,8 +370,6 @@
 
     <div id="contenedorBuscadorDocente"></div>
 
-    <script src="/js/buscar-docente.js"></script>
-    <script src="/js/proyectos.js"></script>
 
 </body>
 

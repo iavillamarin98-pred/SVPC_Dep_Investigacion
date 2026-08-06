@@ -1,0 +1,150 @@
+<div class="module">
+
+    <div class="module-header">
+
+        <h2>Procesos de Valoración</h2>
+
+        <p>
+            Administración de los procesos de valoración de la producción científica.
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <h3>Proceso Activo</h3>
+
+        <div id="procesoActivoActual">
+
+            Cargando...
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h3>Registro de Proceso</h3>
+
+        <form id="formProceso">
+
+            <input type="hidden" id="idProceso">
+
+            <div class="form-grid">
+
+                <div class="campo">
+
+                    <label>Nombre</label>
+
+                    <input type="text" id="nombreProceso" required>
+
+                </div>
+
+                <div class="campo">
+
+                    <label>Período</label>
+
+                    <input type="text" id="periodoProceso" placeholder="Ej. 2026">
+
+                </div>
+
+            </div>
+
+            <div class="campo">
+
+                <label>Descripción</label>
+
+                <textarea id="descripcionProceso" rows="3"></textarea>
+
+            </div>
+
+            <div class="campo">
+
+                <label>Estado</label>
+
+                <select id="estadoProceso">
+
+                    <option value="INACTIVO">
+
+                        INACTIVO
+
+                    </option>
+
+                    <option value="ACTIVO">
+
+                        ACTIVO
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="acciones">
+
+                <button type="button" class="btn btn-primary" onclick="guardarProceso()">
+
+                    Guardar
+
+                </button>
+
+                <button type="button" class="btn btn-warning" onclick="limpiarFormularioProceso()">
+
+                    Limpiar
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="card">
+
+        <h3>Listado de Procesos</h3>
+
+        <div class="campo">
+
+            <label>Buscar</label>
+
+            <input id="buscarProceso" type="text" placeholder="Nombre del proceso..." onkeyup="filtrarProcesos()">
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="tabla">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Nombre</th>
+
+                        <th>Período</th>
+
+                        <th>Estado</th>
+
+                        <th>Fecha</th>
+
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tablaProcesos">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+

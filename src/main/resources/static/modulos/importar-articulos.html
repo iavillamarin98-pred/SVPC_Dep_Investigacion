@@ -11,18 +11,14 @@
 
         <div class="form-grid">
 
-            <div class="campo">
-                <label for="idProcesoArticulos">
-                    Proceso de valoración
-                </label>
-
-                <select id="idProcesoArticulos">
-
-                    <option value="1">
-                        Proceso de Valoración 2026
-                    </option>
-
-                </select>
+            <div class="card" id="infoProcesoActivoArticulos">
+            
+                <strong>Proceso activo:</strong>
+            
+                <span id="nombreProcesoActivoArticulos">
+                    Cargando...
+                </span>
+            
             </div>
 
             <div class="campo">
@@ -41,7 +37,10 @@
 
         <div class="acciones">
 
-            <button class="btn btn-primary" onclick="importarArticulos()">
+            <button
+            class="btn btn-primary"
+            data-requiere-edicion
+            onclick="importarArticulos()">
 
                 <i class="fa-solid fa-upload"></i>
 
@@ -49,7 +48,7 @@
 
             </button>
 
-            <button class="btn btn-success" onclick="calcularPuntajesArticulos()">
+            <button class="btn btn-success" data-requiere-edicion onclick="calcularPuntajesArticulos()">
 
                 <i class="fa-solid fa-calculator"></i>
 

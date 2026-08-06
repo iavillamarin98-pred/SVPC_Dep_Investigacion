@@ -1,9 +1,11 @@
+(() => {
+
 const API = "/api/proyectos";
 
 let participantes = [];
 let proyectos = [];
 
-const ID_PROCESO = 1;
+
 
 let idProyectoEditar = null;
 
@@ -104,8 +106,9 @@ function eliminarParticipante(index) {
 
 }
 
-async function guardarProyecto() {
-
+    async function guardarProyecto() {
+    
+if (!validarProcesoEditable()) return;
     if (participantes.length === 0) {
 
         Notificaciones.advertencia("Debe agregar al menos un participante.");
@@ -228,16 +231,25 @@ function limpiarFormulario() {
 
 }
 
-window.onload = async function () {
-
-    await cargarBuscadorDocente();
 
 
-    /*await cargarProcesos();*/
+(async () => {
 
-    listarProyectos();
+    try {
 
-};
+        await cargarProcesoActivo();
+
+        await cargarBuscadorDocente();
+
+        await listarProyectos();
+
+    } catch (e) {
+
+        console.error(e);
+
+    }
+
+})();
 
 async function listarProyectos() {
 
@@ -289,6 +301,7 @@ function renderizarProyectos(lista){
 
                 <button
                     class="btn btn-warning"
+                    data-requiere-edicion
                     onclick="eliminarProyecto(${proyecto.idProyecto})">
 
                     Eliminar
@@ -327,7 +340,9 @@ function filtrarProyectos(){
 
 
 
-function eliminarProyecto(idProyecto) {
+    function eliminarProyecto(idProyecto) {
+    
+        if (!validarProcesoEditable()) return;
 
     Confirmacion.mostrar(
 
@@ -382,7 +397,13 @@ async function editarProyecto(idProyecto){
 
     const proyecto =
         await respuestaProyecto.json();
-    
+    if (!respuestaProyecto.ok) {
+
+    Notificaciones.error("No se pudo obtener el proyecto.");
+
+    return;
+
+}
     
 
     idProyectoEditar = proyecto.idProyecto;
@@ -457,7 +478,7 @@ async function importarProyectosInternos() {
 
     formData.append("archivo", archivo);
 
-    formData.append("idProceso", ID_PROCESO);
+    formData.append("idProceso", obtenerIdProceso());
 
     Loader.mostrar("Importando proyectos...");
 
@@ -501,7 +522,7 @@ async function importarProyectosInternos() {
 async function cargarRankingProyectos() {
 
     /*const idProceso = document.getElementById("ID_PROCESO").value;*/
-    const idProceso = ID_PROCESO;
+    const idProceso = obtenerIdProceso();
 
     const respuesta = await fetch(
 
@@ -539,7 +560,9 @@ async function cargarRankingProyectos() {
 
 }
 
-function calcularPuntajesProyectos() {
+    function calcularPuntajesProyectos() {
+    
+        if (!validarProcesoEditable()) return;
 
     Confirmacion.mostrar(
 
@@ -561,7 +584,7 @@ async function ejecutarCalculoProyectos() {
 
         const respuesta = await fetch(
 
-            `/api/calculos/proyectos?idProceso=${ID_PROCESO}`,
+            `/api/calculos/proyectos?idProceso=${obtenerIdProceso()}`,
 
             {
                 method: "POST"
@@ -638,3 +661,25 @@ function mostrarNombreArchivo() {
         archivo ? archivo.name : "Ningún archivo seleccionado";
 
 }
+
+window.agregarParticipante = agregarParticipante;
+window.eliminarParticipante = eliminarParticipante;
+
+window.guardarProyecto = guardarProyecto;
+
+window.editarProyecto = editarProyecto;
+window.eliminarProyecto = eliminarProyecto;
+
+window.importarProyectosInternos = importarProyectosInternos;
+
+window.calcularPuntajesProyectos = calcularPuntajesProyectos;
+window.cargarRankingProyectos = cargarRankingProyectos;
+
+window.confirmarLimpiarFormulario = confirmarLimpiarFormulario;
+window.mostrarNombreArchivo = mostrarNombreArchivo;
+
+window.filtrarProyectos = filtrarProyectos;
+
+
+
+})();

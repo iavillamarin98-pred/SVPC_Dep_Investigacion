@@ -1,3 +1,5 @@
+(() => {
+
 //=========================================
 // MÓDULO PROCEEDINGS
 //=========================================
@@ -10,9 +12,7 @@ function obtenerTablaRankingProceedings() {
     return document.getElementById("tablaRankingProceedings");
 }
 
-function obtenerProcesoProceedings() {
-    return document.getElementById("idProcesoProceedings").value;
-}
+
 
 function obtenerArchivoProceedings() {
     return document.getElementById("archivoProceedings").files[0];
@@ -50,10 +50,12 @@ function obtenerArchivoProceedings() {
 // IMPORTAR
 //=========================================
 
-async function importarProceedings() {
+    async function importarProceedings() {
+    
+        if (!validarProcesoEditable()) return;
 
     const archivo = obtenerArchivoProceedings();
-    const idProceso = obtenerProcesoProceedings();
+    const idProceso = obtenerIdProceso();
 
     if (!archivo) {
 
@@ -108,19 +110,12 @@ async function importarProceedings() {
 // CALCULAR
 //=========================================
 
-async function calcularPuntajesProceedings() {
+    async function calcularPuntajesProceedings() {
+    if (!validarProcesoEditable()) return;
 
-    const idProceso = obtenerProcesoProceedings();
+    const idProceso = obtenerIdProceso();
 
-    if (!idProceso) {
-
-        mostrarResultadoProceedings(
-            "Seleccione un proceso de valoración.",
-            false
-        );
-
-        return;
-    }
+    
 
     mostrarResultadoProceedings(
         "Calculando puntajes...",
@@ -170,15 +165,9 @@ async function calcularPuntajesProceedings() {
 
 async function cargarRankingProceedings() {
 
-    const idProceso = obtenerProcesoProceedings();
+    const idProceso = obtenerIdProceso();
 
-    if (!idProceso) {
-        mostrarResultadoProceedings(
-            "Seleccione un proceso.",
-            false
-        );
-        return;
-    }
+    
 
     mostrarResultadoProceedings(
         "Cargando ranking...",
@@ -276,3 +265,18 @@ function mostrarResultadoProceedings(mensaje, exito) {
 
     resultado.classList.add(exito ? "exito" : "error");
 }
+
+// Exponer funciones al HTML
+window.importarProceedings = importarProceedings;
+window.calcularPuntajesProceedings = calcularPuntajesProceedings;
+window.cargarRankingProceedings = cargarRankingProceedings;
+
+(async () => {
+    try {
+        await cargarProcesoActivo();
+    } catch (e) {
+        console.error(e);
+    }
+})();
+
+})();

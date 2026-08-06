@@ -1,3 +1,4 @@
+(() => {
 let callbackSeleccionDocente = null;
 
 /**
@@ -168,3 +169,15 @@ function confirmarRol() {
 
 }
 
+window.abrirBuscadorDocente = abrirBuscadorDocente;
+window.cerrarBuscadorDocente = cerrarBuscadorDocente;
+window.seleccionarDocente = seleccionarDocente;
+
+window.abrirModalRol = abrirModalRol;
+window.cerrarModalRol = cerrarModalRol;
+window.confirmarRol = confirmarRol;
+
+window.buscarDocentes = buscarDocentes;
+window.cargarBuscadorDocente = cargarBuscadorDocente;
+
+})();
