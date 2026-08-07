@@ -11,7 +11,15 @@ let editando = false;
 
 (async function () {
 
-    await cargarProcesoActivo();
+    try {
+
+        await cargarProcesoActivo();
+
+    } catch(e) {
+
+        console.warn(e.message);
+
+    }
 
     await listarProcesos();
 
@@ -113,33 +121,42 @@ async function guardarProceso(){
 
     }
 
-    const response=await fetch(url,{
+    
 
-        method:metodo,
+    Loader.mostrar("Guardando proceso...");
 
+try{
+
+    const response = await fetch(url,{
+        method: metodo,
         headers:{
             "Content-Type":"application/json"
         },
-
-        body:JSON.stringify(dto)
-
+        body: JSON.stringify(dto)
     });
 
-    if(response.ok){
-
-        limpiarFormularioProceso();
-
-        await listarProcesos();
-
-        await cargarProcesoActivo();
-
+    if(!response.ok){
+        throw new Error(await response.text());
     }
 
-    else{
+    limpiarFormularioProceso();
 
-        alert(await response.text());
+   await refrescarPantalla();
 
-    }
+    Notificaciones.exito(
+        "Proceso guardado correctamente."
+    );
+
+}catch(e){
+
+    Notificaciones.error(e.message);
+
+}
+finally{
+
+    Loader.ocultar();
+
+}
 
 }
 
@@ -164,67 +181,113 @@ async function editarProceso(id){
 
 async function activarProceso(id){
 
-    if(!confirm("¿Activar este proceso?")){
+    Confirmacion.mostrar(
 
-        return;
+        "Activar proceso",
 
-    }
+        "¿Desea activar este proceso?",
 
-    const response=await fetch(
+        async () => {
 
-        API_PROCESOS+"/"+id+"/activar",
+            Loader.mostrar("Activando proceso...");
 
-        {
+            try{
 
-            method:"PUT"
+                const response = await fetch(
+
+                    API_PROCESOS + "/" + id + "/activar",
+
+                    {
+                        method: "PUT"
+                    }
+
+                );
+
+                if(!response.ok){
+
+                    throw new Error(await response.text());
+
+                }
+
+                await refrescarPantalla();
+
+                Notificaciones.exito(
+                    "Proceso activado correctamente."
+                );
+
+            }
+
+            catch(e){
+
+                Notificaciones.error(e.message);
+
+            }
+
+            finally{
+
+                Loader.ocultar();
+
+            }
 
         }
 
     );
-
-    if(response.ok){
-
-        await listarProcesos();
-
-        await cargarProcesoActivo();
-
-    }
-
-    else{
-
-        alert(await response.text());
-
-    }
 
 }
 
 async function eliminarProceso(id){
 
-    if(!confirm("¿Eliminar este proceso?")){
+    Confirmacion.mostrar(
 
-        return;
+        "Eliminar proceso",
 
-    }
+        "¿Está seguro de eliminar este proceso?",
 
-    const response=await fetch(
+        async () => {
 
-        API_PROCESOS+"/"+id,
+            Loader.mostrar("Eliminando proceso...");
 
-        {
+            try{
 
-            method:"DELETE"
+                const response = await fetch(
+
+                    API_PROCESOS + "/" + id,
+
+                    {
+                        method: "DELETE"
+                    }
+
+                );
+
+                if(!response.ok){
+
+                    throw new Error(await response.text());
+
+                }
+
+                await refrescarPantalla();
+
+                Notificaciones.exito(
+                    "Proceso eliminado correctamente."
+                );
+
+            }
+
+            catch(e){
+
+                Notificaciones.error(e.message);
+
+            }
+
+            finally{
+
+                Loader.ocultar();
+
+            }
 
         }
 
     );
-
-    if(response.ok){
-
-        await listarProcesos();
-
-        await cargarProcesoActivo();
-
-    }
 
 }
 
@@ -253,6 +316,22 @@ function filtrarProcesos(){
 
     }
 
+    async function refrescarPantalla(){
+
+    await listarProcesos();
+
+    try{
+
+        await cargarProcesoActivo();
+
+    }catch(e){
+
+        console.warn(e.message);
+
+    }
+
+}
+
     //=========================================
 // FUNCIONES PÚBLICAS
 //=========================================
@@ -262,7 +341,12 @@ window.editarProceso = editarProceso;
 window.activarProceso = activarProceso;
 window.eliminarProceso = eliminarProceso;
 window.limpiarFormularioProceso = limpiarFormularioProceso;
-window.filtrarProcesos = filtrarProcesos;
+    window.filtrarProcesos = filtrarProcesos;
+    
+
+    
 
 })();
+
+
     

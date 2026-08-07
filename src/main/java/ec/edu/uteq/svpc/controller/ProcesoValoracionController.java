@@ -37,10 +37,13 @@ public class ProcesoValoracionController {
     @GetMapping("/activo")
     public ResponseEntity<ProcesoValoracionDTO> activo() {
 
-        return ResponseEntity.ok(
+        ProcesoValoracionDTO dto = service.obtenerProcesoActivo();
 
-                service.obtenerProcesoActivo());
+        if (dto == null) {
+            return ResponseEntity.noContent().build(); // 204
+        }
 
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping

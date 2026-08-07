@@ -4,11 +4,65 @@ async function cargarProcesoActivo() {
 
     const respuesta = await fetch("/api/procesos/activo");
 
+    // No existe proceso activo
+    if (respuesta.status === 204) {
+
+        PROCESO_ACTIVO = null;
+
+        const procesoActual =
+            document.getElementById("procesoActivoActual");
+
+        if (procesoActual) {
+
+            procesoActual.innerHTML = `
+    <div class="proceso-activo-info">
+
+        <div class="proceso-nombre">
+            Sin proceso activo
+        </div>
+
+        <span class="badge badge-warning">
+            INACTIVO
+        </span>
+
+    </div>
+`;
+
+        }
+
+        [
+            "nombreProcesoActivo",
+            "nombreProcesoActivoArticulos",
+            "nombreProcesoActivoProceedings",
+            "nombreProcesoActivoLibros",
+            "nombreProcesoActivoCapitulos",
+            "nombreProcesoActivoProyectos"
+        ].forEach(id => {
+
+            const e = document.getElementById(id);
+
+            if (e) {
+
+                e.textContent = "Sin proceso activo";
+
+            }
+
+        });
+
+        actualizarModoProceso();
+
+        return;
+
+    }
+
     if (!respuesta.ok) {
-        throw new Error("No existe un proceso activo.");
+
+        throw new Error("Error al consultar el proceso activo.");
+
     }
 
     PROCESO_ACTIVO = await respuesta.json();
+
 
     console.log("Proceso activo:", PROCESO_ACTIVO);
 
@@ -49,14 +103,23 @@ async function cargarProcesoActivo() {
     if (procesoActual) {
 
         procesoActual.innerHTML = `
-            <strong>${PROCESO_ACTIVO.nombre}</strong><br>
-            Período: ${PROCESO_ACTIVO.periodo}<br>
-            Estado:
-            <span class="badge badge-success">
-                ${PROCESO_ACTIVO.estado}
-            </span>
-        `;
+    <div class="proceso-activo-info">
 
+        <div class="proceso-nombre">
+            ${PROCESO_ACTIVO.nombre}
+        </div>
+
+        <div class="proceso-periodo">
+            <i class="fa-solid fa-calendar-days"></i>
+            ${PROCESO_ACTIVO.periodo}
+        </div>
+
+        <span class="badge badge-success">
+            ${PROCESO_ACTIVO.estado}
+        </span>
+
+    </div>
+`;
     }
 
     actualizarModoProceso();
@@ -65,7 +128,11 @@ async function cargarProcesoActivo() {
 function obtenerIdProceso() {
 
     if (!PROCESO_ACTIVO) {
-        throw new Error("Proceso activo no cargado.");
+
+        throw new Error(
+            "No existe un proceso activo."
+        );
+
     }
 
     return PROCESO_ACTIVO.idProceso;
@@ -74,7 +141,7 @@ function obtenerIdProceso() {
 
 function procesoEstaCerrado() {
 
-    return PROCESO_ACTIVO &&
+    return !PROCESO_ACTIVO ||
            PROCESO_ACTIVO.estado === "CERRADO";
 
 }

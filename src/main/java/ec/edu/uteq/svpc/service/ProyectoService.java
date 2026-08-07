@@ -39,8 +39,8 @@ public class ProyectoService {
     /**
      * Listar todos los proyectos.
      */
-    public List<Proyecto> listar() {
-        return proyectoRepository.findAll();
+    public List<Proyecto> listar(Integer idProceso) {
+        return proyectoRepository.findByIdProceso(idProceso);
     }
 
     /**
@@ -223,6 +223,10 @@ public class ProyectoService {
 
     @Transactional
     public Proyecto crearCompleto(ProyectoCompletoDTO dto) {
+
+        if (dto.getProyecto().getIdProceso() == null) {
+            throw new RuntimeException("Debe indicar el proceso.");
+        }
 
         Proyecto proyecto = crear(dto.getProyecto());
 

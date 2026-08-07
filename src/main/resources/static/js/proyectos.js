@@ -127,29 +127,30 @@ if (!validarProcesoEditable()) return;
 
     const dto = {
 
-        proyecto: {
+    proyecto: {
 
-            nombre: document.getElementById("nombre").value.trim(),
+        idProceso: obtenerIdProceso(),
 
-            descripcion: document.getElementById("descripcion").value.trim(),
+        nombre: document.getElementById("nombre").value.trim(),
 
-            periodo: document.getElementById("periodo").value.trim(),
+        descripcion: document.getElementById("descripcion").value.trim(),
 
-            tipoFinanciamiento: document.getElementById("tipoFinanciamiento").value,
+        periodo: document.getElementById("periodo").value.trim(),
 
-            estado: document.getElementById("estado").value
+        tipoFinanciamiento: document.getElementById("tipoFinanciamiento").value,
 
-        },
+        estado: document.getElementById("estado").value
 
-        participantes: participantes.map(p => ({
+    },
 
-            idDocente: p.idDocente,
+    participantes: participantes.map(p => ({
 
-            rol: p.rol
+        idDocente: p.idDocente,
 
-        }))
+        rol: p.rol
 
-    };
+    }))
+};
 
     Loader.mostrar(
         idProyectoEditar == null
@@ -253,14 +254,11 @@ function limpiarFormulario() {
 
 async function listarProyectos() {
 
-    const respuesta = await fetch(API);
+    const respuesta = await fetch(
+        API + "?idProceso=" + obtenerIdProceso()
+    );
 
     proyectos = await respuesta.json();
-
-    const tbody =
-        document.getElementById("tablaProyectos");
-
-    tbody.innerHTML = "";
 
     renderizarProyectos(proyectos);
 
