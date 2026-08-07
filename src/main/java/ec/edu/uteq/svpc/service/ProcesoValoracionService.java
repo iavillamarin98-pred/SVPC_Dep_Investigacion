@@ -105,23 +105,16 @@ public class ProcesoValoracionService {
             ProcesoValoracionDTO dto) {
 
         ProcesoValoracion proceso = repository.findById(id)
-
-                .orElseThrow(() ->
-
-                new RuntimeException("Proceso no encontrado."));
+                .orElseThrow(() -> new RuntimeException("Proceso no encontrado."));
 
         proceso.setNombre(dto.getNombre());
-
         proceso.setDescripcion(dto.getDescripcion());
-
         proceso.setPeriodo(dto.getPeriodo());
-
         proceso.setEstado(dto.getEstado());
 
         repository.save(proceso);
 
         return convertirDTO(proceso);
-
     }
 
     public void eliminar(Integer id) {
@@ -158,15 +151,9 @@ public class ProcesoValoracionService {
 
     public ProcesoValoracionDTO obtenerProcesoActivo() {
 
-        ProcesoValoracion proceso = repository
-
-                .findFirstByEstado("ACTIVO")
-
-                .orElseThrow(() ->
-
-                new RuntimeException("No existe un proceso activo."));
-
-        return convertirDTO(proceso);
+        return repository.findFirstByEstado("ACTIVO")
+                .map(this::convertirDTO)
+                .orElse(null);
 
     }
 

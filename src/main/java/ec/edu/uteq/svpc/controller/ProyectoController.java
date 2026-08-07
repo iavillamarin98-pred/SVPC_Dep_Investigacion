@@ -26,8 +26,11 @@ public class ProyectoController {
      * Listar proyectos.
      */
     @GetMapping
-    public ResponseEntity<List<Proyecto>> listar() {
-        return ResponseEntity.ok(proyectoService.listar());
+    public ResponseEntity<List<Proyecto>> listar(
+            @RequestParam Integer idProceso) {
+
+        return ResponseEntity.ok(
+                proyectoService.listar(idProceso));
     }
 
     /**

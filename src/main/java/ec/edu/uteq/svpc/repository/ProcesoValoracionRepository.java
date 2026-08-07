@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+
 import ec.edu.uteq.svpc.entity.ProcesoValoracion;
 
 public interface ProcesoValoracionRepository
@@ -15,5 +15,7 @@ public interface ProcesoValoracionRepository
     boolean existsByNombreAndPeriodo(String nombre, String periodo);
 
     Optional<ProcesoValoracion> findFirstByEstado(String estado);
+
+    long countByEstado(String estado);
 
 }
