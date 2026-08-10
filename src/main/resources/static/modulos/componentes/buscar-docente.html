@@ -1,41 +1,49 @@
 <div id="modalDocente" class="modal oculto">
 
-    <div class="modal-content">
+    <div class="modal-content modal-docentes">
 
         <div class="modal-header">
 
-            <h3>Buscar Docente</h3>
+            <h3>
+                <i class="fa-solid fa-user-tie"></i>
+                Buscar docente
+            </h3>
 
             <button class="btn-cerrar" onclick="cerrarBuscadorDocente()">
-                ×
+                <i class="fa-solid fa-xmark"></i>
             </button>
 
         </div>
 
         <div class="modal-body">
 
-            <div class="campo">
+            <!-- BUSCADOR -->
+            <div class="filtros-docentes">
 
-                <label>Buscar</label>
+                <div class="campo-busqueda">
 
-                <input type="text" id="txtBuscarDocente" placeholder="Cédula, nombres, apellidos, facultad o carrera">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input type="text" id="txtBuscarDocente"
+                        placeholder="Buscar por cédula, nombre, apellidos o facultad...">
+
+                </div>
 
             </div>
 
-            <div class="table-responsive">
+            <!-- TABLA -->
+            <div class="tabla-docentes-container">
 
-                <table class="tabla">
+                <table class="tabla-docentes">
 
                     <thead>
 
                         <tr>
-
                             <th>Cédula</th>
                             <th>Docente</th>
                             <th>Facultad</th>
                             <th>Carrera</th>
-                            <th></th>
-
+                            <th>Acción</th>
                         </tr>
 
                     </thead>

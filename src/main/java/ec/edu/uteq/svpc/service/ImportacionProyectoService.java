@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 @Service
 @Transactional
@@ -175,20 +176,39 @@ public class ImportacionProyectoService {
         String apellidos = partes[0];
         String nombres = partes[1];
 
-        // 1. Buscar por cédula
+        // 1. Buscar primero por cédula
         Docente docente = docenteRepository
                 .findByCedula(cedula)
-                .orElseGet(() ->
-                // 2. Si no existe, buscar por nombre y apellido
-                docenteRepository
-                        .findByNombresIgnoreCaseAndApellidosIgnoreCase(
-                                nombres,
-                                apellidos)
-                        .orElse(new Docente()));
+                .orElse(null);
+
+        // 2. Si no existe por cédula, buscar por nombres y apellidos
+        if (docente == null) {
+
+            List<Docente> docentesEncontrados = docenteRepository.findByNombresIgnoreCaseAndApellidosIgnoreCase(
+                    nombres,
+                    apellidos);
+
+            if (!docentesEncontrados.isEmpty()) {
+
+                // Preferir el registro que tenga cédula
+                docente = docentesEncontrados.stream()
+                        .filter(d -> d.getCedula() != null
+                                && !d.getCedula().isBlank())
+                        .findFirst()
+                        .orElse(docentesEncontrados.get(0));
+            }
+        }
+
+        // 3. Si definitivamente no existe, crear
+        if (docente == null) {
+            docente = new Docente();
+            docente.setNombres(nombres);
+            docente.setApellidos(apellidos);
+        }
 
         boolean nuevo = docente.getIdDocente() == null;
 
-        // 3. Completar/actualizar información
+        // 4. Actualizar información
         docente.setCedula(cedula);
         docente.setNombres(nombres);
         docente.setApellidos(apellidos);
@@ -215,26 +235,99 @@ public class ImportacionProyectoService {
 
         String[] partes = separarNombre(nombreCompleto);
 
-        String apellidos = partes[0];
-        String nombres = partes[1];
+        String apellidos = partes[0].trim();
+        String nombres = partes[1].trim();
 
-        return docenteRepository
+        String nombreExcel = normalizar(
+                apellidos + " " + nombres);
+
+        // ==================================================
+        // 1. COINCIDENCIA EXACTA
+        // ==================================================
+
+        List<Docente> encontrados = docenteRepository
                 .findByNombresIgnoreCaseAndApellidosIgnoreCase(
                         nombres,
-                        apellidos)
-                .orElseGet(() -> {
+                        apellidos);
 
-                    Docente docente = new Docente();
+        Docente docente = encontrados.stream()
+                .filter(d -> d.getCedula() != null
+                        && !d.getCedula().isBlank())
+                .findFirst()
+                .orElse(null);
 
-                    docente.setCedula(null);
-                    docente.setNombres(nombres);
-                    docente.setApellidos(apellidos);
+        // ==================================================
+        // 2. COINCIDENCIA POR PALABRAS
+        // IGNORANDO EL ORDEN
+        // ==================================================
 
-                    estadisticas.docenteInsertado();
+        if (docente == null) {
 
-                    return docenteRepository.save(docente);
+            List<Docente> todos = docenteRepository.findAll();
 
-                });
+            docente = todos.stream()
+
+                    // Solo catálogo oficial
+                    .filter(d -> d.getCedula() != null
+                            && !d.getCedula().isBlank())
+
+                    .filter(d -> {
+
+                        String nombreBD = normalizar(
+                                d.getNombres()
+                                        + " "
+                                        + d.getApellidos());
+
+                        return mismosNombres(
+                                nombreExcel,
+                                nombreBD);
+                    })
+
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        // ==================================================
+        // 3. DOCENTE ENCONTRADO
+        // ==================================================
+
+        if (docente != null) {
+
+            System.out.println(
+                    ">> Investigador encontrado: "
+                            + docente.getNombres()
+                            + " "
+                            + docente.getApellidos()
+                            + " | Cédula: "
+                            + docente.getCedula());
+
+            return docente;
+        }
+
+        // ==================================================
+        // 4. NO CREAR DOCENTE INCOMPLETO
+        // ==================================================
+
+        System.out.println(
+                ">> ADVERTENCIA: Investigador no encontrado: "
+                        + nombreCompleto);
+
+        return null;
+    }
+
+    private String normalizar(String texto) {
+
+        if (texto == null) {
+            return "";
+        }
+
+        return java.text.Normalizer
+                .normalize(texto, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toUpperCase()
+                .replaceAll("[^A-Z0-9 ]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 
     private String[] separarNombre(String nombreCompleto) {
@@ -352,12 +445,28 @@ public class ImportacionProyectoService {
                     nombreCompleto,
                     estadisticas);
 
-            guardarRelacion(
-                    idProyecto,
-                    docente.getIdDocente(),
-                    "INTEGRANTE",
-                    estadisticas);
+            if (docente != null) {
+
+                guardarRelacion(
+                        idProyecto,
+                        docente.getIdDocente(),
+                        "INTEGRANTE",
+                        estadisticas);
+
+            }
         }
+    }
+
+    private boolean mismosNombres(String nombre1, String nombre2) {
+
+        String[] palabras1 = normalizar(nombre1).split(" ");
+        String[] palabras2 = normalizar(nombre2).split(" ");
+
+        java.util.Set<String> conjunto1 = new java.util.HashSet<>(java.util.Arrays.asList(palabras1));
+
+        java.util.Set<String> conjunto2 = new java.util.HashSet<>(java.util.Arrays.asList(palabras2));
+
+        return conjunto1.equals(conjunto2);
     }
 
 }

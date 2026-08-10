@@ -7,7 +7,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>SVPC - Sistema de Valoración de Producción Científica</title>
+    <title>SAVA - Sistema Automatizado de Valoración Académica</title>
 
     <link rel="stylesheet" href="css/estilos.css">
 
@@ -30,9 +30,9 @@
 
             <div>
 
-                <h2>SVPC</h2>
+                <h2>SAVA</h2>
 
-                <small>Sistema de Valoración de Producción Científica</small>
+                <small>Sistema Automatizado de Valoración Académica</small>
 
             </div>
 
@@ -125,7 +125,7 @@
     
                         <li onclick="activarOpcion(this); cargarModulo('articulos')">
     
-                            Artículos Mundiales
+                            Artículos
     
                         </li>
     
@@ -212,6 +212,13 @@
                     </div>
     
                     <ul class="submenu">
+
+                        <li onclick="activarOpcion(this); cargarModulo('docentes')">
+                        
+                            <i class="fa-solid fa-users"></i>
+                        
+                            Gestión de Docentes
+                            </li>
     
                         <li onclick="activarOpcion(this); cargarModulo('usuarios')">
     
@@ -250,6 +257,8 @@
     <script src="/js/ui/modal.js"></script>
     <script src="/js/ui/tabs.js"></script>
     <script src="/js/utils/facultades.js"></script>
+    <script src="/js/articulos.js"></script>
+
     <script src="/js/proceso-activo.js"></script>
     <script src="/js/app.js"></script>
 

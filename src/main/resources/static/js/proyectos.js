@@ -3,13 +3,9 @@
 const API = "/api/proyectos";
 
 let participantes = [];
-let proyectos = [];
-
-
-
+    let proyectos = [];
+    let rankingProyectos = [];
 let idProyectoEditar = null;
-
-
 
 
 function agregarParticipante(){
@@ -241,6 +237,7 @@ function limpiarFormulario() {
         await cargarProcesoActivo();
 
         await cargarBuscadorDocente();
+        configurarFiltrosRankingProyectos();
 
         await listarProyectos();
 
@@ -519,39 +516,187 @@ async function importarProyectosInternos() {
 
 async function cargarRankingProyectos() {
 
-    /*const idProceso = document.getElementById("ID_PROCESO").value;*/
     const idProceso = obtenerIdProceso();
 
-    const respuesta = await fetch(
+    try {
 
-        `/api/calculos/proyectos/ranking?idProceso=${idProceso}`
+        Loader.mostrar("Cargando ranking de proyectos...");
 
-    );
+        const respuesta = await fetch(
+            `/api/calculos/proyectos/ranking?idProceso=${idProceso}`
+        );
 
-    const ranking = await respuesta.json();
+        if (!respuesta.ok) {
+            throw new Error("No se pudo cargar el ranking.");
+        }
 
-    const tbody = document.getElementById("tablaRankingProyectos");
+        rankingProyectos = await respuesta.json();
+
+        cargarFiltroFacultadesRanking();
+
+        mostrarRankingProyectos();
+
+        Tabs.activar("tabRanking");
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        Notificaciones.error(
+            "Error al cargar el ranking de proyectos."
+        );
+
+    } finally {
+
+        Loader.ocultar();
+
+    }
+    }
+
+    function mostrarRankingProyectos() {
+
+    const texto =
+        document
+            .getElementById("filtroRankingProyecto")
+            .value
+            .trim()
+            .toUpperCase();
+
+    const facultad =
+        document
+            .getElementById("filtroRankingFacultad")
+            .value;
+
+    const filtrados =
+        rankingProyectos.filter(docente => {
+
+            const cedula =
+                (docente.cedula || "")
+                    .toUpperCase();
+
+            const nombre =
+                (docente.docente || "")
+                    .toUpperCase();
+
+            const coincideTexto =
+                texto === "" ||
+                cedula.includes(texto) ||
+                nombre.includes(texto);
+
+            const coincideFacultad =
+                facultad === "" ||
+                docente.facultad === facultad;
+
+            return coincideTexto &&
+                   coincideFacultad;
+
+        });
+
+    renderizarRankingProyectos(filtrados);
+
+    }
+    
+    function renderizarRankingProyectos(lista) {
+
+    const tbody =
+        document.getElementById("tablaRankingProyectos");
 
     tbody.innerHTML = "";
 
-    ranking.forEach((docente, indice) => {
+    if (lista.length === 0) {
 
-        tbody.innerHTML += `
+        tbody.innerHTML = `
             <tr>
 
-                <td>${indice + 1}</td>
+                <td colspan="6"
+                    style="text-align:center;">
 
-                <td>${docente.cedula}</td>
+                    No se encontraron docentes.
 
-                <td>${docente.docente}</td>
-
-                <td>${docente.facultad}</td>
-
-                <td>${docente.carrera}</td>
-
-                <td>${docente.puntaje.toFixed(2)}</td>
+                </td>
 
             </tr>
+        `;
+
+        return;
+    }
+
+    lista.forEach((docente, indice) => {
+
+        tbody.innerHTML += `
+
+            <tr>
+
+                <td>
+                    ${indice + 1}
+                </td>
+
+                <td>
+                    ${docente.cedula || ""}
+                </td>
+
+                <td>
+                    <strong>
+                        ${docente.docente || ""}
+                    </strong>
+                </td>
+
+                <td>
+                    ${docente.facultad || ""}
+                </td>
+
+                <td>
+                    ${docente.carrera || ""}
+                </td>
+
+                <td>
+                    <strong>
+                        ${Number(docente.puntaje || 0).toFixed(2)}
+                    </strong>
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+}
+    
+    function cargarFiltroFacultadesRanking() {
+
+    const select =
+        document.getElementById("filtroRankingFacultad");
+
+    if (!select) {
+        return;
+    }
+
+    const facultades = [
+        ...new Set(
+            rankingProyectos
+                .map(d => d.facultad)
+                .filter(f => f && f.trim() !== "")
+        )
+    ].sort();
+
+    select.innerHTML = `
+        <option value="">
+            Todas las facultades
+        </option>
+    `;
+
+    facultades.forEach(facultad => {
+
+        select.innerHTML += `
+            <option value="${facultad}">
+                ${facultad}
+            </option>
         `;
 
     });
@@ -648,6 +793,33 @@ function confirmarLimpiarFormulario(){
 
     );
 
+    }
+    function configurarFiltrosRankingProyectos() {
+
+    const texto =
+        document.getElementById("filtroRankingProyecto");
+
+    const facultad =
+        document.getElementById("filtroRankingFacultad");
+
+    if (texto) {
+
+        texto.addEventListener(
+            "input",
+            mostrarRankingProyectos
+        );
+
+    }
+
+    if (facultad) {
+
+        facultad.addEventListener(
+            "change",
+            mostrarRankingProyectos
+        );
+
+    }
+
 }
 
 function mostrarNombreArchivo() {
@@ -671,7 +843,8 @@ window.eliminarProyecto = eliminarProyecto;
 window.importarProyectosInternos = importarProyectosInternos;
 
 window.calcularPuntajesProyectos = calcularPuntajesProyectos;
-window.cargarRankingProyectos = cargarRankingProyectos;
+    window.cargarRankingProyectos = cargarRankingProyectos;
+    window.mostrarRankingProyectos = mostrarRankingProyectos;
 
 window.confirmarLimpiarFormulario = confirmarLimpiarFormulario;
 window.mostrarNombreArchivo = mostrarNombreArchivo;

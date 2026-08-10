@@ -1,0 +1,136 @@
+<div class="modulo-docentes">
+
+    <!-- ========================================= -->
+    <!-- ENCABEZADO -->
+    <!-- ========================================= -->
+
+    <div class="encabezado-modulo">
+
+        <div>
+            <h2>
+                <i class="fa-solid fa-users"></i>
+                Gestión de docentes
+            </h2>
+
+            <p>
+                Actualice el listado oficial y consulte los docentes registrados.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- IMPORTACIÓN -->
+    <!-- ========================================= -->
+
+    <div class="card-docentes">
+
+        <h3>
+            <i class="fa-solid fa-file-excel"></i>
+            Actualizar docentes
+        </h3>
+
+        <p>
+            Seleccione el archivo Excel que contiene el listado oficial de docentes.
+        </p>
+
+        <div class="acciones-importacion">
+
+            <input type="file" id="archivoDocentes" accept=".xlsx">
+
+            <button class="btn btn-primary" onclick="importarDocentes()">
+
+                <i class="fa-solid fa-upload"></i>
+                Importar / Actualizar docentes
+
+            </button>
+
+        </div>
+
+        <div id="resultadoImportacionDocentes">
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- LISTADO -->
+    <!-- ========================================= -->
+
+    <div class="card-docentes listado-docentes">
+
+        <div class="cabecera-listado">
+
+            <div>
+
+                <h3>
+                    <i class="fa-solid fa-list"></i>
+                    Listado de docentes
+                </h3>
+
+                <span id="contadorDocentes">
+                    0 docentes
+                </span>
+
+            </div>
+
+
+            <!-- ================================= -->
+            <!-- FILTROS -->
+            <!-- ================================= -->
+
+            <div class="filtros-docentes">
+
+                <input type="text" id="filtroDocente" placeholder="Buscar por cédula o nombre..." autocomplete="off">
+
+                <select id="filtroFacultad">
+
+                    <option value="">
+                        Todas las facultades
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- TABLA CON SCROLL -->
+        <!-- ===================================== -->
+
+        <div class="tabla-docentes-container">
+
+            <table class="tabla-docentes">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Cédula</th>
+
+                        <th>Docente</th>
+
+                        <th>Facultad</th>
+
+                        <th>Carrera</th>
+
+                        <th>Estado</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tbodyListadoDocentes">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

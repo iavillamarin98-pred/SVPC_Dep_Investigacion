@@ -63,139 +63,187 @@
     ==========================================-->
 
         <div id="tabRegistro" class="tab-panel activo">
-
-            <div class="card">
-
-                <form id="formProyecto">
-
-                    <div class="form-grid">
-
-                        <div class="campo">
-
-                            <label>Nombre del Proyecto</label>
-
-                            <input id="nombre" type="text" required>
-
+        
+            <form id="formProyecto">
+        
+                <div class="registro-proyecto-grid">
+        
+                    <!-- =====================================
+                         DATOS DEL PROYECTO
+                    ====================================== -->
+        
+                    <div class="card">
+        
+                        <h3>
+                            <i class="fa-solid fa-diagram-project"></i>
+                            Datos del Proyecto
+                        </h3>
+        
+                        <div class="form-grid">
+        
+                            <div class="campo">
+        
+                                <label>Nombre del Proyecto</label>
+        
+                                <input id="nombre" type="text" required>
+        
+                            </div>
+        
+                            <div class="campo">
+        
+                                <label>Tipo de Financiamiento</label>
+        
+                                <select id="tipoFinanciamiento">
+        
+                                    <option value="EXTERNO">
+                                        Externo
+                                    </option>
+        
+                                    <option value="CONJUNTO">
+                                        Conjunto
+                                    </option>
+        
+                                    <option value="INTERNO" hidden>
+                                        Interno
+                                    </option>
+        
+                                </select>
+        
+                            </div>
+        
+                            <div class="campo">
+        
+                                <label>Periodo</label>
+        
+                                <input id="periodo" type="text">
+        
+                            </div>
+        
+                            <div class="campo">
+        
+                                <label>Estado</label>
+        
+                                <select id="estado">
+        
+                                    <option value="APROBADO">
+                                        APROBADO
+                                    </option>
+        
+                                    <option value="RECHAZADO">
+                                        RECHAZADO
+                                    </option>
+        
+                                </select>
+        
+                            </div>
+        
                         </div>
-
+        
                         <div class="campo">
-
-                            <label>Tipo de Financiamiento</label>
-
-                            <select id="tipoFinanciamiento">
-
-                                <option value="EXTERNO">
-                                    Externo
-                                </option>
-
-                                <option value="CONJUNTO">
-                                    Conjunto
-                                </option>
-
-                            </select>
-
+        
+                            <label>Descripción</label>
+        
+                            <textarea id="descripcion" rows="5"></textarea>
+        
                         </div>
-
-                        <div class="campo">
-
-                            <label>Periodo</label>
-
-                            <input id="periodo" type="text">
-
+        
+                        <div class="acciones">
+        
+                            <button id="btnGuardarProyecto" type="button" class="btn btn-primary" data-requiere-edicion
+                                onclick="guardarProyecto()">
+        
+                                <i class="fa-solid fa-save"></i>
+        
+                                Guardar Proyecto
+        
+                            </button>
+        
+                            <button type="button" class="btn btn-warning" onclick="confirmarLimpiarFormulario()">
+        
+                                <i class="fa-solid fa-eraser"></i>
+        
+                                Limpiar
+        
+                            </button>
+        
                         </div>
-
-                        <div class="campo">
-
-                            <label>Estado</label>
-
-                            <select id="estado">
-
-                                <option value="APROBADO">
-                                    APROBADO
-                                </option>
-
-                                <option value="RECHAZADO">
-                                    RECHAZADO
-                                </option>
-
-                            </select>
-
+        
+                    </div>
+        
+        
+                    <!-- =====================================
+                         PARTICIPANTES
+                    ====================================== -->
+        
+                    <div class="card participantes-card">
+        
+                        <div class="participantes-header">
+        
+                            <div>
+        
+                                <h3>
+                                    <i class="fa-solid fa-users"></i>
+                                    Participantes del Proyecto
+                                </h3>
+        
+                                <small>
+                                    Agregue el director y los integrantes.
+                                </small>
+        
+                            </div>
+        
+                            <button type="button" class="btn btn-primary" onclick="agregarParticipante()">
+        
+                                <i class="fa-solid fa-user-plus"></i>
+        
+                                Agregar
+        
+                            </button>
+        
                         </div>
+        
+                        <div class="table-responsive tabla-participantes-scroll">
+        
+                            <table class="tabla">
+        
+                                <thead>
+        
+                                    <tr>
+        
+                                        <th>Cédula</th>
+                                        <th>Docente</th>
+                                        <th>Facultad</th>
+                                        <th>Carrera</th>
+                                        <th>Rol</th>
+                                        <th>Acciones</th>
+        
+                                    </tr>
+        
+                                </thead>
+        
+                                <tbody id="tablaParticipantes">
+        
+                                </tbody>
+        
+                            </table>
+        
+                        </div>
+        
+                    </div>
+        
+                </div>
+        
+            </form>
+        
+                </div>
+
+                            
+
+                        </form>
 
                     </div>
 
-                    <div class="campo" style="margin-top:20px;">
-
-                        <label>Descripción</label>
-
-                        <input id="descripcion" type="text">
-
-                    </div>
-
-                    <hr style="margin:25px 0;">
-
-                    <h3>Participantes del Proyecto</h3>
-
-                    <div class="acciones">
-
-                        <button type="button" class="btn btn-primary" onclick="agregarParticipante()">
-
-                            Agregar Participante
-
-                        </button>
-
-                    </div>
-
-                    <div class="table-responsive">
-
-                        <table class="tabla">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>Cédula</th>
-                                    <th>Docente</th>
-                                    <th>Facultad</th>
-                                    <th>Carrera</th>
-                                    <th>Rol</th>
-                                    <th>Acciones</th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody id="tablaParticipantes">
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div class="acciones">
-
-                        <button id="btnGuardarProyecto" type="button" class="btn btn-primary"
-                        data-requiere-edicion
-                            onclick="guardarProyecto()">
-
-                            Guardar Proyecto
-
-                        </button>
-
-                        <button type="button" class="btn btn-warning" onclick="confirmarLimpiarFormulario()">
-
-                            Limpiar
-
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </div>
-
-        </div>
+                </div>
 
         <!--=========================================
                 IMPORTACIÓN
@@ -325,46 +373,74 @@
 
         </div>
 
-        <!--=========================================
-                RANKING
+    <!--=========================================
+            RANKING
     ==========================================-->
-
-        <div id="tabRanking" class="tab-panel">
-
-            <div class="card">
-
-                <h3>Ranking de Proyectos</h3>
-
-                <div class="table-responsive">
-
-                    <table class="tabla">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>#</th>
-                                <th>Cédula</th>
-                                <th>Docente</th>
-                                <th>Facultad</th>
-                                <th>Carrera</th>
-                                <th>Puntaje</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="tablaRankingProyectos">
-
-                        </tbody>
-
-                    </table>
-
+    
+    <div id="tabRanking" class="tab-panel">
+    
+        <div class="card">
+    
+            <h3>Ranking de Proyectos</h3>
+    
+            <div class="form-grid">
+    
+                <div class="campo">
+    
+                    <label>Buscar docente</label>
+    
+                    <input type="text" id="filtroRankingProyecto" placeholder="Cédula o nombre del docente...">
+    
                 </div>
-
+    
+                <div class="campo">
+    
+                    <label>Facultad</label>
+    
+                    <select id="filtroRankingFacultad">
+    
+                        <option value="">
+                            Todas las facultades
+                        </option>
+    
+                    </select>
+    
+                </div>
+    
             </div>
-
+    
+            <br>
+    
+            <div class="table-responsive ranking-scroll">
+    
+                <table class="tabla">
+    
+                    <thead>
+    
+                        <tr>
+    
+                            <th>#</th>
+                            <th>Cédula</th>
+                            <th>Docente</th>
+                            <th>Facultad</th>
+                            <th>Carrera</th>
+                            <th>Puntaje</th>
+    
+                        </tr>
+    
+                    </thead>
+    
+                    <tbody id="tablaRankingProyectos">
+    
+                    </tbody>
+    
+                </table>
+    
+            </div>
+    
         </div>
+    
+    </div>
 
     </div>
 

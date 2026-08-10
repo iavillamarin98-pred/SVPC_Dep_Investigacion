@@ -54,12 +54,19 @@ function configurarEventosBuscador(){
     const txt =
         document.getElementById("txtBuscarDocente");
 
-    txt.addEventListener("keyup", function(){
+    let temporizador = null;
 
-        buscarDocentes(txt.value);
+    txt.addEventListener("input", function(){
+
+        clearTimeout(temporizador);
+
+        temporizador = setTimeout(() => {
+
+            buscarDocentes(txt.value);
+
+        }, 300);
 
     });
-
 }
 
 async function buscarDocentes(texto){

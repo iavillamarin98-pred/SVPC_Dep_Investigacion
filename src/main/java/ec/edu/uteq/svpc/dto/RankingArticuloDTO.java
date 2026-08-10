@@ -8,18 +8,44 @@ public class RankingArticuloDTO {
     private String cedula;
     private String nombres;
     private String apellidos;
+    private String facultad;
     private String carrera;
     private BigDecimal puntajeArticulos;
 
     public RankingArticuloDTO() {
     }
 
-    public RankingArticuloDTO(Long puesto, String cedula, String nombres, String apellidos, String carrera,
+    public RankingArticuloDTO(
+            Long puesto,
+            String cedula,
+            String nombres,
+            String apellidos,
+            String carrera,
             BigDecimal puntajeArticulos) {
+
         this.puesto = puesto;
         this.cedula = cedula;
         this.nombres = nombres;
         this.apellidos = apellidos;
+        this.carrera = carrera;
+        this.puntajeArticulos = puntajeArticulos;
+        this.facultad = null;
+    }
+
+    public RankingArticuloDTO(
+            Long puesto,
+            String cedula,
+            String nombres,
+            String apellidos,
+            String facultad,
+            String carrera,
+            BigDecimal puntajeArticulos) {
+
+        this.puesto = puesto;
+        this.cedula = cedula;
+        this.nombres = nombres;
+        this.apellidos = apellidos;
+        this.facultad = facultad;
         this.carrera = carrera;
         this.puntajeArticulos = puntajeArticulos;
     }
@@ -54,6 +80,14 @@ public class RankingArticuloDTO {
 
     public void setApellidos(String apellidos) {
         this.apellidos = apellidos;
+    }
+
+    public String getFacultad() {
+        return facultad;
+    }
+
+    public void setFacultad(String facultad) {
+        this.facultad = facultad;
     }
 
     public String getCarrera() {

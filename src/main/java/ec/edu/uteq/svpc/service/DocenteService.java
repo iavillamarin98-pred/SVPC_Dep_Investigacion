@@ -50,4 +50,28 @@ public class DocenteService {
                         texto);
     }
 
+    public List<Docente> buscarConFiltros(
+            String cedula,
+            String nombre,
+            String facultad) {
+
+        cedula = normalizarFiltro(cedula);
+        nombre = normalizarFiltro(nombre);
+        facultad = normalizarFiltro(facultad);
+
+        return docenteRepository.buscarConFiltros(
+                cedula,
+                nombre,
+                facultad);
+    }
+
+    private String normalizarFiltro(String texto) {
+
+        if (texto == null || texto.isBlank()) {
+            return null;
+        }
+
+        return texto.trim();
+    }
+
 }
