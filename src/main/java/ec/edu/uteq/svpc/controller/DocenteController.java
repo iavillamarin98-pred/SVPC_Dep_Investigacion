@@ -50,4 +50,17 @@ public class DocenteController {
                 docenteService.buscar(texto));
     }
 
+    @GetMapping("/filtros")
+    public ResponseEntity<List<Docente>> buscarConFiltros(
+            @RequestParam(required = false) String cedula,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String facultad) {
+
+        return ResponseEntity.ok(
+                docenteService.buscarConFiltros(
+                        cedula,
+                        nombre,
+                        facultad));
+    }
+
 }

@@ -29,11 +29,11 @@ async function cargarModulo(nombre) {
             break;
 
         case "capitulos":
-    archivo = "modulos/importar-capitulos-libro.html";
-    scripts = [
-        "js/capitulos.js"
-    ];
-    break;
+            archivo = "modulos/importar-capitulos-libro.html";
+            scripts = [
+                "js/capitulos.js"
+            ];
+            break;
 
         case "proceedings":
             archivo = "modulos/importar-proceedings.html";
@@ -46,6 +46,11 @@ async function cargarModulo(nombre) {
                 "js/buscar-docente.js",
                 "js/proyectos.js"
             ];
+            break;
+
+        case "docentes":
+            archivo = "modulos/docentes.html";
+            scripts = ["js/docentes.js"];
             break;
 
         case "rankingGeneral":
@@ -85,14 +90,25 @@ async function cargarModulo(nombre) {
             await cargarScript(src);
         }
 
+        // =========================================
+        // INICIALIZACIÓN DEL MÓDULO
+        // =========================================
+
+        if (
+            nombre === "docentes" &&
+            typeof window.inicializarDocentes === "function"
+        ) {
+
+            window.inicializarDocentes();
+
+        }
+
     } catch (e) {
 
         console.error(e);
 
     }
-
 }
-
 
 
 //==================================================

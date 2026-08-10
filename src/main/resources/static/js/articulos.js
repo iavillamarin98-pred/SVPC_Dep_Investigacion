@@ -1,38 +1,63 @@
 (() => {
-// ===============================
-// MÓDULO ARTÍCULOS MUNDIALES
+
+// ==================================================
+// MÓDULO ARTÍCULOS
 // SVPC
-// ===============================
+// ==================================================
+
+let rankingArticulos = [];
+
+
+// ==================================================
+// ELEMENTOS DEL DOM
+// ==================================================
 
 function obtenerResultado() {
-    return document.getElementById("resultadoArticulos");
+
+    return document.getElementById(
+        "resultadoArticulos"
+    );
+
 }
 
 function obtenerTablaRanking() {
-    return document.getElementById("tablaRankingArticulos");
+
+    return document.getElementById(
+        "tablaRankingArticulos"
+    );
+
 }
-
-
 
 function obtenerArchivo() {
-    return document.getElementById("archivoArticulos").files[0];
+
+    const input =
+        document.getElementById("archivoArticulos");
+
+    return input?.files?.[0];
+
 }
 
-// =======================================
-// IMPORTAR ARTÍCULOS
-// =======================================
 
-    async function importarArticulos() {
-    if (!validarProcesoEditable()) return;
+// ==================================================
+// IMPORTAR ARTÍCULOS
+// ==================================================
+
+async function importarArticulos() {
+
+    if (!validarProcesoEditable()) {
+        return;
+    }
 
     const archivo = obtenerArchivo();
     const idProceso = obtenerIdProceso();
 
     if (!archivo) {
+
         mostrarResultadoArticulos(
             "Debe seleccionar un archivo Excel.",
             false
         );
+
         return;
     }
 
@@ -56,22 +81,31 @@ function obtenerArchivo() {
             }
         );
 
-        const texto = await response.text();
+        const texto =
+            await response.text();
 
-        if (response.ok) {
+        if (!response.ok) {
 
-            mostrarResultadoArticulos(texto, true);
+            mostrarResultadoArticulos(
+                texto,
+                false
+            );
 
-        } else {
-
-            mostrarResultadoArticulos(texto, false);
-
+            return;
         }
+
+        mostrarResultadoArticulos(
+            texto,
+            true
+        );
 
     } catch (error) {
 
+        console.error(error);
+
         mostrarResultadoArticulos(
-            "Error al conectar con el servidor: " + error.message,
+            "Error al conectar con el servidor: " +
+            error.message,
             false
         );
 
@@ -79,16 +113,19 @@ function obtenerArchivo() {
 
 }
 
-// =======================================
+
+// ==================================================
 // CALCULAR PUNTAJES
-// =======================================
+// ==================================================
 
-    async function calcularPuntajesArticulos() {
-    if (!validarProcesoEditable()) return;
+async function calcularPuntajesArticulos() {
 
-    const idProceso = obtenerIdProceso();
+    if (!validarProcesoEditable()) {
+        return;
+    }
 
-    
+    const idProceso =
+        obtenerIdProceso();
 
     mostrarResultadoArticulos(
         "Calculando puntajes...",
@@ -108,21 +145,31 @@ function obtenerArchivo() {
 
         );
 
-        const texto = await response.text();
+        const texto =
+            await response.text();
 
-        if (response.ok) {
+        if (!response.ok) {
 
-            mostrarResultadoArticulos(texto, true);
+            mostrarResultadoArticulos(
+                texto,
+                false
+            );
 
-            await cargarRankingArticulos();
-
-        } else {
-
-            mostrarResultadoArticulos(texto, false);
-
+            return;
         }
 
+        mostrarResultadoArticulos(
+            texto,
+            true
+        );
+
+        // Después de calcular,
+        // cargar nuevamente el ranking.
+        await cargarRankingArticulos();
+
     } catch (error) {
+
+        console.error(error);
 
         mostrarResultadoArticulos(
 
@@ -137,15 +184,15 @@ function obtenerArchivo() {
 
 }
 
-// =======================================
-// RANKING
-// =======================================
+
+// ==================================================
+// CARGAR RANKING
+// ==================================================
 
 async function cargarRankingArticulos() {
 
-    const idProceso = obtenerIdProceso();
-
-    
+    const idProceso =
+        obtenerIdProceso();
 
     mostrarResultadoArticulos(
         "Cargando ranking...",
@@ -163,7 +210,8 @@ async function cargarRankingArticulos() {
 
         if (!response.ok) {
 
-            const error = await response.text();
+            const error =
+                await response.text();
 
             mostrarResultadoArticulos(
                 error,
@@ -173,69 +221,28 @@ async function cargarRankingArticulos() {
             return;
         }
 
-        const ranking = await response.json();
+        const ranking =
+            await response.json();
 
-        const tabla = obtenerTablaRanking();
+        // Guardar ranking original
+        rankingArticulos = ranking;
 
-        tabla.innerHTML = "";
+        // Cargar facultades
+        cargarFacultadesRankingArticulos();
 
-        if (ranking.length === 0) {
-
-            mostrarResultadoArticulos(
-
-                "No existen puntajes para este proceso.",
-
-                false
-
-            );
-
-            return;
-        }
-
-        ranking.forEach(item => {
-
-            const fila = document.createElement("tr");
-
-            const nombreCompleto =
-                `${item.nombres ?? ""} ${item.apellidos ?? ""}`.trim();
-
-            fila.innerHTML = `
-
-                <td>${item.puesto}</td>
-
-                <td>${item.cedula ?? ""}</td>
-
-                <td>${nombreCompleto}</td>
-
-                <td>${item.carrera ?? ""}</td>
-
-                <td>
-
-                    <strong>
-
-                        ${Number(item.puntajeArticulos).toFixed(2)}
-
-                    </strong>
-
-                </td>
-
-            `;
-
-            tabla.appendChild(fila);
-
-        });
-
-        mostrarResultadoArticulos(
-
-            "Ranking cargado correctamente.",
-
-            true
-
+        // Mostrar ranking completo
+        mostrarRankingArticulos(
+            rankingArticulos
         );
 
-    }
+        mostrarResultadoArticulos(
+            "Ranking cargado correctamente.",
+            true
+        );
 
-    catch (error) {
+    } catch (error) {
+
+        console.error(error);
 
         mostrarResultadoArticulos(
 
@@ -250,47 +257,324 @@ async function cargarRankingArticulos() {
 
 }
 
-// =======================================
-// MENSAJES
-// =======================================
 
-function mostrarResultadoArticulos(
-    mensaje,
-    exito
-) {
+// ==================================================
+// CARGAR FACULTADES DEL RANKING
+// ==================================================
 
-    const resultado = obtenerResultado();
+function cargarFacultadesRankingArticulos() {
 
-    resultado.classList.remove("oculto");
-    resultado.classList.remove("exito");
-    resultado.classList.remove("error");
+    const select =
+        document.getElementById("filtroArticuloFacultad");
 
-    resultado.textContent = mensaje;
+    if (!select) {
+        return;
+    }
 
-    if (exito) {
+    const facultades = [
+        ...new Set(
+            rankingArticulos
+                .map(item => obtenerFacultad(item.carrera))
+                .filter(facultad => facultad !== "")
+        )
+    ].sort();
 
-        resultado.classList.add("exito");
+    select.innerHTML = `
+        <option value="">
+            Todas las facultades
+        </option>
+    `;
 
-    } else {
+    facultades.forEach(facultad => {
 
-        resultado.classList.add("error");
+        select.innerHTML += `
+            <option value="${facultad}">
+                ${facultad}
+            </option>
+        `;
+
+    });
+}
+
+
+// ==================================================
+// FILTRAR RANKING
+// CÉDULA + NOMBRE + FACULTAD
+// ==================================================
+
+function filtrarRankingArticulos() {
+
+    const input =
+        document.getElementById(
+            "filtroArticuloDocente"
+        );
+
+    const select =
+        document.getElementById(
+            "filtroArticuloFacultad"
+        );
+
+    const texto =
+        input
+            ? input.value
+                .trim()
+                .toUpperCase()
+            : "";
+
+    const facultad =
+        select
+            ? select.value
+            : "";
+
+    const filtrados =
+        rankingArticulos.filter(item => {
+
+            const cedula =
+                String(
+                    item.cedula ?? ""
+                ).toUpperCase();
+
+            const nombre =
+                `${item.nombres ?? ""} ${item.apellidos ?? ""}`
+                    .trim()
+                    .toUpperCase();
+
+            const coincideTexto =
+
+                texto === "" ||
+
+                cedula.includes(texto) ||
+
+                nombre.includes(texto);
+
+            const facultadDocente =
+    obtenerFacultad(item.carrera);
+
+const coincideFacultad =
+    facultad === "" ||
+    facultadDocente === facultad;
+
+            return (
+                coincideTexto &&
+                coincideFacultad
+            );
+
+        });
+
+    mostrarRankingArticulos(
+        filtrados
+    );
+
+}
+
+
+// ==================================================
+// MOSTRAR RANKING
+// ==================================================
+
+function mostrarRankingArticulos(lista) {
+
+    const tabla =
+        obtenerTablaRanking();
+
+    if (!tabla) {
+        return;
+    }
+
+    tabla.innerHTML = "";
+
+    if (!lista || lista.length === 0) {
+
+        tabla.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    style="text-align:center;"
+                >
+
+                    No se encontraron docentes.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+    }
+
+    lista.forEach((item, indice) => {
+
+        const nombreCompleto =
+
+            `${item.nombres ?? ""} ${item.apellidos ?? ""}`
+                .trim();
+
+        tabla.innerHTML += `
+
+            <tr>
+
+                <td>
+                    ${indice + 1}
+                </td>
+
+                <td>
+                    ${item.cedula ?? ""}
+                </td>
+
+                <td>
+
+                    <strong>
+                        ${nombreCompleto}
+                    </strong>
+
+                </td>
+
+                <td>
+    ${obtenerFacultad(item.carrera)}
+</td>
+
+                <td>
+                    ${item.carrera ?? ""}
+                </td>
+
+                <td>
+
+                    <strong>
+                        ${
+                            Number(
+                                item.puntajeArticulos
+                            ).toFixed(2)
+                        }
+                    </strong>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+}
+
+
+// ==================================================
+// CONFIGURAR FILTROS
+// ==================================================
+
+function configurarFiltrosRankingArticulos() {
+
+    const texto =
+        document.getElementById(
+            "filtroArticuloDocente"
+        );
+
+    const facultad =
+        document.getElementById(
+            "filtroArticuloFacultad"
+        );
+
+    if (texto) {
+
+        texto.addEventListener(
+            "input",
+            filtrarRankingArticulos
+        );
+
+    }
+
+    if (facultad) {
+
+        facultad.addEventListener(
+            "change",
+            filtrarRankingArticulos
+        );
 
     }
 
 }
 
 
-// Exponer solo las funciones que usa el HTML
-window.importarArticulos = importarArticulos;
-window.calcularPuntajesArticulos = calcularPuntajesArticulos;
-window.cargarRankingArticulos = cargarRankingArticulos;
+// ==================================================
+// MENSAJES
+// ==================================================
+
+function mostrarResultadoArticulos(
+    mensaje,
+    exito
+) {
+
+    const resultado =
+        obtenerResultado();
+
+    if (!resultado) {
+        return;
+    }
+
+    resultado.classList.remove(
+        "oculto",
+        "exito",
+        "error"
+    );
+
+    resultado.textContent =
+        mensaje;
+
+    if (exito) {
+
+        resultado.classList.add(
+            "exito"
+        );
+
+    } else {
+
+        resultado.classList.add(
+            "error"
+        );
+
+    }
+
+}
+
+
+// ==================================================
+// EXPONER FUNCIONES AL HTML
+// ==================================================
+
+window.importarArticulos =
+    importarArticulos;
+
+window.calcularPuntajesArticulos =
+    calcularPuntajesArticulos;
+
+window.cargarRankingArticulos =
+    cargarRankingArticulos;
+
+window.filtrarRankingArticulos =
+    filtrarRankingArticulos;
+
+
+// ==================================================
+// INICIALIZACIÓN
+// ==================================================
 
 (async () => {
+
     try {
+
+        configurarFiltrosRankingArticulos();
+
         await cargarProcesoActivo();
+
     } catch (e) {
+
         console.error(e);
+
     }
+
 })();
 
 })();

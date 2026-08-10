@@ -1,125 +1,181 @@
 <section class="module">
 
     <div class="module-header">
-        <h2>Artículos Científicos de Impacto Mundial</h2>
+    
+        <h2>Artículos Científicos</h2>
+    
         <p>
-            Importe publicaciones indexadas en Scopus y Web of Science para el proceso de valoración seleccionado.
+            Importe publicaciones indexadas en Scopus y Web of Science
+            para el proceso de valoración seleccionado.
         </p>
+    
     </div>
-
-    <div class="card">
-
-        <div class="form-grid">
-
-            <div class="card" id="infoProcesoActivoArticulos">
-            
-                <strong>Proceso activo:</strong>
-            
-                <span id="nombreProcesoActivoArticulos">
-                    Cargando...
-                </span>
-            
+    
+    
+    <div class="articulos-layout">
+    
+        <!-- =========================================
+             PANEL IZQUIERDO
+        ========================================== -->
+    
+        <div class="articulos-panel-izquierdo">
+    
+            <div class="card">
+    
+                <h3>
+                    <i class="fa-solid fa-file-excel"></i>
+                    Importación de Artículos
+                </h3>
+    
+                <div class="campo">
+    
+                    <label>Proceso activo</label>
+    
+                    <div class="proceso-activo" id="infoProcesoActivoArticulos">
+    
+                        <strong id="nombreProcesoActivoArticulos">
+                            Cargando...
+                        </strong>
+    
+                    </div>
+    
+                </div>
+    
+    
+                <div class="campo">
+    
+                    <label for="archivoArticulos">
+                        Archivo Excel
+                    </label>
+    
+                    <input type="file" id="archivoArticulos" accept=".xls,.xlsx">
+    
+                </div>
+    
+    
+                <div class="acciones">
+    
+                    <button class="btn btn-primary" data-requiere-edicion onclick="importarArticulos()">
+    
+                        <i class="fa-solid fa-upload"></i>
+    
+                        Importar
+    
+                    </button>
+    
+    
+                    <button class="btn btn-success" data-requiere-edicion onclick="calcularPuntajesArticulos()">
+    
+                        <i class="fa-solid fa-calculator"></i>
+    
+                        Calcular
+    
+                    </button>
+    
+    
+                    <button class="btn btn-warning" onclick="cargarRankingArticulos()">
+    
+                        <i class="fa-solid fa-ranking-star"></i>
+    
+                        Actualizar Ranking
+    
+                    </button>
+    
+                </div>
+    
             </div>
-
-            <div class="campo">
-
-                <label for="archivoArticulos">
-
-                    Archivo Excel
-
-                </label>
-
-                <input type="file" id="archivoArticulos" accept=".xls,.xlsx">
-
+    
+    
+            <!-- RESULTADO -->
+    
+            <div class="card">
+    
+                <h3>
+                    <i class="fa-solid fa-circle-info"></i>
+                    Resultado
+                </h3>
+    
+                <div id="resultadoArticulos" class="resultado oculto">
+    
+                </div>
+    
             </div>
-
+    
         </div>
-
-        <div class="acciones">
-
-            <button
-            class="btn btn-primary"
-            data-requiere-edicion
-            onclick="importarArticulos()">
-
-                <i class="fa-solid fa-upload"></i>
-
-                Importar
-
-            </button>
-
-            <button class="btn btn-success" data-requiere-edicion onclick="calcularPuntajesArticulos()">
-
-                <i class="fa-solid fa-calculator"></i>
-
-                Calcular Puntajes
-
-            </button>
-
-            <button class="btn btn-warning" onclick="cargarRankingArticulos()">
-
-                <i class="fa-solid fa-ranking-star"></i>
-
-                Ver Ranking
-
-            </button>
-
+    
+    
+        <!-- =========================================
+             PANEL DERECHO
+        ========================================== -->
+    
+        <div class="articulos-panel-ranking">
+    
+            <div class="card ranking-card">
+    
+                <h3>
+    
+                    <i class="fa-solid fa-ranking-star"></i>
+    
+                    Ranking de Producción Científica
+    
+                </h3>
+    
+    
+                <!-- FILTROS -->
+    
+                <div class="filtros-ranking">
+                
+                    <input type="text" id="filtroArticuloDocente" placeholder="Buscar por cédula o nombre...">
+                
+                    <select id="filtroArticuloFacultad">
+                
+                        <option value="">
+                            Todas las facultades
+                        </option>
+                
+                    </select>
+                
+                </div>
+    
+    
+                <!-- TABLA -->
+    
+                <div class="ranking-scroll">
+    
+                    <table class="tabla">
+    
+                        <thead>
+    
+                            <tr>
+    
+                                <th>Puesto</th>
+    
+                                <th>Cédula</th>
+    
+                                <th>Docente</th>
+    
+                                <th>Facultad</th>
+    
+                                <th>Carrera</th>
+    
+                                <th>Puntaje</th>
+    
+                            </tr>
+    
+                        </thead>
+    
+                        <tbody id="tablaRankingArticulos">
+    
+                        </tbody>
+    
+                    </table>
+    
+                </div>
+    
+            </div>
+    
         </div>
-
-    </div>
-
-    <div class="card">
-
-        <h3>
-
-            Resultado
-
-        </h3>
-
-        <div id="resultadoArticulos" class="resultado oculto">
-
-        </div>
-
-    </div>
-
-    <div class="card">
-
-        <h3>
-
-            Ranking de Producción Científica
-
-        </h3>
-
-        <div class="table-responsive">
-
-            <table class="tabla">
-
-                <thead>
-
-                    <tr>
-
-                        <th>Puesto</th>
-
-                        <th>Cédula</th>
-
-                        <th>Docente</th>
-
-                        <th>Carrera</th>
-
-                        <th>Puntaje</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="tablaRankingArticulos">
-
-                </tbody>
-
-            </table>
-
-        </div>
-
+    
     </div>
 
 </section>

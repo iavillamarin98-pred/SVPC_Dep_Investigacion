@@ -3,19 +3,20 @@ const MAPA_FACULTADES = {
     // Ciencias de la Computación y Diseño Web
     "SISTEMAS DE INFORMACIÓN":"Facultad de Ciencias de la Computación y Diseño Web",
     "SOFTWARE (REDISEÑO)":"Facultad de Ciencias de la Computación y Diseño Web",
-    "TECNOLOGÍAS DE LA INFORMACIÓN":"Facultad de Ciencias de la Computación y Diseño Web",
-    "TELEMÁTICA":"Facultad de Ciencias de la Computación y Diseño Web",
+    "TECNOLOGÍAS DE LA INFORMACIÓN": "Facultad de Ciencias de la Computación y Diseño Web",
+    "TECNOLOGÍAS DE LA INFORMACIÓN (EN LÍNEA)":"Facultad de Ciencias de la Computación y Diseño Web",
+    "TELEMÁTICA (REDISEÑO)":"Facultad de Ciencias de la Computación y Diseño Web",
 
     // Ciencias Empresariales
     "ADMINISTRACIÓN DE EMPRESAS (REDISEÑO)":"Facultad de Ciencias Empresariales",
     "CONTABILIDAD Y AUDITORÍA (REDISEÑO)":"Facultad de Ciencias Empresariales",
     "GESTIÓN DEL TALENTO HUMANO":"Facultad de Ciencias Empresariales",
-    "MERCADOTECNIA":"Facultad de Ciencias Empresariales",
+    "MERCADOTECNIA (REDISEÑO)":"Facultad de Ciencias Empresariales",
 
     // Ciencias Pecuarias y Biológicas
     "ACUICULTURA":"Facultad de Ciencias Pecuarias y Biológicas",
     "BIOLOGÍA":"Facultad de Ciencias Pecuarias y Biológicas",
-    "AGROPECUARIA":"Facultad de Ciencias Pecuarias y Biológicas",
+    "AGROPECUARIA (REDISEÑO)":"Facultad de Ciencias Pecuarias y Biológicas",
     "ZOOTECNIA (REDISEÑO)":"Facultad de Ciencias Pecuarias y Biológicas",
 
     // Industria y Producción
@@ -28,14 +29,19 @@ const MAPA_FACULTADES = {
     "AGROECOLOGÍA":"Facultad de Ciencias Agrarias y Forestales",
     "AGRONOMÍA (REDISEÑO)":"Facultad de Ciencias Agrarias y Forestales",
     "INGENIERÍA AGRÍCOLA":"Facultad de Ciencias Agrarias y Forestales",
-    "INGENIERÍA FORESTAL":"Facultad de Ciencias Agrarias y Forestales",
+    "INGENIERÍA FORESTAL": "Facultad de Ciencias Agrarias y Forestales",
+    "FORESTAL (REDISEÑO)":"Facultad de Ciencias Agrarias y Forestales",
 
     // Ingeniería
     "ARQUITECTURA":"Facultad de Ciencias de la Ingeniería",
-    "ELECTRICIDAD":"Facultad de Ciencias de la Ingeniería",
+    "ELECTRICIDAD (REDISEÑO)":"Facultad de Ciencias de la Ingeniería",
     "HIDROLOGÍA":"Facultad de Ciencias de la Ingeniería",
-    "INGENIERÍA AMBIENTAL":"Facultad de Ciencias de la Ingeniería",
-    "INGENIERÍA CIVIL":"Facultad de Ciencias de la Ingeniería",
+    "INGENIERIA AMBIENTAL (REDISEÑO)": "Facultad de Ciencias de la Ingeniería",
+    "INGENIERÍA AMBIENTAL (REDISEÑO)": "Facultad de Ciencias de la Ingeniería",
+    "INGENIERÍA AMBIENTAL (HIBRIDA)": "Facultad de Ciencias de la Ingeniería",
+    "INGENIERIA AMBIENTAL (HIBRIDA)": "Facultad de Ciencias de la Ingeniería",
+    "INGENIERÍA CIVIL": "Facultad de Ciencias de la Ingeniería",
+    "INGENIERIA CIVIL":"Facultad de Ciencias de la Ingeniería",
     "MECÁNICA (REDISEÑO)":"Facultad de Ciencias de la Ingeniería",
 
     // Educación
