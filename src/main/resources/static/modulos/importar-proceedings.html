@@ -1,102 +1,155 @@
-<div class="module">
+<div class="module-header">
 
-    <div class="module-header">
+    <h2>Proceedings</h2>
 
-        <h2>Proceedings</h2>
+    <p>
+        Importación, cálculo de puntajes y ranking de Proceedings.
+    </p>
 
-        <p>
-            Importación, cálculo de puntajes y ranking de Proceedings.
-        </p>
+</div>
 
-    </div>
+<div class="proceedings-layout">
 
-    <div class="card">
+    <!-- =========================================
+         PANEL IZQUIERDO
+    ========================================== -->
 
-        <form id="formImportacionProceedings">
+    <div class="proceedings-panel-izquierdo">
 
-            <div class="form-grid">
+        <div class="card">
 
-                <div class="card" id="infoProcesoActivoProceedings">
-                
+            <h3>Importación</h3>
+
+            <form id="formImportacionProceedings">
+
+                <div class="proceso-activo" id="infoProcesoActivoProceedings">
+
                     <strong>Proceso activo:</strong>
-                
+
                     <span id="nombreProcesoActivoProceedings">
                         Cargando...
                     </span>
-                
+
                 </div>
 
-                <div class="campo">
+                <div class="campo" style="margin-top:15px;">
 
-                    <label>Archivo Excel</label>
+                    <label for="archivoProceedings">
+                        Archivo Excel
+                    </label>
 
                     <input type="file" id="archivoProceedings" accept=".xls,.xlsx" required>
 
                 </div>
 
-            </div>
+                <div class="acciones">
 
-            <div class="acciones">
+                    <button class="btn btn-primary" type="submit">
 
-                <button class="btn btn-primary" type="submit">
+                        <i class="fa-solid fa-upload"></i>
+                        Importar
 
-                    Importar Proceedings
+                    </button>
 
-                </button>
+                    <button type="button" class="btn btn-success" onclick="calcularPuntajesProceedings()">
 
-                <button type="button" class="btn btn-success" onclick="calcularPuntajesProceedings()">
+                        <i class="fa-solid fa-calculator"></i>
+                        Calcular Puntajes
 
-                    Calcular Puntajes
+                    </button>
 
-                </button>
+                    <button type="button" class="btn btn-warning" onclick="cargarRankingProceedings()">
 
-                <button type="button" class="btn btn-warning" onclick="cargarRankingProceedings()">
+                        <i class="fa-solid fa-ranking-star"></i>
+                        Ver Ranking
 
-                    Ver Ranking
+                    </button>
 
-                </button>
+                </div>
 
-            </div>
+            </form>
 
-        </form>
+        </div>
+
+        <div id="resultadoProceedings" class="resultado oculto">
+        </div>
 
     </div>
 
-    <div id="resultadoProceedings" class="resultado oculto">
 
-    </div>
+    <!-- =========================================
+         PANEL DERECHO
+    ========================================== -->
 
-    <div id="tablaRankingContenedorProceedings" class="card oculto">
+    <div class="proceedings-panel-ranking">
 
-        <h3>Ranking de Proceedings</h3>
+        <div id="tablaRankingContenedorProceedings" class="card ranking-card">
 
-        <div class="table-responsive">
+            <h3>
+                Ranking de Proceedings
+            </h3>
 
-            <table class="tabla">
+            <!-- FILTROS -->
 
-                <thead>
+            <div class="filtros-ranking">
 
-                    <tr>
+                <div class="campo">
 
-                        <th>Puesto</th>
+                    <label for="filtroProceedingDocente">
+                        Buscar docente
+                    </label>
 
-                        <th>Cédula</th>
+                    <input type="text" id="filtroProceedingDocente" placeholder="Cédula o nombre...">
 
-                        <th>Docente</th>
+                </div>
 
-                        <th>Carrera</th>
+                <div class="campo">
 
-                        <th>Puntaje</th>
+                    <label for="filtroProceedingFacultad">
+                        Facultad
+                    </label>
 
-                    </tr>
+                    <select id="filtroProceedingFacultad">
 
-                </thead>
+                        <option value="">
+                            Todas las facultades
+                        </option>
 
-                <tbody id="tablaRankingProceedings">
+                    </select>
 
-                </tbody>
+                </div>
 
-            </table>
+            </div>
+
+
+            <!-- TABLA -->
+
+            <div class="ranking-scroll">
+
+                <table class="tabla">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Puesto</th>
+                            <th>Cédula</th>
+                            <th>Docente</th>
+                            <th>Facultad</th>
+                            <th>Carrera</th>
+                            <th>Puntaje</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tablaRankingProceedings">
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 

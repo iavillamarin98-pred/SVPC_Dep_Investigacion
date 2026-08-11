@@ -1,5 +1,9 @@
 <div class="module">
 
+    <!-- ==========================================
+         ENCABEZADO
+         ========================================== -->
+
     <div class="module-header">
 
         <h2>Libros</h2>
@@ -10,157 +14,177 @@
 
     </div>
 
-    <div class="card">
 
-        <form id="formImportacionLibros">
+    <!-- ==========================================
+         CONTENIDO PRINCIPAL
+         ========================================== -->
 
-            <div class="form-grid">
+    <div class="libros-layout">
 
-                <div class="card" id="infoProcesoActivoLibros">
-                
-                    <strong>Proceso activo:</strong>
-                
-                    <span id="nombreProcesoActivoLibros">
-                        Cargando...
-                    </span>
-                
-                </div>
 
-                <div class="campo">
+        <!-- ======================================
+             PANEL IZQUIERDO
+             ====================================== -->
 
-                    <label>Archivo Excel</label>
+        <div class="libros-panel-izquierdo">
 
-                    <input type="file" id="archivoLibros" accept=".xls,.xlsx" required>
+            <div class="card">
 
-                </div>
+                <form id="formImportacionLibros">
+
+                    <!-- PROCESO ACTIVO -->
+
+                    <div class="campo">
+
+                        <label>
+                            Proceso activo
+                        </label>
+
+                        <div class="proceso-activo" id="infoProcesoActivoLibros">
+
+                            <strong>
+
+                                <span id="nombreProcesoActivoLibros">
+                                    Cargando...
+                                </span>
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ARCHIVO -->
+
+                    <div class="campo">
+
+                        <label for="archivoLibros">
+                            Archivo Excel
+                        </label>
+
+                        <input type="file" id="archivoLibros" accept=".xls,.xlsx" required>
+
+                    </div>
+
+
+                    <!-- BOTONES -->
+
+                    <div class="acciones">
+
+                        <button class="btn btn-primary" type="submit" data-requiere-edicion>
+
+                            <i class="fa-solid fa-upload"></i>
+
+                            Importar
+
+                        </button>
+
+
+                        <button type="button" class="btn btn-success" data-requiere-edicion
+                            onclick="calcularPuntajesLibros()">
+
+                            <i class="fa-solid fa-calculator"></i>
+
+                            Calcular Puntajes
+
+                        </button>
+
+
+                        <button type="button" class="btn btn-warning" onclick="cargarRankingLibros()">
+
+                            <i class="fa-solid fa-ranking-star"></i>
+
+                            Ver Ranking
+
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
-            <div class="acciones">
 
-                <button class="btn btn-primary" type="submit">
+            <!-- RESULTADO -->
 
-                    Importar Libros
+            <div id="resultadoLibros" class="resultado oculto"></div>
 
-                </button>
+        </div>
 
-                <button type="button" class="btn btn-success" onclick="calcularPuntajesLibros()">
 
-                    Calcular Puntajes
+        <!-- ======================================
+             PANEL DERECHO
+             ====================================== -->
 
-                </button>
+        <div class="libros-panel-ranking">
 
-                <button type="button" class="btn btn-warning" onclick="cargarRankingLibros()">
 
-                    Ver Ranking
+            <!-- ==================================
+                 FILTROS
+                 SIEMPRE VISIBLES
+                 ================================== -->
 
-                </button>
-
+            <div id="filtrosRankingLibros" class="card">
+            
+                <h3>Filtros de búsqueda</h3>
+            
+                <div class="filtros-ranking">
+            
+                    <input type="text" id="filtroLibroDocente" placeholder="Buscar por cédula o docente">
+            
+                    <select id="filtroLibroFacultad">
+            
+                        <option value="">
+                            Todas las facultades
+                        </option>
+            
+                    </select>
+            
+                </div>
+            
             </div>
 
-        </form>
 
-    </div>
+            <!-- ==================================
+                 TABLA
+                 SIEMPRE VISIBLE
+                 ================================== -->
 
-    <div id="resultadoLibros" class="resultado oculto">
-
-    </div>
-
-    <div id="filtrosRankingLibros" class="card oculto">
-    
-        <input type="text" id="filtroCedula" placeholder="Buscar por cédula">
-    
-        <input type="text" id="filtroDocente" placeholder="Buscar docente">
-    
-        <select id="filtroCarrera">
-    
-            <option value="">Todas las carreras</option>
-    
-        </select>
-    
-        <select id="filtroFacultad">
-    
-            <option value="">Todas las facultades</option>
-    
-            <option value="Facultad de Ciencias de la Computación y Diseño Web">
-                Ciencias de la Computación y Diseño Web
-            </option>
-    
-            <option value="Facultad de Ciencias Empresariales">
-                Ciencias Empresariales
-            </option>
-    
-            <option value="Facultad de Ciencias Pecuarias y Biológicas">
-                Ciencias Pecuarias y Biológicas
-            </option>
-    
-            <option value="Facultad de Ciencias de la Industria y Producción">
-                Ciencias de la Industria y Producción
-            </option>
-    
-            <option value="Facultad de Ciencias Agrarias y Forestales">
-                Ciencias Agrarias y Forestales
-            </option>
-    
-            <option value="Facultad de Ciencias de la Ingeniería">
-                Ciencias de la Ingeniería
-            </option>
-    
-            <option value="Facultad de Ciencias de la Educación">
-                Ciencias de la Educación
-            </option>
-    
-            <option value="Facultad de Ciencias de la Salud">
-                Ciencias de la Salud
-            </option>
-    
-            <option value="Facultad de Ciencias Sociales, Económicas y Financieras">
-                Ciencias Sociales, Económicas y Financieras
-            </option>
-    
-        </select>
-    
-        <select id="filtroTop">
-    
-            <option value="0">Todos</option>
-    
-            <option value="10">Top 10</option>
-    
-            <option value="20">Top 20</option>
-    
-            <option value="50">Top 50</option>
-    
-        </select>
-    
-    </div>
-
-    <div id="tablaRankingContenedorLibros" class="card oculto">
-
-        <h3>Ranking de Libros</h3>
-
-        <div class="table-responsive">
-
-            <table class="tabla">
-
-                <thead>
-
-                    <tr>
-
-                        <th>Puesto</th>
-                        <th>Cédula</th>
-                        <th>Docente</th>
-                        <th>Carrera</th>
-                        <th>Puntaje</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="tablaRankingLibros">
-
-                </tbody>
-
-            </table>
+            <div id="tablaRankingContenedorLibros" class="card ranking-card">
+            
+                <h3>
+                    Ranking de Producción Científica
+                </h3>
+            
+                <div class="ranking-scroll">
+            
+                    <table class="tabla">
+            
+                        <thead>
+            
+                            <tr>
+            
+                                <th>Puesto</th>
+                                <th>Cédula</th>
+                                <th>Docente</th>
+                                <th>Facultad</th>
+                                <th>Carrera</th>
+                                <th>Puntaje</th>
+            
+                            </tr>
+            
+                        </thead>
+            
+                        <tbody id="tablaRankingLibros">
+            
+                        </tbody>
+            
+                    </table>
+            
+                </div>
+            
+            </div>
 
         </div>
 

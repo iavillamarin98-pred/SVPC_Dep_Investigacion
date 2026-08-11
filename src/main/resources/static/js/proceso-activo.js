@@ -1,4 +1,4 @@
-let PROCESO_ACTIVO = null;
+var PROCESO_ACTIVO = null;
 
 async function cargarProcesoActivo() {
 
