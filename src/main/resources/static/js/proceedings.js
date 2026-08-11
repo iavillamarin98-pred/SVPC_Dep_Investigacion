@@ -1,282 +1,732 @@
 (() => {
 
-//=========================================
-// MÓDULO PROCEEDINGS
-//=========================================
+    // =========================================
+    // MÓDULO PROCEEDINGS
+    // SVPC
+    // =========================================
 
-function obtenerResultadoProceedings() {
-    return document.getElementById("resultadoProceedings");
-}
-
-function obtenerTablaRankingProceedings() {
-    return document.getElementById("tablaRankingProceedings");
-}
+    let rankingProceedings = [];
 
 
+    // =========================================
+    // ELEMENTOS DEL DOM
+    // =========================================
 
-function obtenerArchivoProceedings() {
-    return document.getElementById("archivoProceedings").files[0];
-}
+    function obtenerResultadoProceedings() {
 
-//=========================================
-// INICIALIZAR
-//=========================================
-// Envuelto en IIFE para no declarar "form" en el scope global
-// del documento (evita el SyntaxError al recargar el módulo).
-// El dataset.listenerAgregado evita agregar el listener duplicado
-// si el nodo del formulario persiste entre cargas del módulo.
-
-(function inicializarFormProceedings() {
-
-    const form = document.getElementById("formImportacionProceedings");
-
-    if (form && !form.dataset.listenerAgregado) {
-
-        form.addEventListener("submit", async (e) => {
-
-            e.preventDefault();
-
-            await importarProceedings();
-
-        });
-
-        form.dataset.listenerAgregado = "true";
+        return document.getElementById(
+            "resultadoProceedings"
+        );
 
     }
 
-})();
 
-//=========================================
-// IMPORTAR
-//=========================================
+    function obtenerTablaRankingProceedings() {
+
+        return document.getElementById(
+            "tablaRankingProceedings"
+        );
+
+    }
+
+
+    function obtenerArchivoProceedings() {
+
+        const input =
+            document.getElementById(
+                "archivoProceedings"
+            );
+
+        return input?.files?.[0];
+
+    }
+
+
+    // =========================================
+    // INICIALIZAR FORMULARIO
+    // =========================================
+
+    (function inicializarFormProceedings() {
+
+        const form =
+            document.getElementById(
+                "formImportacionProceedings"
+            );
+
+        if (
+            form &&
+            !form.dataset.listenerAgregado
+        ) {
+
+            form.addEventListener(
+                "submit",
+                async function (e) {
+
+                    e.preventDefault();
+
+                    await importarProceedings();
+
+                }
+            );
+
+            form.dataset.listenerAgregado =
+                "true";
+
+        }
+
+    })();
+
+
+    // =========================================
+    // IMPORTAR
+    // =========================================
 
     async function importarProceedings() {
-    
-        if (!validarProcesoEditable()) return;
 
-    const archivo = obtenerArchivoProceedings();
-    const idProceso = obtenerIdProceso();
-
-    if (!archivo) {
-
-        mostrarResultadoProceedings(
-            "Seleccione un archivo.",
-            false
-        );
-
-        return;
-
-    }
-
-    const formData = new FormData();
-
-    formData.append("archivo", archivo);
-    formData.append("idProceso", idProceso);
-
-    mostrarResultadoProceedings(
-        "Importando proceedings...",
-        true
-    );
-
-    try {
-
-        const response = await fetch(
-            "/api/importaciones/proceedings",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
-
-        const texto = await response.text();
-
-        mostrarResultadoProceedings(
-            texto,
-            response.ok
-        );
-
-    } catch (e) {
-
-        mostrarResultadoProceedings(
-            e.message,
-            false
-        );
-
-    }
-
-}
-
-//=========================================
-// CALCULAR
-//=========================================
-
-    async function calcularPuntajesProceedings() {
-    if (!validarProcesoEditable()) return;
-
-    const idProceso = obtenerIdProceso();
-
-    
-
-    mostrarResultadoProceedings(
-        "Calculando puntajes...",
-        true
-    );
-
-    try {
-
-        const response = await fetch(
-
-            "/api/calculos/proceedings?idProceso=" +
-            encodeURIComponent(idProceso),
-
-            {
-                method: "POST"
-            }
-
-        );
-
-        const texto = await response.text();
-
-        mostrarResultadoProceedings(
-            texto,
-            response.ok
-        );
-
-        if (response.ok) {
-
-            await cargarRankingProceedings();
-
-        }
-
-    } catch (e) {
-
-        mostrarResultadoProceedings(
-            e.message,
-            false
-        );
-
-    }
-
-}
-
-//=========================================
-// RANKING
-//=========================================
-
-async function cargarRankingProceedings() {
-
-    const idProceso = obtenerIdProceso();
-
-    
-
-    mostrarResultadoProceedings(
-        "Cargando ranking...",
-        true
-    );
-
-    try {
-
-        const response = await fetch(
-            "/api/calculos/proceedings/ranking?idProceso=" +
-            encodeURIComponent(idProceso)
-        );
-
-        if (!response.ok) {
-            const error = await response.text();
-            mostrarResultadoProceedings(error, false);
+        if (!validarProcesoEditable()) {
             return;
         }
 
-        const datos = await response.json();
+        const archivo =
+            obtenerArchivoProceedings();
 
-        const tabla = obtenerTablaRankingProceedings();
-        tabla.innerHTML = "";
+        const idProceso =
+            obtenerIdProceso();
 
-        if (datos.length === 0) {
+
+        if (!archivo) {
+
             mostrarResultadoProceedings(
-                "No existen puntajes para este proceso.",
+                "Seleccione un archivo.",
                 false
             );
+
             return;
+
         }
 
-        datos.forEach(item => {
 
-            const fila = document.createElement("tr");
+        const formData =
+            new FormData();
 
-            const nombreCompleto =
-                `${item.nombres ?? ""} ${item.apellidos ?? ""}`.trim();
+        formData.append(
+            "archivo",
+            archivo
+        );
 
-            fila.innerHTML = `
-                <td>${item.puesto}</td>
-                <td>${item.cedula ?? ""}</td>
-                <td>${nombreCompleto}</td>
-                <td>${item.carrera ?? ""}</td>
-                <td>
-                    <strong>
-                        ${Number(item.puntajeArticulos ?? 0).toFixed(2)}
-                    </strong>
-                </td>
-            `;
+        formData.append(
+            "idProceso",
+            idProceso
+        );
 
-            tabla.appendChild(fila);
-
-        });
-
-        const contenedor = document.getElementById("tablaRankingContenedorProceedings");
-        if (contenedor) {
-            contenedor.classList.remove("oculto");
-        }
 
         mostrarResultadoProceedings(
-            "Ranking cargado correctamente.",
+            "Importando Proceedings...",
             true
         );
 
-    } catch (error) {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/importaciones/proceedings",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+            const texto =
+                await response.text();
+
+
+            mostrarResultadoProceedings(
+                texto,
+                response.ok
+            );
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            mostrarResultadoProceedings(
+                "Error al conectar con el servidor: " +
+                error.message,
+                false
+            );
+
+        }
+
+    }
+
+
+    // =========================================
+    // CALCULAR PUNTAJES
+    // =========================================
+
+    async function calcularPuntajesProceedings() {
+
+        if (!validarProcesoEditable()) {
+            return;
+        }
+
+        const idProceso =
+            obtenerIdProceso();
+
 
         mostrarResultadoProceedings(
-            "Error al cargar ranking: " + error.message,
-            false
+            "Calculando puntajes...",
+            true
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+
+                    "/api/calculos/proceedings?idProceso=" +
+                    encodeURIComponent(idProceso),
+
+                    {
+                        method: "POST"
+                    }
+
+                );
+
+
+            const texto =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                mostrarResultadoProceedings(
+                    texto,
+                    false
+                );
+
+                return;
+
+            }
+
+
+            mostrarResultadoProceedings(
+                texto,
+                true
+            );
+
+
+            await cargarRankingProceedings();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            mostrarResultadoProceedings(
+                "Error al conectar con el servidor: " +
+                error.message,
+                false
+            );
+
+        }
+
+    }
+
+
+    // =========================================
+    // CARGAR RANKING
+    // =========================================
+
+    async function cargarRankingProceedings() {
+
+        const idProceso =
+            obtenerIdProceso();
+
+
+        mostrarResultadoProceedings(
+            "Cargando ranking...",
+            true
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+
+                    "/api/calculos/proceedings/ranking?idProceso=" +
+                    encodeURIComponent(idProceso)
+
+                );
+
+
+            if (!response.ok) {
+
+                const error =
+                    await response.text();
+
+                mostrarResultadoProceedings(
+                    error,
+                    false
+                );
+
+                return;
+
+            }
+
+
+            const datos =
+                await response.json();
+
+
+            // Guardar ranking original
+            rankingProceedings =
+                datos;
+
+
+            // Cargar facultades
+            cargarFacultadesRankingProceedings();
+
+
+            // Mostrar ranking
+            mostrarRankingProceedings(
+                rankingProceedings
+            );
+
+
+            const contenedor =
+                document.getElementById(
+                    "tablaRankingContenedorProceedings"
+                );
+
+
+            if (contenedor) {
+
+                contenedor.classList.remove(
+                    "oculto"
+                );
+
+            }
+
+
+            mostrarResultadoProceedings(
+                "Ranking cargado correctamente.",
+                true
+            );
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            mostrarResultadoProceedings(
+                "Error al cargar ranking: " +
+                error.message,
+                false
+            );
+
+        }
+
+    }
+
+
+    // =========================================
+    // CARGAR FACULTADES
+    // =========================================
+
+    function cargarFacultadesRankingProceedings() {
+
+        const select =
+            document.getElementById(
+                "filtroProceedingFacultad"
+            );
+
+
+        if (!select) {
+            return;
+        }
+
+
+        const facultades = [
+
+            ...new Set(
+
+                rankingProceedings
+
+                    .map(item =>
+                        obtenerFacultad(
+                            item.carrera
+                        )
+                    )
+
+                    .filter(
+                        facultad =>
+                            facultad &&
+                            facultad.trim() !== ""
+                    )
+
+            )
+
+        ].sort();
+
+
+        select.innerHTML = `
+
+            <option value="">
+                Todas las facultades
+            </option>
+
+        `;
+
+
+        facultades.forEach(
+            facultad => {
+
+                select.innerHTML += `
+
+                    <option value="${facultad}">
+                        ${facultad}
+                    </option>
+
+                `;
+
+            }
         );
 
     }
 
-}
 
-//=========================================
-// MENSAJES
-//=========================================
+    // =========================================
+    // FILTRAR RANKING
+    // CÉDULA + NOMBRE + FACULTAD
+    // =========================================
 
-function mostrarResultadoProceedings(mensaje, exito) {
+    function filtrarRankingProceedings() {
 
-    const resultado = obtenerResultadoProceedings();
+        const input =
+            document.getElementById(
+                "filtroProceedingDocente"
+            );
 
-    if (!resultado) {
-        console.error("No existe el elemento resultadoProceedings");
-        return;
+
+        const select =
+            document.getElementById(
+                "filtroProceedingFacultad"
+            );
+
+
+        const texto =
+            input
+                ? input.value
+                    .trim()
+                    .toUpperCase()
+                : "";
+
+
+        const facultadSeleccionada =
+            select
+                ? select.value
+                : "";
+
+
+        const filtrados =
+            rankingProceedings.filter(
+                item => {
+
+
+                    const cedula =
+                        String(
+                            item.cedula ?? ""
+                        )
+                        .toUpperCase();
+
+
+                    const nombre =
+                        `${item.nombres ?? ""} ${
+                            item.apellidos ?? ""
+                        }`
+                        .trim()
+                        .toUpperCase();
+
+
+                    const facultad =
+                        obtenerFacultad(
+                            item.carrera
+                        );
+
+
+                    const coincideTexto =
+
+                        texto === "" ||
+
+                        cedula.includes(
+                            texto
+                        ) ||
+
+                        nombre.includes(
+                            texto
+                        );
+
+
+                    const coincideFacultad =
+
+                        facultadSeleccionada === "" ||
+
+                        facultad ===
+                            facultadSeleccionada;
+
+
+                    return (
+                        coincideTexto &&
+                        coincideFacultad
+                    );
+
+                }
+            );
+
+
+        mostrarRankingProceedings(
+            filtrados
+        );
+
     }
 
-    resultado.classList.remove("oculto");
-    resultado.classList.remove("exito");
-    resultado.classList.remove("error");
 
-    resultado.textContent = mensaje;
+    // =========================================
+    // MOSTRAR RANKING
+    // =========================================
 
-    resultado.classList.add(exito ? "exito" : "error");
-}
+    function mostrarRankingProceedings(lista) {
 
-// Exponer funciones al HTML
-window.importarProceedings = importarProceedings;
-window.calcularPuntajesProceedings = calcularPuntajesProceedings;
-window.cargarRankingProceedings = cargarRankingProceedings;
+        const tabla =
+            obtenerTablaRankingProceedings();
 
-(async () => {
-    try {
-        await cargarProcesoActivo();
-    } catch (e) {
-        console.error(e);
+
+        if (!tabla) {
+            return;
+        }
+
+
+        tabla.innerHTML = "";
+
+
+        if (
+            !lista ||
+            lista.length === 0
+        ) {
+
+            tabla.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        style="text-align:center;"
+                    >
+
+                        No se encontraron docentes.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
+
+        lista.forEach(
+            (item, indice) => {
+
+
+                const nombreCompleto =
+                    `${item.nombres ?? ""} ${
+                        item.apellidos ?? ""
+                    }`
+                    .trim();
+
+
+                const facultad =
+                    obtenerFacultad(
+                        item.carrera
+                    );
+
+
+                tabla.innerHTML += `
+
+                    <tr>
+
+                        <td>
+                            ${indice + 1}
+                        </td>
+
+                        <td>
+                            ${item.cedula ?? ""}
+                        </td>
+
+                        <td>
+
+                            <strong>
+                                ${nombreCompleto}
+                            </strong>
+
+                        </td>
+
+                        <td>
+                            ${facultad}
+                        </td>
+
+                        <td>
+                            ${item.carrera ?? ""}
+                        </td>
+
+                        <td>
+
+                            <strong>
+
+                                ${
+                                    Number(
+                                        item.puntajeProceedings ??
+                                        item.puntajeArticulos ??
+                                        0
+                                    ).toFixed(2)
+                                }
+
+                            </strong>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
     }
-})();
+
+
+    // =========================================
+    // CONFIGURAR FILTROS
+    // =========================================
+
+    function configurarFiltrosRankingProceedings() {
+
+        const texto =
+            document.getElementById(
+                "filtroProceedingDocente"
+            );
+
+
+        const facultad =
+            document.getElementById(
+                "filtroProceedingFacultad"
+            );
+
+
+        if (texto) {
+
+            texto.addEventListener(
+                "input",
+                filtrarRankingProceedings
+            );
+
+        }
+
+
+        if (facultad) {
+
+            facultad.addEventListener(
+                "change",
+                filtrarRankingProceedings
+            );
+
+        }
+
+    }
+
+
+    // =========================================
+    // MENSAJES
+    // =========================================
+
+    function mostrarResultadoProceedings(
+        mensaje,
+        exito
+    ) {
+
+        const resultado =
+            obtenerResultadoProceedings();
+
+
+        if (!resultado) {
+            return;
+        }
+
+
+        resultado.classList.remove(
+            "oculto",
+            "exito",
+            "error"
+        );
+
+
+        resultado.textContent =
+            mensaje;
+
+
+        resultado.classList.add(
+            exito
+                ? "exito"
+                : "error"
+        );
+
+    }
+
+
+    // =========================================
+    // EXPONER FUNCIONES
+    // =========================================
+
+    window.importarProceedings =
+        importarProceedings;
+
+    window.calcularPuntajesProceedings =
+        calcularPuntajesProceedings;
+
+    window.cargarRankingProceedings =
+        cargarRankingProceedings;
+
+    window.filtrarRankingProceedings =
+        filtrarRankingProceedings;
+
+
+    // =========================================
+    // INICIALIZACIÓN
+    // =========================================
+
+    (async () => {
+
+        try {
+
+            configurarFiltrosRankingProceedings();
+
+            await cargarProcesoActivo();
+
+        } catch (e) {
+
+            console.error(e);
+
+        }
+
+    })();
+
 
 })();

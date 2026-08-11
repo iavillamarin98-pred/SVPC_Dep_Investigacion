@@ -1,182 +1,66 @@
 (() => {
-let rankingCompleto = [];
-//=========================================
-// MÓDULO LIBROS
-//=========================================
 
-function obtenerResultadoLibros() {
-    return document.getElementById("resultadoLibros");
-}
+    // ==================================================
+    // MÓDULO LIBROS
+    // ==================================================
 
-function obtenerTablaRankingLibros() {
-    return document.getElementById("tablaRankingLibros");
-}
+    let rankingLibros = [];
 
 
+    // ==================================================
+    // ELEMENTOS DEL DOM
+    // ==================================================
 
-function obtenerArchivoLibros() {
-    return document.getElementById("archivoLibros").files[0];
-}
+    function obtenerResultadoLibros() {
 
-//=========================================
-// INICIALIZAR
-//=========================================
-
-const form = document.getElementById("formImportacionLibros");
-
-
-
-if (form) {
-
-    form.addEventListener("submit", async function (e) {
-
-    
-
-    e.preventDefault();
-
-    await importarLibros();
-
-    });
-
-}
-
-//=========================================
-// IMPORTAR
-//=========================================
-
-async function importarLibros() {
-if (!validarProcesoEditable()) return;
-    
-
-
-    const archivo = obtenerArchivoLibros();
-    const idProceso = obtenerIdProceso();
-
-    if (!archivo) {
-
-        mostrarResultadoLibros(
-            "Seleccione un archivo.",
-            false
-        );
-
-        return;
-
-    }
-
-    const formData = new FormData();
-
-    formData.append("archivo", archivo);
-    formData.append("idProceso", idProceso);
-
-    mostrarResultadoLibros(
-        "Importando libros...",
-        true
-    );
-
-    try {
-
-        const response = await fetch(
-            "/api/importaciones/libros",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
-
-        const texto = await response.text();
-
-        mostrarResultadoLibros(
-            texto,
-            response.ok
+        return document.getElementById(
+            "resultadoLibros"
         );
 
     }
 
-    catch (e) {
 
-        mostrarResultadoLibros(
-            e.message,
-            false
+    function obtenerTablaRankingLibros() {
+
+        return document.getElementById(
+            "tablaRankingLibros"
         );
 
     }
 
-}
 
-//=========================================
-// CALCULAR
-//=========================================
+    function obtenerArchivoLibros() {
 
-    async function calcularPuntajesLibros() {
-    if (!validarProcesoEditable()) return;
+        const input =
+            document.getElementById(
+                "archivoLibros"
+            );
 
-    const idProceso = obtenerIdProceso();
+        return input?.files?.[0];
 
-    mostrarResultadoLibros(
-        "Calculando puntajes...",
-        true
-    );
+    }
 
-    try {
 
-        const response = await fetch(
+    // ==================================================
+    // IMPORTAR LIBROS
+    // ==================================================
 
-            "/api/calculos/libros?idProceso=" +
-            encodeURIComponent(idProceso),
+    async function importarLibros() {
 
-            {
-                method: "POST"
-            }
-
-        );
-
-        const texto = await response.text();
-
-        mostrarResultadoLibros(
-            texto,
-            response.ok
-        );
-
-        if (response.ok) {
-
-            await cargarRankingLibros();
-
+        if (!validarProcesoEditable()) {
+            return;
         }
 
-    }
+        const archivo =
+            obtenerArchivoLibros();
 
-    catch (e) {
+        const idProceso =
+            obtenerIdProceso();
 
-        mostrarResultadoLibros(
-            e.message,
-            false
-        );
-
-    }
-
-}
-
-//=========================================
-// RANKING
-//=========================================
-
-async function cargarRankingLibros() {
-
-    const idProceso = obtenerIdProceso();
-
-    try {
-
-        const response = await fetch(
-
-            "/api/calculos/libros/ranking?idProceso=" +
-            encodeURIComponent(idProceso)
-
-        );
-
-        if (!response.ok) {
+        if (!archivo) {
 
             mostrarResultadoLibros(
-                await response.text(),
+                "Debe seleccionar un archivo Excel.",
                 false
             );
 
@@ -184,24 +68,207 @@ async function cargarRankingLibros() {
 
         }
 
-        const datos = await response.json();
+        const formData =
+            new FormData();
 
-rankingCompleto = datos;
+        formData.append(
+            "archivo",
+            archivo
+        );
 
-cargarCarreras();
+        formData.append(
+            "idProceso",
+            idProceso
+        );
 
-aplicarFiltros();
+        mostrarResultadoLibros(
+            "Importando libros...",
+            true
+        );
 
-document
-.getElementById("filtrosRankingLibros")
-.classList.remove("oculto");
+        try {
+
+            const response =
+                await fetch(
+                    "/api/importaciones/libros",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+            const texto =
+                await response.text();
+
+            mostrarResultadoLibros(
+                texto,
+                response.ok
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            mostrarResultadoLibros(
+                "Error al importar libros: " +
+                error.message,
+                false
+            );
+
+        }
 
     }
 
-    catch (e) {
+
+    // ==================================================
+    // CALCULAR PUNTAJES
+    // ==================================================
+
+    async function calcularPuntajesLibros() {
+
+        if (!validarProcesoEditable()) {
+            return;
+        }
+
+        const idProceso =
+            obtenerIdProceso();
 
         mostrarResultadoLibros(
-            e.message,
+            "Calculando puntajes...",
+            true
+        );
+
+        try {
+
+            const response =
+                await fetch(
+
+                    "/api/calculos/libros?idProceso=" +
+                    encodeURIComponent(idProceso),
+
+                    {
+                        method: "POST"
+                    }
+
+                );
+
+            const texto =
+                await response.text();
+
+            mostrarResultadoLibros(
+                texto,
+                response.ok
+            );
+
+            if (response.ok) {
+
+                await cargarRankingLibros();
+
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            mostrarResultadoLibros(
+                "Error al calcular puntajes: " +
+                error.message,
+                false
+            );
+
+        }
+
+    }
+
+
+    // ==================================================
+    // CARGAR RANKING
+    // ==================================================
+
+    async function cargarRankingLibros() {
+
+    // Asegurar que el proceso esté cargado
+    if (!PROCESO_ACTIVO) {
+
+        await cargarProcesoActivo();
+
+    }
+
+    // Si definitivamente no existe proceso,
+    // no intentar consultar el ranking
+    if (!PROCESO_ACTIVO) {
+
+        mostrarResultadoLibros(
+            "No existe un proceso de valoración activo.",
+            false
+        );
+
+        return;
+
+    }
+
+    const idProceso =
+        obtenerIdProceso();
+
+    mostrarResultadoLibros(
+        "Cargando ranking...",
+        true
+    );
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/calculos/libros/ranking?idProceso=" +
+                encodeURIComponent(idProceso)
+            );
+
+        if (!response.ok) {
+
+            const error =
+                await response.text();
+
+            mostrarResultadoLibros(
+                error,
+                false
+            );
+
+            return;
+
+        }
+
+        const datos =
+            await response.json();
+
+        console.log(
+            "Ranking de libros recibido:",
+            datos
+        );
+
+        rankingLibros =
+            Array.isArray(datos)
+                ? datos
+                : [];
+
+        cargarFacultadesRankingLibros();
+
+        filtrarRankingLibros();
+
+        mostrarResultadoLibros(
+            "Ranking cargado correctamente.",
+            true
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando ranking de libros:",
+            error
+        );
+
+        mostrarResultadoLibros(
+            "Error al cargar ranking: " +
+            error.message,
             false
         );
 
@@ -209,159 +276,433 @@ document
 
 }
 
-//=========================================
-// MENSAJES
-//=========================================
+    // ==================================================
+    // CARGAR FACULTADES
+    // ==================================================
 
-function mostrarResultadoLibros(mensaje, exito) {
+    function cargarFacultadesRankingLibros() {
 
-    const resultado = obtenerResultadoLibros();
+        const select =
+            document.getElementById(
+                "filtroLibroFacultad"
+            );
 
-    if (!resultado) return;
 
-    resultado.classList.remove("oculto");
-    resultado.classList.remove("exito");
-    resultado.classList.remove("error");
+        if (!select) {
+            return;
+        }
 
-    resultado.textContent = mensaje;
 
-    resultado.classList.add(
-        exito ? "exito" : "error"
-    );
+        const facultades =
+            [
+                ...new Set(
 
-}
-function pintarTabla(datos){
+                    rankingLibros
+                        .map(item => {
 
-    const tabla = obtenerTablaRankingLibros();
+                            if (item.facultad) {
 
-    let html = "";
+                                return item.facultad;
 
-    datos.forEach(item => {
+                            }
 
-        html += `
+                            if (
+                                typeof obtenerFacultad ===
+                                "function"
+                            ) {
 
-        <tr>
+                                return obtenerFacultad(
+                                    item.carrera
+                                );
 
-            <td>${item.posicion ?? ""}</td>
+                            }
 
-            <td>${item.cedula ?? ""}</td>
+                            return "";
 
-            <td>${item.apellidos ?? ""} ${item.nombres ?? ""}</td>
+                        })
 
-            <td>${item.carrera ?? "Sin carrera"}</td>
+                        .filter(
+                            facultad =>
+                                facultad &&
+                                facultad.trim() !== ""
+                        )
 
-            <td><strong>${Number(item.puntajeLibros ?? 0).toFixed(2)}</strong></td>
+                )
+            ].sort();
 
-        </tr>
+
+        select.innerHTML = `
+
+            <option value="">
+                Todas las facultades
+            </option>
 
         `;
 
-    });
 
-    tabla.innerHTML = html;
+        facultades.forEach(
+            facultad => {
 
-}
+                const option =
+                    document.createElement(
+                        "option"
+                    );
 
+                option.value =
+                    facultad;
 
-function cargarCarreras(){
+                option.textContent =
+                    facultad;
 
-    const select = document.getElementById("filtroCarrera");
+                select.appendChild(
+                    option
+                );
 
-    if(!select) return;
-
-    select.innerHTML = "<option value=''>Todas las carreras</option>";
-
-    const carreras = [
-        ...new Set(
-            rankingCompleto
-                .map(x => x.carrera)
-                .filter(c => c)
-        )
-    ];
-
-    carreras.sort();
-
-    carreras.forEach(c=>{
-
-        select.innerHTML += `<option value="${c}">${c}</option>`;
-
-    });
-
-}
-
-function aplicarFiltros(){
-
-    const txtCedula=document.getElementById("filtroCedula");
-    const txtDocente=document.getElementById("filtroDocente");
-    const cmbCarrera=document.getElementById("filtroCarrera");
-    const cmbFacultad=document.getElementById("filtroFacultad");
-    const cmbTop=document.getElementById("filtroTop");
-
-    if(!txtCedula) return;
-
-    const cedula = txtCedula.value.toLowerCase();
-    const docente = txtDocente.value.toLowerCase();
-    const carrera = cmbCarrera.value;
-    const facultad = cmbFacultad.value;
-    const top = parseInt(cmbTop.value);
-
-    let datos = rankingCompleto.filter(item=>{
-
-        const nombre=(item.apellidos+" "+item.nombres).toLowerCase();
-
-        return item.cedula.toLowerCase().includes(cedula)
-
-            && nombre.includes(docente)
-
-            && (carrera==="" || item.carrera===carrera)
-
-            && (facultad==="" || obtenerFacultad(item.carrera)===facultad);
-
-    });
-
-    if(top>0){
-
-        datos=datos.slice(0,top);
+            }
+        );
 
     }
 
-    pintarTabla(datos);
 
+    // ==================================================
+    // FILTRAR RANKING
+    // CÉDULA + NOMBRE + FACULTAD
+    // ==================================================
+
+    function filtrarRankingLibros() {
+
+        const input =
+            document.getElementById(
+                "filtroLibroDocente"
+            );
+
+
+        const select =
+            document.getElementById(
+                "filtroLibroFacultad"
+            );
+
+
+        const texto =
+            input
+                ? input.value
+                    .trim()
+                    .toUpperCase()
+                : "";
+
+
+        const facultadSeleccionada =
+            select
+                ? select.value
+                : "";
+
+
+        const filtrados =
+            rankingLibros.filter(
+                item => {
+
+
+                    const cedula =
+                        String(
+                            item.cedula ?? ""
+                        )
+                        .toUpperCase();
+
+
+                    const nombre =
+                        `${item.nombres ?? ""} ${item.apellidos ?? ""}`
+                            .trim()
+                            .toUpperCase();
+
+
+                    let facultad =
+                        item.facultad ?? "";
+
+
+                    if (
+                        !facultad &&
+                        typeof obtenerFacultad ===
+                        "function"
+                    ) {
+
+                        facultad =
+                            obtenerFacultad(
+                                item.carrera
+                            );
+
+                    }
+
+
+                    const coincideTexto =
+
+                        texto === "" ||
+
+                        cedula.includes(
+                            texto
+                        ) ||
+
+                        nombre.includes(
+                            texto
+                        );
+
+
+                    const coincideFacultad =
+
+                        facultadSeleccionada === "" ||
+
+                        facultad ===
+                            facultadSeleccionada;
+
+
+                    return (
+
+                        coincideTexto &&
+                        coincideFacultad
+
+                    );
+
+                }
+            );
+
+
+        mostrarRankingLibros(
+            filtrados
+        );
+
+    }
+
+
+    // ==================================================
+    // MOSTRAR RANKING
+    // ==================================================
+
+    function mostrarRankingLibros(lista) {
+
+    const tabla = obtenerTablaRankingLibros();
+
+    if (!tabla) {
+        console.error("No existe #tablaRankingLibros");
+        return;
+    }
+
+    tabla.innerHTML = "";
+
+    if (!Array.isArray(lista) || lista.length === 0) {
+
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center;">
+                    No se encontraron docentes.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    lista.forEach((item, indice) => {
+
+        const nombreCompleto =
+            `${item.apellidos ?? ""} ${item.nombres ?? ""}`.trim();
+
+        const carrera =
+            item.carrera ??
+            "Sin carrera";
+
+        const facultad =
+            item.facultad ??
+            obtenerFacultad(carrera) ??
+            "Sin facultad";
+
+        const puntaje =
+            Number(
+                item.puntajeLibros ??
+                item.puntaje ??
+                0
+            );
+
+        const puesto =
+            item.puesto ??
+            item.posicion ??
+            (indice + 1);
+
+        const fila =
+            document.createElement("tr");
+
+        fila.innerHTML = `
+            <td>${puesto}</td>
+
+            <td>${item.cedula ?? ""}</td>
+
+            <td>
+                <strong>
+                    ${nombreCompleto}
+                </strong>
+            </td>
+
+            <td>
+                ${facultad}
+            </td>
+
+            <td>
+                ${carrera}
+            </td>
+
+            <td>
+                <strong>
+                    ${puntaje.toFixed(2)}
+                </strong>
+            </td>
+        `;
+
+        tabla.appendChild(fila);
+
+    });
 }
-document.addEventListener("input", function(e){
 
-    if(
-        e.target.id==="filtroCedula" ||
-        e.target.id==="filtroDocente"
-    ){
 
-        aplicarFiltros();
+    // ==================================================
+    // CONFIGURAR FILTROS
+    // ==================================================
+
+    function configurarFiltrosLibros() {
+
+        const input =
+            document.getElementById(
+                "filtroLibroDocente"
+            );
+
+
+        const select =
+            document.getElementById(
+                "filtroLibroFacultad"
+            );
+
+
+        if (input) {
+
+            input.addEventListener(
+                "input",
+                filtrarRankingLibros
+            );
+
+        }
+
+
+        if (select) {
+
+            select.addEventListener(
+                "change",
+                filtrarRankingLibros
+            );
+
+        }
 
     }
 
-});
 
-document.addEventListener("change", function(e){
+    // ==================================================
+    // MENSAJES
+    // ==================================================
 
-    if(
-        e.target.id==="filtroCarrera" ||
-        e.target.id==="filtroFacultad" ||
-        e.target.id==="filtroTop"
-    ){
+    function mostrarResultadoLibros(
+        mensaje,
+        exito
+    ) {
 
-        aplicarFiltros();
+        const resultado =
+            obtenerResultadoLibros();
+
+
+        if (!resultado) {
+            return;
+        }
+
+
+        resultado.classList.remove(
+            "oculto",
+            "exito",
+            "error"
+        );
+
+
+        resultado.textContent =
+            mensaje;
+
+
+        resultado.classList.add(
+            exito
+                ? "exito"
+                : "error"
+        );
 
     }
 
-});
+
+    // ==================================================
+    // EXPONER FUNCIONES
+    // ==================================================
+
+    window.importarLibros =
+        importarLibros;
 
 
-window.importarLibros = importarLibros;
-window.calcularPuntajesLibros = calcularPuntajesLibros;
-window.cargarRankingLibros = cargarRankingLibros;
+    window.calcularPuntajesLibros =
+        calcularPuntajesLibros;
+
+
+    window.cargarRankingLibros =
+        cargarRankingLibros;
+
+
+    window.filtrarRankingLibros =
+        filtrarRankingLibros;
+
+
+ // ==================================================
+// INICIALIZACIÓN
+// ==================================================
 
 (async () => {
-    await cargarProcesoActivo();
+
+    try {
+
+        configurarFiltrosLibros();
+
+        // Cargar proceso activo primero
+        await cargarProcesoActivo();
+
+        // Intentar cargar ranking únicamente
+        // cuando el proceso ya fue cargado
+        try {
+
+            await cargarRankingLibros();
+
+        } catch (error) {
+
+            console.warn(
+                "No se pudo cargar el ranking automáticamente:",
+                error
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Error inicializando módulo Libros:",
+            error
+        );
+
+        mostrarResultadoLibros(
+            "Error inicializando Libros: " +
+            error.message,
+            false
+        );
+
+    }
+
 })();
+
 
 })();

@@ -1255,3 +1255,449 @@ PROCESOS
     }
 
 }
+
+/* =========================================
+   PROCEEDINGS - DISEÑO COMPACTO
+========================================= */
+
+.proceedings-layout {
+
+    display: grid;
+
+    grid-template-columns:
+        360px minmax(0, 1fr);
+
+    gap: 20px;
+
+    align-items: start;
+
+}
+
+.proceedings-panel-izquierdo {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+
+}
+
+.proceedings-panel-ranking {
+
+    min-width: 0;
+
+}
+
+.proceedings-panel-ranking .ranking-card {
+
+    height: calc(100vh - 180px);
+
+    min-height: 500px;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+.proceedings-panel-ranking .filtros-ranking {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(250px, 1fr) 220px;
+
+    gap: 15px;
+
+    margin-bottom: 15px;
+
+}
+
+.proceedings-panel-ranking .ranking-scroll {
+
+    flex: 1;
+
+    overflow-y: auto;
+
+    overflow-x: auto;
+
+    border: 1px solid #ddd;
+
+    border-radius: 6px;
+
+}
+
+.proceedings-panel-ranking .ranking-scroll table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+.proceedings-panel-ranking .ranking-scroll thead th {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
+
+    background: #f5f5f5;
+
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1000px) {
+
+    .proceedings-layout {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .proceedings-panel-ranking .ranking-card {
+
+        height: 600px;
+
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .proceedings-panel-ranking .filtros-ranking {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+/* =========================================
+   LIBROS - DISEÑO COMPACTO
+========================================= */
+
+.libros-layout {
+
+    display: grid;
+
+    grid-template-columns:
+        360px minmax(0, 1fr);
+
+    gap: 20px;
+
+    align-items: start;
+
+}
+
+
+.libros-panel-izquierdo {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+
+}
+
+
+.libros-panel-ranking {
+
+    min-width: 0;
+
+}
+
+
+/* =========================================
+   FILTROS
+========================================= */
+
+#filtrosRankingLibros {
+
+    margin-bottom: 15px;
+
+}
+
+
+#filtrosRankingLibros h3 {
+
+    margin-top: 0;
+
+}
+
+
+#filtrosRankingLibros .filtros-ranking {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(250px, 1fr) minmax(220px, 280px);
+
+    gap: 12px;
+
+}
+
+
+/* =========================================
+   RANKING
+========================================= */
+
+#tablaRankingContenedorLibros {
+
+    margin-top: 0;
+
+}
+
+
+#tablaRankingContenedorLibros h3 {
+
+    margin-top: 0;
+
+}
+
+
+#tablaRankingContenedorLibros .ranking-scroll {
+
+    height: calc(100vh - 330px);
+
+    min-height: 350px;
+
+    overflow-y: auto;
+
+    overflow-x: auto;
+
+    border: 1px solid #ddd;
+
+    border-radius: 6px;
+
+}
+
+
+#tablaRankingContenedorLibros table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+
+#tablaRankingContenedorLibros thead th {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
+
+    background: #f5f5f5;
+
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1000px) {
+
+    .libros-layout {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    #tablaRankingContenedorLibros .ranking-scroll {
+
+        height: 600px;
+
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    #filtrosRankingLibros .filtros-ranking {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+/* =========================================
+   LIBROS - RANKING SIEMPRE VISIBLE
+   ========================================= */
+
+.libros-layout {
+
+    display: grid;
+
+    grid-template-columns:
+        360px minmax(0, 1fr);
+
+    gap: 20px;
+
+    align-items: start;
+
+}
+
+
+.libros-panel-izquierdo {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+
+}
+
+
+.libros-panel-ranking {
+
+    min-width: 0;
+
+}
+
+
+#filtrosRankingLibros {
+
+    display: block;
+
+    margin-bottom: 15px;
+
+}
+
+
+#filtrosRankingLibros h3 {
+
+    margin-top: 0;
+
+}
+
+
+#filtrosRankingLibros .filtros-ranking {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(250px, 1fr) minmax(220px, 280px);
+
+    gap: 12px;
+
+    margin: 0;
+
+}
+
+
+#tablaRankingContenedorLibros {
+
+    display: flex;
+
+    flex-direction: column;
+
+    margin-top: 0;
+
+    min-height: 450px;
+
+}
+
+
+#tablaRankingContenedorLibros h3 {
+
+    margin-top: 0;
+
+}
+
+
+#tablaRankingContenedorLibros .ranking-scroll {
+
+    flex: 1;
+
+    max-height: calc(100vh - 330px);
+
+    min-height: 350px;
+
+    overflow-y: auto;
+
+    overflow-x: auto;
+
+    border: 1px solid #ddd;
+
+    border-radius: 6px;
+
+}
+
+
+#tablaRankingContenedorLibros table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+
+#tablaRankingContenedorLibros thead th {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
+
+    background: #f5f5f5;
+
+    color: #222;
+
+}
+
+
+#tablaRankingContenedorLibros tbody td {
+
+    padding: 11px;
+
+    border-bottom: 1px solid #ddd;
+
+}
+
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 1000px) {
+
+    .libros-layout {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    #tablaRankingContenedorLibros .ranking-scroll {
+
+        max-height: 600px;
+
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    #filtrosRankingLibros .filtros-ranking {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
