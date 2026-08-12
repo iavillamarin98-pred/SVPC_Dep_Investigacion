@@ -1069,6 +1069,190 @@ PROCESOS
     gap: 6px;
 
 }
+
+/* Variante compacta exclusiva del módulo de procesos */
+.layout-procesos {
+
+    grid-template-columns: minmax(320px, 360px) minmax(0, 1fr);
+    margin-top: 14px;
+
+}
+
+.panel-registro,
+.panel-listado {
+
+    padding: 18px;
+
+}
+
+.panel-registro h3,
+.panel-listado h3 {
+
+    margin: 0;
+    font-size: 18px;
+
+}
+
+.descripcion-procesos {
+
+    margin: 4px 0 0;
+
+}
+
+.card-proceso-activo {
+
+    width: min(300px, 35vw);
+    padding: 14px 16px;
+
+}
+
+.card-proceso-activo h3 {
+
+    margin-bottom: 6px;
+    font-size: 16px;
+
+}
+
+.form-proceso-compacto {
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 110px;
+    gap: 12px;
+    margin-top: 14px;
+
+}
+
+.proceso-form-grid,
+.campo-descripcion {
+
+    grid-column: 1 / -1;
+
+}
+
+.proceso-form-grid {
+
+    grid-template-columns: minmax(0, 1fr) 105px;
+    gap: 12px;
+
+}
+
+.form-proceso-compacto .campo label {
+
+    margin-bottom: 5px;
+    font-size: 13px;
+
+}
+
+.form-proceso-compacto .campo input,
+.form-proceso-compacto .campo select,
+.form-proceso-compacto .campo textarea {
+
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    font: inherit;
+
+}
+
+.form-proceso-compacto .campo textarea {
+
+    resize: vertical;
+    min-height: 58px;
+
+}
+
+.acciones-proceso {
+
+    grid-column: 1 / -1;
+    margin-top: 0;
+    gap: 8px;
+
+}
+
+.acciones-proceso .btn {
+
+    padding: 8px 14px;
+
+}
+
+.encabezado-listado-procesos {
+
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+
+}
+
+.campo-busqueda-proceso {
+
+    width: min(260px, 45%);
+
+}
+
+.campo-busqueda-proceso input {
+
+    box-sizing: border-box;
+    padding: 8px 10px;
+
+}
+
+.tabla-scroll {
+
+    max-height: calc(100vh - 265px);
+    min-height: 250px;
+
+}
+
+@media(max-width:1000px) {
+
+    .panel-registro {
+
+        position: static;
+
+    }
+
+    .tabla-scroll {
+
+        max-height: 460px;
+
+    }
+
+}
+
+@media(max-width:620px) {
+
+    .cabecera-procesos,
+    .encabezado-listado-procesos {
+
+        align-items: stretch;
+        flex-direction: column;
+
+    }
+
+    .card-proceso-activo,
+    .campo-busqueda-proceso {
+
+        width: 100%;
+
+    }
+
+    .form-proceso-compacto,
+    .proceso-form-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .campo-estado {
+
+        grid-column: auto;
+
+    }
+
+}
 /* ==========================================
    FILTROS DE RANKING
 ========================================== */
@@ -1695,6 +1879,122 @@ PROCESOS
 @media (max-width: 700px) {
 
     #filtrosRankingLibros .filtros-ranking {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+/* ==========================================
+   RETROALIMENTACIÓN IMPORTACIÓN LIBROS
+   ========================================== */
+
+.retroalimentacion-importacion {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+
+}
+
+
+.retro-titulo {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 17px;
+
+    font-weight: 700;
+
+    color: #2e7d32;
+
+}
+
+
+.retro-titulo i {
+
+    font-size: 20px;
+
+}
+
+
+.retro-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+
+}
+
+
+.retro-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 10px 12px;
+
+    background: #ffffff;
+
+    border: 1px solid #c8e6c9;
+
+    border-radius: 6px;
+
+    gap: 15px;
+
+}
+
+
+.retro-item span {
+
+    color: #555;
+
+    font-size: 13px;
+
+}
+
+
+.retro-item strong {
+
+    color: #2e7d32;
+
+    font-size: 16px;
+
+}
+
+
+.retro-omitidas {
+
+    border-color: #ffe0b2;
+
+    background: #fff8e1;
+
+}
+
+
+.retro-omitidas strong {
+
+    color: #ef6c00;
+
+}
+
+
+@media (max-width: 600px) {
+
+    .retro-grid {
 
         grid-template-columns: 1fr;
 

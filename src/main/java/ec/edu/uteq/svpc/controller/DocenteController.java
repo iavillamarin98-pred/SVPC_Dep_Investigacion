@@ -35,12 +35,7 @@ public class DocenteController {
     }
 
     /**
-     * Buscar docentes por:
-     * - Cédula
-     * - Nombres
-     * - Apellidos
-     * - Facultad
-     * - Carrera
+     * Buscar docentes.
      */
     @GetMapping("/buscar")
     public ResponseEntity<List<Docente>> buscar(
@@ -50,6 +45,9 @@ public class DocenteController {
                 docenteService.buscar(texto));
     }
 
+    /**
+     * Buscar docentes con filtros.
+     */
     @GetMapping("/filtros")
     public ResponseEntity<List<Docente>> buscarConFiltros(
             @RequestParam(required = false) String cedula,
@@ -63,4 +61,30 @@ public class DocenteController {
                         facultad));
     }
 
+    /**
+     * Actualizar únicamente facultad y carrera.
+     */
+    @PutMapping("/{id}/datos-academicos")
+    public ResponseEntity<Docente> actualizarDatosAcademicos(
+            @PathVariable Long id,
+            @RequestBody Docente datos) {
+
+        return ResponseEntity.ok(
+                docenteService.actualizarDatosAcademicos(
+                        id,
+                        datos.getFacultad(),
+                        datos.getCarrera()));
+    }
+
+    /**
+     * Actualizar docente completo.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<Docente> actualizar(
+            @PathVariable Long id,
+            @RequestBody Docente docente) {
+
+        return ResponseEntity.ok(
+                docenteService.actualizar(id, docente));
+    }
 }

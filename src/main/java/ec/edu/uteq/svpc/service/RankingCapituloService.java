@@ -2,8 +2,6 @@ package ec.edu.uteq.svpc.service;
 
 import ec.edu.uteq.svpc.dto.RankingCapituloDTO;
 import ec.edu.uteq.svpc.repository.ValoracionCapituloLibroRepository;
-import ec.edu.uteq.svpc.repository.ValoracionCapituloLibroRepository;
-
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,20 +32,29 @@ public class RankingCapituloService {
 
             dto.setPosicion(puesto++);
 
-            dto.setCedula((String) fila[0]);
-            dto.setApellidos((String) fila[1]);
-            dto.setNombres((String) fila[2]);
-            dto.setCarrera((String) fila[3]);
+            dto.setIdDocente(
+                    ((Number) fila[0]).longValue());
+
+            dto.setCedula(
+                    (String) fila[1]);
+
+            dto.setApellidos(
+                    (String) fila[2]);
+
+            dto.setNombres(
+                    (String) fila[3]);
+
+            dto.setCarrera(
+                    (String) fila[4]);
 
             dto.setPuntajeCapitulos(
-                    fila[4] == null
+                    fila[5] == null
                             ? 0.0
-                            : ((Number) fila[4]).doubleValue());
+                            : ((Number) fila[5]).doubleValue());
 
             ranking.add(dto);
         }
 
         return ranking;
     }
-
 }

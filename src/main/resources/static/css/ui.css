@@ -756,3 +756,133 @@
     }
 
 }
+
+/* ==========================================
+   MODAL GENERAL
+   ========================================== */
+
+.modal-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 99998;
+
+    padding: 20px;
+
+    box-sizing: border-box;
+
+}
+
+
+/* ==========================================
+   CONTENEDOR MODAL
+   ========================================== */
+
+.modal {
+
+    width: 100%;
+
+    max-width: 500px;
+
+    background: #fff;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.30);
+
+    overflow: hidden;
+
+}
+
+
+/* ==========================================
+   CABECERA
+   ========================================== */
+
+.modal-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 16px 20px;
+
+    border-bottom: 1px solid #ddd;
+
+}
+
+
+.modal-header h3 {
+
+    margin: 0;
+
+}
+
+
+/* ==========================================
+   BOTÓN CERRAR
+   ========================================== */
+
+.modal-cerrar {
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    color: #666;
+
+}
+
+
+.modal-cerrar:hover {
+
+    color: #dc3545;
+
+}
+
+
+/* ==========================================
+   CUERPO
+   ========================================== */
+
+.modal-body {
+
+    padding: 20px;
+
+}
+
+
+/* ==========================================
+   PIE
+   ========================================== */
+
+.modal-footer {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding: 15px 20px;
+
+    border-top: 1px solid #ddd;
+
+}

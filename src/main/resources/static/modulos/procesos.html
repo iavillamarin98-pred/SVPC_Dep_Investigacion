@@ -6,7 +6,7 @@
 
             <h2>Procesos de Valoración</h2>
 
-            <p>
+            <p class="descripcion-procesos">
                 Administración de los procesos de valoración de la producción científica.
             </p>
 
@@ -14,7 +14,7 @@
 
         <div class="card card-proceso-activo">
 
-            <h3>Proceso Activo</h3>
+            <h3>Proceso activo</h3>
 
             <div id="procesoActivoActual">
 
@@ -34,11 +34,11 @@
     
             <h3>Registro de Proceso</h3>
     
-            <form id="formProceso">
+            <form id="formProceso" class="form-proceso-compacto">
     
                 <input type="hidden" id="idProceso">
     
-                <div class="form-grid">
+                <div class="form-grid proceso-form-grid">
     
                     <div class="campo">
     
@@ -58,15 +58,15 @@
     
                 </div>
     
-                <div class="campo">
+                <div class="campo campo-descripcion">
     
                     <label>Descripción</label>
     
-                    <textarea id="descripcionProceso" rows="3"></textarea>
+                    <textarea id="descripcionProceso" rows="2"></textarea>
     
                 </div>
     
-                <div class="campo">
+                <div class="campo campo-estado">
     
                     <label>Estado</label>
     
@@ -88,7 +88,7 @@
     
                 </div>
     
-                <div class="acciones">
+                <div class="acciones acciones-proceso">
     
                     <button type="button" class="btn btn-primary" onclick="guardarProceso()">
     
@@ -112,14 +112,18 @@
     
         <div class="card panel-listado">
     
-            <h3>Listado de Procesos</h3>
-    
-            <div class="campo">
-    
-                <label>Buscar</label>
-    
-                <input id="buscarProceso" type="text" placeholder="Nombre del proceso..." onkeyup="filtrarProcesos()">
-    
+            <div class="encabezado-listado-procesos">
+
+                <h3>Listado de procesos</h3>
+
+                <div class="campo campo-busqueda-proceso">
+
+                    <label for="buscarProceso">Buscar</label>
+
+                    <input id="buscarProceso" type="text" placeholder="Nombre del proceso..." onkeyup="filtrarProcesos()">
+
+                </div>
+
             </div>
     
             <div class="tabla-scroll">

@@ -1,5 +1,9 @@
 <div class="module">
 
+    <!-- ==========================================
+         ENCABEZADO
+         ========================================== -->
+
     <div class="module-header">
 
         <h2>Capítulos de Libro</h2>
@@ -10,162 +14,267 @@
 
     </div>
 
-    <div class="card">
 
-        <form id="formImportacionCapitulos">
+    <!-- ==========================================
+         CONTENIDO
+         ========================================== -->
 
-            <div class="form-grid">
+    <div class="libros-layout">
 
-                <div class="card" id="infoProcesoActivoCapitulos">
-                
-                    <strong>Proceso activo:</strong>
-                
-                    <span id="nombreProcesoActivoCapitulos">
-                        Cargando...
-                    </span>
-                
-                </div>
 
-                <div class="campo">
+        <!-- ======================================
+             PANEL IZQUIERDO
+             ====================================== -->
 
-                    <label>Archivo Excel</label>
+        <div class="libros-panel-izquierdo">
 
-                    <input type="file" id="archivoCapitulos" accept=".xls,.xlsx" required>
+            <div class="card">
 
-                </div>
+                <form id="formImportacionCapitulos">
+
+                    <!-- PROCESO ACTIVO -->
+
+                    <div class="campo">
+
+                        <label>
+                            Proceso activo
+                        </label>
+
+                        <div class="proceso-activo" id="infoProcesoActivoCapitulos">
+
+                            <strong>
+
+                                <span id="nombreProcesoActivoCapitulos">
+                                    Cargando...
+                                </span>
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ARCHIVO -->
+
+                    <div class="campo">
+
+                        <label for="archivoCapitulos">
+                            Archivo Excel
+                        </label>
+
+                        <input type="file" id="archivoCapitulos" accept=".xls,.xlsx" required>
+
+                    </div>
+
+
+                    <!-- BOTONES -->
+
+                    <div class="acciones">
+
+                        <button class="btn btn-primary" type="submit" data-requiere-edicion>
+                        
+                            Importar Capítulos
+                        
+                        </button>
+
+
+                        <button type="button" class="btn btn-success" data-requiere-edicion onclick="calcularPuntajesCapitulos()">
+                        
+                            Calcular Puntajes
+                        
+                        </button>
+
+
+                        <button type="button" class="btn btn-warning" onclick="cargarRankingCapitulos()">
+                        
+                            Ver Ranking
+                        
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
-            <div class="acciones">
 
-                <button class="btn btn-primary" type="submit">
+            <!-- ==================================
+                 RETROALIMENTACIÓN
+                 ================================== -->
 
-                    Importar Capítulos
-
-                </button>
-
-                <button type="button" class="btn btn-success" onclick="calcularPuntajesCapitulos()">
-                
-                    Calcular Puntajes
-                
-                </button>
-
-                <button type="button" class="btn btn-warning" onclick="cargarRankingCapitulos()">
-                
-                    Ver Ranking
-                
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-    <div id="resultadoCapitulos" class="resultado oculto">
-
-    </div>
-
-    <div id="filtrosRankingCapitulos" class="card oculto">
-    
-        <div class="filtros-ranking">
-
-            <input type="text" id="filtroCedulaCapitulos" placeholder="Buscar por cédula">
-            
-            <input type="text" id="filtroDocenteCapitulos" placeholder="Buscar docente">
-
-            <select id="filtroCarreraCapitulos">
-
-                <option value="">
-                    Todas las carreras
-                </option>
-
-            </select>
-
-            <select id="filtroFacultadCapitulos">
-
-                <option value="">
-                    Todas las facultades
-                </option>
-
-                <option value="Facultad de Ciencias de la Computación y Diseño Web">
-                    Ciencias de la Computación y Diseño Web
-                </option>
-
-                <option value="Facultad de Ciencias Empresariales">
-                    Ciencias Empresariales
-                </option>
-
-                <option value="Facultad de Ciencias Pecuarias y Biológicas">
-                    Ciencias Pecuarias y Biológicas
-                </option>
-
-                <option value="Facultad de Ciencias de la Industria y Producción">
-                    Ciencias de la Industria y Producción
-                </option>
-
-                <option value="Facultad de Ciencias Agrarias y Forestales">
-                    Ciencias Agrarias y Forestales
-                </option>
-
-                <option value="Facultad de Ciencias de la Ingeniería">
-                    Ciencias de la Ingeniería
-                </option>
-
-                <option value="Facultad de Ciencias de la Educación">
-                    Ciencias de la Educación
-                </option>
-
-                <option value="Facultad de Ciencias de la Salud">
-                    Ciencias de la Salud
-                </option>
-
-                <option value="Facultad de Ciencias Sociales, Económicas y Financieras">
-                    Ciencias Sociales, Económicas y Financieras
-                </option>
-
-            </select>
-
-            <select id="filtroTopCapitulos">
-
-                <option value="0">Todos</option>
-                <option value="10">Top 10</option>
-                <option value="20">Top 20</option>
-                <option value="50">Top 50</option>
-
-            </select>
+            <div id="resultadoCapitulos" class="resultado oculto"></div>
 
         </div>
 
-    </div>
 
-    <div id="tablaRankingContenedorCapitulos" class="card oculto">
+        <!-- ======================================
+             PANEL DERECHO
+             ====================================== -->
 
-        <h3>Ranking de Capítulos de Libro</h3>
+        <div class="libros-panel-ranking">
 
-        <div class="table-responsive">
 
-            <table class="tabla">
+            <!-- ==================================
+                 FILTROS
+                 ================================== -->
 
-                <thead>
+            <div id="filtrosRankingCapitulos" class="card">
 
-                    <tr>
+                <h3>
+                    Filtros de búsqueda
+                </h3>
 
-                        <th>Puesto</th>
-                        <th>Cédula</th>
-                        <th>Docente</th>
-                        <th>Carrera</th>
-                        <th>Puntaje</th>
 
-                    </tr>
+                <div class="filtros-ranking">
 
-                </thead>
+                    <input type="text" id="filtroCapituloDocente" placeholder="Buscar por cédula o docente">
 
-                <tbody id="tablaRankingCapitulos">
 
-                </tbody>
+                    <select id="filtroCapituloFacultad">
 
-            </table>
+                        <option value="">
+                            Todas las facultades
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================
+                 TABLA
+                 ================================== -->
+
+            <div id="tablaRankingContenedorCapitulos" class="card ranking-card">
+
+                <h3>
+                    Ranking de Producción Científica
+                </h3>
+
+
+                <div class="ranking-scroll">
+
+                    <table class="tabla">
+
+                        <thead>
+                        
+                            <tr>
+                        
+                                <th>Puesto</th>
+                                <th>Cédula</th>
+                                <th>Docente</th>
+                                <th>Facultad</th>
+                                <th>Carrera</th>
+                                <th>Puntaje</th>
+                                <th>Acciones</th>
+                        
+                            </tr>
+                        
+                        </thead>
+
+
+                        <tbody id="tablaRankingCapitulos">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                
+
+            </div>
+
+
+            <!-- ==================================================
+                 MODAL EDITAR DATOS ACADÉMICOS
+                 ================================================== -->
+            
+            <div id="modalEditarDatosAcademicos" class="modal oculto">
+            
+                <div class="modal-content">
+            
+                    <!-- HEADER -->
+                    <div class="modal-header">
+            
+                        <h3 class="modal-titulo">
+                            Editar datos académicos
+                        </h3>
+            
+                        <button type="button" class="btn-cerrar" onclick="Modal.cerrar('modalEditarDatosAcademicos')">
+            
+                            <i class="fa-solid fa-xmark"></i>
+            
+                        </button>
+            
+                    </div>
+            
+            
+                    <!-- BODY -->
+                    <div class="modal-body">
+            
+                        <!-- ID OCULTO -->
+                        <input type="hidden" id="editarIdDocente">
+            
+            
+                        <!-- FACULTAD -->
+                        <div class="campo">
+            
+                            <label for="editarFacultad">
+                                Facultad
+                            </label>
+            
+                            <select id="editarFacultad">
+            
+                                <option value="">
+                                    Seleccione una facultad
+                                </option>
+            
+                            </select>
+            
+                        </div>
+            
+            
+                        <!-- CARRERA -->
+                        <div class="campo">
+            
+                            <label for="editarCarrera">
+                                Carrera
+                            </label>
+            
+                            <input type="text" id="editarCarrera" placeholder="Ingrese la carrera">
+            
+                        </div>
+            
+                    </div>
+            
+            
+                    <!-- FOOTER -->
+                    <div class="modal-footer">
+            
+                        <button type="button" class="btn btn-secondary" onclick="Modal.cerrar('modalEditarDatosAcademicos')">
+            
+                            Cancelar
+            
+                        </button>
+            
+            
+                        <button type="button" class="btn btn-primary" onclick="guardarDatosAcademicos()">
+            
+                            <i class="fa-solid fa-save"></i>
+            
+                            Guardar cambios
+            
+                        </button>
+            
+                    </div>
+            
+                </div>
+            
+            </div>
 
         </div>
 
