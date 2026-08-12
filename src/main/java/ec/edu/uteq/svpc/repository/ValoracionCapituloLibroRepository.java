@@ -67,6 +67,7 @@ public class ValoracionCapituloLibroRepository {
 
         String sql = """
                 SELECT
+                    d.id_docente,
                     d.cedula,
                     d.apellidos,
                     d.nombres,
@@ -85,6 +86,7 @@ public class ValoracionCapituloLibroRepository {
         return jdbcTemplate.query(
                 sql,
                 (rs, rowNum) -> new Object[] {
+                        rs.getLong("id_docente"),
                         rs.getString("cedula"),
                         rs.getString("apellidos"),
                         rs.getString("nombres"),

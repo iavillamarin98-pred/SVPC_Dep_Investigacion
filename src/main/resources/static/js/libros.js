@@ -47,46 +47,108 @@
 
     async function importarLibros() {
 
-        if (!validarProcesoEditable()) {
-            return;
-        }
+        try {
 
-        const archivo =
-            obtenerArchivoLibros();
+            // ------------------------------------------
+            // VALIDAR PROCESO
+            // ------------------------------------------
 
-        const idProceso =
-            obtenerIdProceso();
+            if (!validarProcesoEditable()) {
+                return;
+            }
 
-        if (!archivo) {
 
-            mostrarResultadoLibros(
-                "Debe seleccionar un archivo Excel.",
-                false
+            // ------------------------------------------
+            // ASEGURAR PROCESO ACTIVO
+            // ------------------------------------------
+
+            if (!PROCESO_ACTIVO) {
+
+                await cargarProcesoActivo();
+
+            }
+
+
+            if (!PROCESO_ACTIVO) {
+
+                mostrarResultadoLibros(
+                    "No existe un proceso de valoración activo.",
+                    false
+                );
+
+                return;
+
+            }
+
+
+            // ------------------------------------------
+            // VALIDAR ARCHIVO
+            // ------------------------------------------
+
+            const archivo =
+                obtenerArchivoLibros();
+
+
+            if (!archivo) {
+
+                mostrarResultadoLibros(
+                    "Debe seleccionar un archivo Excel.",
+                    false
+                );
+
+                return;
+
+            }
+
+
+            // ------------------------------------------
+            // ID DEL PROCESO
+            // ------------------------------------------
+
+            const idProceso =
+                PROCESO_ACTIVO.idProceso;
+
+
+            console.log(
+                "Importando libros:",
+                archivo.name
             );
 
-            return;
+            console.log(
+                "Proceso:",
+                idProceso
+            );
 
-        }
 
-        const formData =
-            new FormData();
+            // ------------------------------------------
+            // FORMDATA
+            // ------------------------------------------
 
-        formData.append(
-            "archivo",
-            archivo
-        );
+            const formData =
+                new FormData();
 
-        formData.append(
-            "idProceso",
-            idProceso
-        );
 
-        mostrarResultadoLibros(
-            "Importando libros...",
-            true
-        );
+            formData.append(
+                "archivo",
+                archivo
+            );
 
-        try {
+
+            formData.append(
+                "idProceso",
+                idProceso
+            );
+
+
+            mostrarResultadoLibros(
+                "Importando libros...",
+                true
+            );
+
+
+            // ------------------------------------------
+            // PETICIÓN
+            // ------------------------------------------
 
             const response =
                 await fetch(
@@ -97,17 +159,62 @@
                     }
                 );
 
+
             const texto =
                 await response.text();
+
+
+            console.log(
+                "Respuesta importación libros:",
+                response.status,
+                texto
+            );
+
+
+            // ------------------------------------------
+            // RESULTADO
+            // ------------------------------------------
 
             mostrarResultadoLibros(
                 texto,
                 response.ok
             );
 
+
+            // ------------------------------------------
+            // IMPORTACIÓN EXITOSA
+            // ------------------------------------------
+
+            if (response.ok) {
+
+    const input =
+        document.getElementById(
+            "archivoLibros"
+        );
+
+    if (input) {
+
+        input.value = "";
+
+    }
+
+
+    // ------------------------------------------
+    // ACTUALIZAR RANKING SIN BORRAR
+    // LA RETROALIMENTACIÓN DE IMPORTACIÓN
+    // ------------------------------------------
+
+    await cargarRankingLibros(false);
+
+}
+
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Error importando libros:",
+                error
+            );
+
 
             mostrarResultadoLibros(
                 "Error al importar libros: " +
@@ -126,19 +233,41 @@
 
     async function calcularPuntajesLibros() {
 
-        if (!validarProcesoEditable()) {
-            return;
-        }
-
-        const idProceso =
-            obtenerIdProceso();
-
-        mostrarResultadoLibros(
-            "Calculando puntajes...",
-            true
-        );
-
         try {
+
+            if (!validarProcesoEditable()) {
+                return;
+            }
+
+
+            if (!PROCESO_ACTIVO) {
+
+                await cargarProcesoActivo();
+
+            }
+
+
+            if (!PROCESO_ACTIVO) {
+
+                mostrarResultadoLibros(
+                    "No existe un proceso de valoración activo.",
+                    false
+                );
+
+                return;
+
+            }
+
+
+            const idProceso =
+                PROCESO_ACTIVO.idProceso;
+
+
+            mostrarResultadoLibros(
+                "Calculando puntajes...",
+                true
+            );
+
 
             const response =
                 await fetch(
@@ -152,23 +281,30 @@
 
                 );
 
+
             const texto =
                 await response.text();
+
 
             mostrarResultadoLibros(
                 texto,
                 response.ok
             );
 
+
             if (response.ok) {
 
-                await cargarRankingLibros();
+                await cargarRankingLibros(false);
 
             }
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Error calculando puntajes:",
+                error
+            );
+
 
             mostrarResultadoLibros(
                 "Error al calcular puntajes: " +
@@ -182,40 +318,63 @@
 
 
     // ==================================================
-    // CARGAR RANKING
-    // ==================================================
+// CARGAR RANKING
+// ==================================================
 
-    async function cargarRankingLibros() {
-
-    // Asegurar que el proceso esté cargado
-    if (!PROCESO_ACTIVO) {
-
-        await cargarProcesoActivo();
-
-    }
-
-    // Si definitivamente no existe proceso,
-    // no intentar consultar el ranking
-    if (!PROCESO_ACTIVO) {
-
-        mostrarResultadoLibros(
-            "No existe un proceso de valoración activo.",
-            false
-        );
-
-        return;
-
-    }
-
-    const idProceso =
-        obtenerIdProceso();
-
-    mostrarResultadoLibros(
-        "Cargando ranking...",
-        true
-    );
+async function cargarRankingLibros(mostrarMensaje = true) {
 
     try {
+
+        // ------------------------------------------
+        // ASEGURAR PROCESO
+        // ------------------------------------------
+
+        if (!PROCESO_ACTIVO) {
+
+            await cargarProcesoActivo();
+
+        }
+
+
+        if (!PROCESO_ACTIVO) {
+
+            if (mostrarMensaje) {
+
+                mostrarResultadoLibros(
+                    "No existe un proceso de valoración activo.",
+                    false
+                );
+
+            }
+
+            mostrarRankingLibros([]);
+
+            return;
+
+        }
+
+
+        const idProceso =
+            PROCESO_ACTIVO.idProceso;
+
+
+        // ------------------------------------------
+        // MENSAJE DE CARGA
+        // ------------------------------------------
+
+        if (mostrarMensaje) {
+
+            mostrarResultadoLibros(
+                "Cargando ranking...",
+                true
+            );
+
+        }
+
+
+        // ------------------------------------------
+        // CONSULTAR BACKEND
+        // ------------------------------------------
 
         const response =
             await fetch(
@@ -223,41 +382,65 @@
                 encodeURIComponent(idProceso)
             );
 
+
         if (!response.ok) {
 
             const error =
                 await response.text();
 
-            mostrarResultadoLibros(
-                error,
-                false
+            throw new Error(
+                error || "Error al cargar ranking."
             );
-
-            return;
 
         }
 
+
+        // ------------------------------------------
+        // JSON
+        // ------------------------------------------
+
         const datos =
             await response.json();
+
 
         console.log(
             "Ranking de libros recibido:",
             datos
         );
 
+
         rankingLibros =
             Array.isArray(datos)
                 ? datos
                 : [];
 
+
+        // ------------------------------------------
+        // FACULTADES
+        // ------------------------------------------
+
         cargarFacultadesRankingLibros();
+
+
+        // ------------------------------------------
+        // MOSTRAR TABLA
+        // ------------------------------------------
 
         filtrarRankingLibros();
 
-        mostrarResultadoLibros(
-            "Ranking cargado correctamente.",
-            true
-        );
+
+        // ------------------------------------------
+        // MENSAJE FINAL
+        // ------------------------------------------
+
+        if (mostrarMensaje) {
+
+            mostrarResultadoLibros(
+                "Ranking cargado correctamente.",
+                true
+            );
+
+        }
 
     } catch (error) {
 
@@ -266,15 +449,21 @@
             error
         );
 
-        mostrarResultadoLibros(
-            "Error al cargar ranking: " +
-            error.message,
-            false
-        );
+
+        if (mostrarMensaje) {
+
+            mostrarResultadoLibros(
+                "Error al cargar ranking: " +
+                error.message,
+                false
+            );
+
+        }
 
     }
 
 }
+
 
     // ==================================================
     // CARGAR FACULTADES
@@ -306,6 +495,7 @@
 
                             }
 
+
                             if (
                                 typeof obtenerFacultad ===
                                 "function"
@@ -316,6 +506,7 @@
                                 );
 
                             }
+
 
                             return "";
 
@@ -328,15 +519,14 @@
                         )
 
                 )
-            ].sort();
+            ]
+            .sort();
 
 
         select.innerHTML = `
-
             <option value="">
                 Todas las facultades
             </option>
-
         `;
 
 
@@ -348,11 +538,14 @@
                         "option"
                     );
 
+
                 option.value =
                     facultad;
 
+
                 option.textContent =
                     facultad;
+
 
                 select.appendChild(
                     option
@@ -366,7 +559,6 @@
 
     // ==================================================
     // FILTRAR RANKING
-    // CÉDULA + NOMBRE + FACULTAD
     // ==================================================
 
     function filtrarRankingLibros() {
@@ -401,6 +593,9 @@
             rankingLibros.filter(
                 item => {
 
+                    // ----------------------------------
+                    // CÉDULA
+                    // ----------------------------------
 
                     const cedula =
                         String(
@@ -409,11 +604,19 @@
                         .toUpperCase();
 
 
+                    // ----------------------------------
+                    // NOMBRE
+                    // ----------------------------------
+
                     const nombre =
                         `${item.nombres ?? ""} ${item.apellidos ?? ""}`
                             .trim()
                             .toUpperCase();
 
+
+                    // ----------------------------------
+                    // FACULTAD
+                    // ----------------------------------
 
                     let facultad =
                         item.facultad ?? "";
@@ -433,25 +636,29 @@
                     }
 
 
+                    // ----------------------------------
+                    // FILTRO TEXTO
+                    // ----------------------------------
+
                     const coincideTexto =
 
                         texto === "" ||
 
-                        cedula.includes(
-                            texto
-                        ) ||
+                        cedula.includes(texto) ||
 
-                        nombre.includes(
-                            texto
-                        );
+                        nombre.includes(texto);
 
+
+                    // ----------------------------------
+                    // FILTRO FACULTAD
+                    // ----------------------------------
 
                     const coincideFacultad =
 
                         facultadSeleccionada === "" ||
 
                         facultad ===
-                            facultadSeleccionada;
+                        facultadSeleccionada;
 
 
                     return (
@@ -478,87 +685,169 @@
 
     function mostrarRankingLibros(lista) {
 
-    const tabla = obtenerTablaRankingLibros();
+        const tabla =
+            obtenerTablaRankingLibros();
 
-    if (!tabla) {
-        console.error("No existe #tablaRankingLibros");
-        return;
-    }
 
-    tabla.innerHTML = "";
+        if (!tabla) {
 
-    if (!Array.isArray(lista) || lista.length === 0) {
-
-        tabla.innerHTML = `
-            <tr>
-                <td colspan="6" style="text-align:center;">
-                    No se encontraron docentes.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-    lista.forEach((item, indice) => {
-
-        const nombreCompleto =
-            `${item.apellidos ?? ""} ${item.nombres ?? ""}`.trim();
-
-        const carrera =
-            item.carrera ??
-            "Sin carrera";
-
-        const facultad =
-            item.facultad ??
-            obtenerFacultad(carrera) ??
-            "Sin facultad";
-
-        const puntaje =
-            Number(
-                item.puntajeLibros ??
-                item.puntaje ??
-                0
+            console.error(
+                "No existe #tablaRankingLibros"
             );
 
-        const puesto =
-            item.puesto ??
-            item.posicion ??
-            (indice + 1);
+            return;
 
-        const fila =
-            document.createElement("tr");
+        }
 
-        fila.innerHTML = `
-            <td>${puesto}</td>
 
-            <td>${item.cedula ?? ""}</td>
+        tabla.innerHTML = "";
 
-            <td>
-                <strong>
-                    ${nombreCompleto}
-                </strong>
-            </td>
 
-            <td>
-                ${facultad}
-            </td>
+        if (
+            !Array.isArray(lista) ||
+            lista.length === 0
+        ) {
 
-            <td>
-                ${carrera}
-            </td>
+            tabla.innerHTML = `
+                <tr>
+                    <td
+                        colspan="6"
+                        style="text-align:center;"
+                    >
+                        No se encontraron docentes.
+                    </td>
+                </tr>
+            `;
 
-            <td>
-                <strong>
-                    ${puntaje.toFixed(2)}
-                </strong>
-            </td>
-        `;
+            return;
 
-        tabla.appendChild(fila);
+        }
 
-    });
-}
+
+        lista.forEach(
+            (item, indice) => {
+
+                // ----------------------------------
+                // NOMBRE
+                // ----------------------------------
+
+                const nombreCompleto =
+                    `${item.apellidos ?? ""} ${item.nombres ?? ""}`
+                        .trim();
+
+
+                // ----------------------------------
+                // CARRERA
+                // ----------------------------------
+
+                const carrera =
+                    item.carrera ??
+                    "Sin carrera";
+
+
+                // ----------------------------------
+                // FACULTAD
+                // ----------------------------------
+
+                let facultad =
+                    item.facultad ?? "";
+
+
+                if (
+                    !facultad &&
+                    typeof obtenerFacultad ===
+                    "function"
+                ) {
+
+                    facultad =
+                        obtenerFacultad(
+                            carrera
+                        );
+
+                }
+
+
+                if (!facultad) {
+
+                    facultad =
+                        "Sin facultad";
+
+                }
+
+
+                // ----------------------------------
+                // PUNTAJE
+                // ----------------------------------
+
+                const puntaje =
+                    Number(
+                        item.puntajeLibros ??
+                        item.puntaje ??
+                        0
+                    );
+
+
+                // ----------------------------------
+                // PUESTO
+                // ----------------------------------
+
+                const puesto =
+                    item.puesto ??
+                    item.posicion ??
+                    (indice + 1);
+
+
+                // ----------------------------------
+                // FILA
+                // ----------------------------------
+
+                const fila =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                fila.innerHTML = `
+
+                    <td>
+                        ${puesto}
+                    </td>
+
+                    <td>
+                        ${item.cedula ?? ""}
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${nombreCompleto}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${facultad}
+                    </td>
+
+                    <td>
+                        ${carrera}
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${puntaje.toFixed(2)}
+                        </strong>
+                    </td>
+
+                `;
+
+
+                tabla.appendChild(
+                    fila
+                );
+
+            }
+        );
+
+    }
 
 
     // ==================================================
@@ -602,42 +891,307 @@
 
 
     // ==================================================
-    // MENSAJES
+    // CONFIGURAR FORMULARIO
     // ==================================================
 
-    function mostrarResultadoLibros(
-        mensaje,
-        exito
-    ) {
+    function configurarFormularioLibros() {
 
-        const resultado =
-            obtenerResultadoLibros();
+        const formulario =
+            document.getElementById(
+                "formImportacionLibros"
+            );
 
 
-        if (!resultado) {
+        if (!formulario) {
+
+            console.warn(
+                "No existe #formImportacionLibros"
+            );
+
             return;
+
         }
 
 
-        resultado.classList.remove(
-            "oculto",
-            "exito",
-            "error"
-        );
+        formulario.addEventListener(
+            "submit",
+            async function (event) {
+
+                // --------------------------------------
+                // EVITAR RECARGA DE INDEX
+                // --------------------------------------
+
+                event.preventDefault();
 
 
-        resultado.textContent =
-            mensaje;
+                console.log(
+                    "Submit de importación de libros capturado."
+                );
 
 
-        resultado.classList.add(
-            exito
-                ? "exito"
-                : "error"
+                await importarLibros();
+
+            }
         );
 
     }
 
+
+    // ==================================================
+    // MENSAJES
+    // ==================================================
+
+ // ==================================================
+// MENSAJES / RETROALIMENTACIÓN
+// ==================================================
+
+function mostrarResultadoLibros(mensaje, exito) {
+
+    const resultado =
+        obtenerResultadoLibros();
+
+
+    if (!resultado) {
+
+        return;
+
+    }
+
+
+    resultado.classList.remove(
+        "oculto",
+        "exito",
+        "error"
+    );
+
+
+    // ==================================================
+    // RETROALIMENTACIÓN DE IMPORTACIÓN
+    // ==================================================
+
+    if (
+        exito &&
+        typeof mensaje === "string" &&
+        mensaje.includes(
+            "Importación de libros finalizada"
+        )
+    ) {
+
+
+        // ------------------------------------------
+        // FUNCIÓN PARA EXTRAER CANTIDADES
+        // ------------------------------------------
+
+        const extraerNumero = (campo) => {
+
+            const regex =
+                new RegExp(
+                    campo +
+                    "\\s*:\\s*(\\d+)",
+                    "i"
+                );
+
+            const coincidencia =
+                mensaje.match(regex);
+
+            return coincidencia
+                ? Number(coincidencia[1])
+                : 0;
+
+        };
+
+
+        // ------------------------------------------
+        // DATOS
+        // ------------------------------------------
+
+        const librosInsertados =
+            extraerNumero(
+                "Libros insertados"
+            );
+
+
+        const librosActualizados =
+            extraerNumero(
+                "libros actualizados"
+            );
+
+
+        const docentesInsertados =
+            extraerNumero(
+                "docentes insertados"
+            );
+
+
+        const docentesActualizados =
+            extraerNumero(
+                "docentes actualizados"
+            );
+
+
+        const relacionesGuardadas =
+            extraerNumero(
+                "relaciones guardadas"
+            );
+
+
+        const relacionesActualizadas =
+            extraerNumero(
+                "relaciones actualizadas"
+            );
+
+
+        const filasOmitidas =
+            extraerNumero(
+                "filas omitidas"
+            );
+
+
+        // ------------------------------------------
+        // CLASE
+        // ------------------------------------------
+
+        resultado.classList.add(
+            "exito"
+        );
+
+
+        // ------------------------------------------
+        // HTML
+        // ------------------------------------------
+
+        resultado.innerHTML = `
+
+            <div class="retroalimentacion-importacion">
+
+                <div class="retro-titulo">
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                    Importación de libros finalizada
+
+                </div>
+
+
+                <div class="retro-grid">
+
+                    <div class="retro-item">
+
+                        <span>
+                            Libros insertados
+                        </span>
+
+                        <strong>
+                            ${librosInsertados}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="retro-item">
+
+                        <span>
+                            Libros actualizados
+                        </span>
+
+                        <strong>
+                            ${librosActualizados}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="retro-item">
+
+                        <span>
+                            Docentes insertados
+                        </span>
+
+                        <strong>
+                            ${docentesInsertados}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="retro-item">
+
+                        <span>
+                            Docentes actualizados
+                        </span>
+
+                        <strong>
+                            ${docentesActualizados}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="retro-item">
+
+                        <span>
+                            Relaciones guardadas
+                        </span>
+
+                        <strong>
+                            ${relacionesGuardadas}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="retro-item">
+
+                        <span>
+                            Relaciones actualizadas
+                        </span>
+
+                        <strong>
+                            ${relacionesActualizadas}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="retro-item retro-omitidas">
+
+                        <span>
+                            Filas omitidas
+                        </span>
+
+                        <strong>
+                            ${filasOmitidas}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        return;
+
+    }
+
+
+    // ==================================================
+    // MENSAJE NORMAL
+    // ==================================================
+
+    resultado.textContent =
+        mensaje;
+
+
+    resultado.classList.add(
+        exito
+            ? "exito"
+            : "error"
+    );
+
+}
 
     // ==================================================
     // EXPONER FUNCIONES
@@ -659,50 +1213,77 @@
         filtrarRankingLibros;
 
 
- // ==================================================
-// INICIALIZACIÓN
-// ==================================================
+    // ==================================================
+    // INICIALIZACIÓN ÚNICA
+    // ==================================================
 
-(async () => {
+    (async function inicializarLibros() {
 
-    try {
-
-        configurarFiltrosLibros();
-
-        // Cargar proceso activo primero
-        await cargarProcesoActivo();
-
-        // Intentar cargar ranking únicamente
-        // cuando el proceso ya fue cargado
         try {
 
-            await cargarRankingLibros();
+            console.log(
+                "Inicializando módulo Libros..."
+            );
+
+
+            // ------------------------------------------
+            // CONFIGURAR UNA SOLA VEZ
+            // ------------------------------------------
+
+            configurarFiltrosLibros();
+
+            configurarFormularioLibros();
+
+
+            // ------------------------------------------
+            // PROCESO ACTIVO
+            // ------------------------------------------
+
+            if (
+                typeof cargarProcesoActivo !==
+                "function"
+            ) {
+
+                throw new Error(
+                    "No está cargado proceso-activo.js"
+                );
+
+            }
+
+
+            await cargarProcesoActivo();
+
+
+            // ------------------------------------------
+            // RANKING
+            // ------------------------------------------
+
+            if (PROCESO_ACTIVO) {
+
+                await cargarRankingLibros();
+
+            } else {
+
+                mostrarRankingLibros([]);
+
+            }
 
         } catch (error) {
 
-            console.warn(
-                "No se pudo cargar el ranking automáticamente:",
+            console.error(
+                "Error inicializando módulo Libros:",
                 error
+            );
+
+
+            mostrarResultadoLibros(
+                "Error inicializando Libros: " +
+                error.message,
+                false
             );
 
         }
 
-    } catch (error) {
-
-        console.error(
-            "Error inicializando módulo Libros:",
-            error
-        );
-
-        mostrarResultadoLibros(
-            "Error inicializando Libros: " +
-            error.message,
-            false
-        );
-
-    }
-
-})();
-
+    })();
 
 })();

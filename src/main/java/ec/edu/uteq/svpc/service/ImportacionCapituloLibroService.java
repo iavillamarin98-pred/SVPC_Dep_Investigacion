@@ -79,6 +79,24 @@ public class ImportacionCapituloLibroService {
 
                 String participante = obtenerTexto(fila, 12, formatter);
 
+                boolean esEncabezado = cedula.equalsIgnoreCase("CEDULA")
+                        || participante.equalsIgnoreCase("PARTICIPANTE")
+                        || rolParticipante.equalsIgnoreCase("ROL")
+                        || rolParticipante.equalsIgnoreCase("PARTICIPACIÓN")
+                        || rolParticipante.equalsIgnoreCase("PARTICIPACION");
+
+                if (esEncabezado) {
+
+                    filasOmitidas++;
+
+                    System.out.println(
+                            "Fila omitida por encabezado: " +
+                                    "cedula=" + cedula +
+                                    ", rol=" + rolParticipante +
+                                    ", participante=" + participante);
+
+                    continue;
+                }
                 // El Excel no separa nombres y apellidos
                 String nombres = participante;
                 String apellidos = "";
@@ -88,8 +106,22 @@ public class ImportacionCapituloLibroService {
                 String facultad = "";
                 String carrera = "";
 
+                // Ignorar filas sin título o sin cédula
                 if (titulo.isBlank() || cedula.isBlank()) {
+
                     filasOmitidas++;
+
+                    continue;
+                }
+
+                // Validar que la cédula tenga formato correcto
+                if (!cedula.matches("\\d{10}")) {
+
+                    filasOmitidas++;
+
+                    System.out.println(
+                            "Fila omitida por cédula inválida: " + cedula);
+
                     continue;
                 }
 
@@ -133,10 +165,10 @@ public class ImportacionCapituloLibroService {
 
                 System.out.println("=================================");
                 System.out.println("codigo (" + codigo.length() + "): " + codigo);
-                System.out.println("titulo (" + titulo.length() + ")");
+                System.out.println("titulo (" + titulo.length() + "): " + titulo);
                 System.out.println("tipo (" + tipo.length() + "): " + tipo);
                 System.out.println("isbn (" + isbn.length() + "): " + isbn);
-                System.out.println("editorial (" + editorial.length() + ")");
+                System.out.println("editorial (" + editorial.length() + "): " + editorial);
                 System.out.println("periodo (" + periodo.length() + "): " + periodo);
                 System.out.println("estado (" + estado.length() + "): " + estado);
                 System.out.println("=================================");
@@ -154,8 +186,15 @@ public class ImportacionCapituloLibroService {
                     docente.setNombres(nombres);
                     docente.setApellidos(apellidos);
                     docente.setCorreo(correo);
-                    docente.setFacultad(facultad);
-                    docente.setCarrera(carrera);
+
+                    // NO sobrescribir datos académicos existentes
+                    if (docente.getFacultad() == null || docente.getFacultad().isBlank()) {
+                        docente.setFacultad(facultad);
+                    }
+
+                    if (docente.getCarrera() == null || docente.getCarrera().isBlank()) {
+                        docente.setCarrera(carrera);
+                    }
 
                     docentesActualizados++;
 

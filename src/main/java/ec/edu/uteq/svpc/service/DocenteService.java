@@ -3,6 +3,7 @@ package ec.edu.uteq.svpc.service;
 import ec.edu.uteq.svpc.entity.Docente;
 import ec.edu.uteq.svpc.repository.DocenteRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -72,6 +73,34 @@ public class DocenteService {
         }
 
         return texto.trim();
+    }
+
+    @Transactional
+    public Docente actualizarDatosAcademicos(
+            Long id,
+            String facultad,
+            String carrera) {
+
+        Docente docente = docenteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(
+                        "No se encontró el docente con ID: " + id));
+
+        docente.setFacultad(facultad);
+        docente.setCarrera(carrera);
+
+        return docenteRepository.save(docente);
+    }
+
+    @Transactional
+    public Docente actualizar(Long id, Docente datos) {
+
+        Docente docente = docenteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Docente no encontrado"));
+
+        docente.setFacultad(datos.getFacultad());
+        docente.setCarrera(datos.getCarrera());
+
+        return docenteRepository.save(docente);
     }
 
 }

@@ -2,6 +2,9 @@ package ec.edu.uteq.svpc.dto;
 
 public class RankingCapituloDTO {
 
+    private Long idDocente;
+    private String facultad;
+
     private Integer posicion;
     private String cedula;
     private String apellidos;
@@ -13,12 +16,16 @@ public class RankingCapituloDTO {
     }
 
     public RankingCapituloDTO(
+            Long idDocente,
+            String facultad,
             String cedula,
             String apellidos,
             String nombres,
             String carrera,
             Double puntajeCapitulos) {
 
+        this.idDocente = idDocente;
+        this.facultad = facultad;
         this.cedula = cedula;
         this.apellidos = apellidos;
         this.nombres = nombres;
@@ -73,4 +80,21 @@ public class RankingCapituloDTO {
     public void setPuntajeCapitulos(Double puntajeCapitulos) {
         this.puntajeCapitulos = puntajeCapitulos;
     }
+
+    public Long getIdDocente() {
+        return idDocente;
+    }
+
+    public void setIdDocente(Long idDocente) {
+        this.idDocente = idDocente;
+    }
+
+    public String getFacultad() {
+        return facultad;
+    }
+
+    public void setFacultad(String facultad) {
+        this.facultad = facultad;
+    }
+
 }
