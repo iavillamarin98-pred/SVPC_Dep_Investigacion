@@ -1,0 +1,344 @@
+<div class="module">
+
+    <!-- ==========================================
+         CABECERA
+    =========================================== -->
+
+    <div class="module-header">
+
+        <h2>
+            <i class="fa-solid fa-award"></i>
+            Bonificación por Docente
+        </h2>
+
+        <p>
+            Asignación de puntaje adicional a docentes por
+            mérito académico, reconocimiento o utilidad.
+        </p>
+
+    </div>
+
+
+<!-- ==========================================
+     CONTENEDOR PRINCIPAL
+=========================================== -->
+
+<div class="bonificaciones-layout">
+
+
+    <!-- ==========================================
+         ASIGNAR BONIFICACIÓN
+    =========================================== -->
+
+    <div class="card">
+
+        <h3>
+            <i class="fa-solid fa-plus-circle"></i>
+            Asignar bonificación
+        </h3>
+
+
+        <div class="form-grid">
+
+
+            <!-- DOCENTE -->
+
+            <div class="campo">
+
+                <label>
+                    Docente
+                </label>
+
+                <div style="display:flex; gap:8px;">
+
+                    <input type="text" id="docenteBonificacion" placeholder="Seleccione un docente" readonly>
+
+                    <button type="button" class="btn btn-primary" onclick="abrirModalDocenteBonificacion()">
+
+                        <i class="fa-solid fa-search"></i>
+                        Buscar
+
+                    </button>
+
+                </div>
+
+                <input type="hidden" id="idDocenteBonificacion">
+
+            </div>
+
+
+            <!-- CÉDULA -->
+
+            <div class="campo">
+
+                <label>
+                    Cédula
+                </label>
+
+                <input type="text" id="cedulaBonificacion" readonly placeholder="Cédula del docente">
+
+            </div>
+
+
+            <!-- FACULTAD -->
+
+            <div class="campo">
+
+                <label>
+                    Facultad
+                </label>
+
+                <input type="text" id="facultadBonificacion" readonly placeholder="Facultad">
+
+            </div>
+
+
+            <!-- CARRERA -->
+
+            <div class="campo">
+
+                <label>
+                    Carrera
+                </label>
+
+                <input type="text" id="carreraBonificacion" readonly placeholder="Carrera">
+
+            </div>
+
+
+            <!-- CRITERIO -->
+
+            <div class="campo">
+
+                <label>
+                    Criterio de asignación
+                </label>
+
+                <select id="criterioBonificacion">
+
+                    <option value="">
+                        Seleccione un criterio
+                    </option>
+
+                    <option value="POR MERITO ACADEMICO">
+                        Por mérito académico
+                    </option>
+
+                    <option value="RECONOCIMIENTO">
+                        Reconocimiento
+                    </option>
+
+                    <option value="POR UTILIDAD">
+                        Por utilidad
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- PUNTAJE -->
+
+            <div class="campo">
+
+                <label>
+                    Puntaje asignado
+                </label>
+
+                <input type="number" id="puntajeAsignado" min="0" max="50" step="0.01"
+                    oninput="validarPuntajeBonificacion(this)" placeholder="0.00">
+
+                <small>
+                    Puntaje permitido: 0 a 50 puntos.
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- ACCIONES -->
+
+        <div class="acciones">
+
+            <button type="button" class="btn btn-success" onclick="guardarBonificacion()">
+
+                <i class="fa-solid fa-save"></i>
+                Guardar bonificación
+
+            </button>
+
+
+            <button type="button" class="btn btn-warning" onclick="limpiarFormularioBonificacion()">
+
+                <i class="fa-solid fa-eraser"></i>
+                Limpiar
+
+            </button>
+
+        </div>
+
+
+        <!-- MENSAJE -->
+
+        <div id="resultadoBonificacion" class="resultado oculto"></div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         BONIFICACIONES REGISTRADAS
+    =========================================== -->
+
+    <div class="card">
+
+        <h3>
+
+            <i class="fa-solid fa-table"></i>
+
+            Bonificaciones registradas
+
+        </h3>
+
+
+        <!-- FILTRO -->
+
+        <div class="filtros-ranking">
+
+            <input type="text" id="buscarBonificacion" placeholder="Buscar por cédula o docente..."
+                oninput="filtrarBonificaciones()">
+
+
+            <select id="filtroCriterioBonificacion" onchange="filtrarBonificaciones()">
+
+                <option value="">
+                    Todos los criterios
+                </option>
+
+                <option value="POR MERITO ACADEMICO">
+                    Por mérito académico
+                </option>
+
+                <option value="RECONOCIMIENTO">
+                    Reconocimiento
+                </option>
+
+                <option value="POR UTILIDAD">
+                    Por utilidad
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- TABLA -->
+
+        <div class="table-responsive">
+
+            <table class="tabla">
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+                        <th>Cédula</th>
+                        <th>Docente</th>
+                        <th>Facultad</th>
+                        <th>Carrera</th>
+                        <th>Criterio</th>
+                        <th>Puntaje</th>
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="tablaBonificaciones">
+
+                    <tr>
+
+                        <td colspan="8" style="text-align:center;">
+
+                            Cargando...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     MODAL DOCENTES
+=========================================== -->
+
+<div id="modalDocenteBonificacion" class="modal oculto">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3 class="modal-titulo">
+                Seleccionar docente
+            </h3>
+
+            <button type="button" class="btn-cerrar" onclick="cerrarModalDocenteBonificacion()">
+                &times;
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <div class="filtros-ranking">
+
+                <input type="text" id="buscarDocenteBonificacion" placeholder="Buscar por cédula o nombre..."
+                    oninput="buscarDocentesBonificacion()">
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="tabla">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Cédula</th>
+                            <th>Docente</th>
+                            <th>Facultad</th>
+                            <th>Carrera</th>
+                            <th>Acción</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tablaDocentesBonificacion">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

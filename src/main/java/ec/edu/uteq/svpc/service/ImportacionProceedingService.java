@@ -47,13 +47,12 @@ public class ImportacionProceedingService {
 
             Sheet hoja = workbook.getSheet("Proceedings");
 
-            System.out.println("Hoja leída: " + hoja.getSheetName());
-
             if (hoja == null) {
                 throw new RuntimeException(
                         "No existe la hoja 'Proceedings' dentro del archivo Excel.");
             }
 
+            System.out.println("Hoja leída: " + hoja.getSheetName());
             /*
              * Estructura del Excel
              *
@@ -195,27 +194,64 @@ public class ImportacionProceedingService {
 
                 /*
                  * Guardar o actualizar docente.
+                 *
+                 * IMPORTANTE:
+                 * La importación de Proceedings NO debe modificar
+                 * facultad, carrera, correo ni demás información
+                 * maestra de un docente existente.
                  */
                 Docente docente = docenteRepository
                         .findByCedula(cedula)
-                        .orElse(new Docente());
+                        .orElse(null);
 
-                boolean docenteNuevo = docente.getIdDocente() == null;
+                boolean docenteNuevo = false;
 
-                docente.setCedula(cedula);
+                if (docente == null) {
 
-                String[] nombresSeparados = separarNombre(participante);
+                    /*
+                     * El docente no existe en la base.
+                     * Se crea únicamente con la información disponible
+                     * en el Excel.
+                     */
+                    docente = new Docente();
 
-                docente.setApellidos(nombresSeparados[0]);
-                docente.setNombres(nombresSeparados[1]);
+                    docente.setCedula(cedula);
 
-                docente.setCorreo(null);
-                docente.setFacultad(null);
-                docente.setCarrera(carrera);
-                docente.setEstado(true);
+                    String[] nombresSeparados = separarNombre(participante);
 
-                docente = docenteRepository.save(docente);
+                    docente.setApellidos(
+                            nombresSeparados[0]);
 
+                    docente.setNombres(
+                            nombresSeparados[1]);
+
+                    /*
+                     * Estos campos no deben inventarse desde
+                     * la importación de producción científica.
+                     */
+                    docente.setCorreo(null);
+                    docente.setFacultad(null);
+                    docente.setCarrera(null);
+                    docente.setEstado(true);
+
+                    docente = docenteRepository.save(docente);
+
+                    docenteNuevo = true;
+                }
+
+                /*
+                 * Si el docente ya existía:
+                 *
+                 * NO se modifica:
+                 * - facultad
+                 * - carrera
+                 * - correo
+                 * - nombres
+                 * - apellidos
+                 * - estado
+                 *
+                 * La información maestra pertenece a Gestión de Docentes.
+                 */
                 if (docenteNuevo) {
                     docentesInsertados++;
                 } else {

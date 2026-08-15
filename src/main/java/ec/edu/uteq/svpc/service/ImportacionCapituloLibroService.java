@@ -102,9 +102,6 @@ public class ImportacionCapituloLibroService {
                 String apellidos = "";
 
                 // Estas columnas no existen en el Excel
-                String correo = "";
-                String facultad = "";
-                String carrera = "";
 
                 // Ignorar filas sin título o sin cédula
                 if (titulo.isBlank() || cedula.isBlank()) {
@@ -174,46 +171,65 @@ public class ImportacionCapituloLibroService {
                 System.out.println("=================================");
 
                 capitulo = capituloLibroRepository.save(capitulo);
-
+                /*------------------------------------------------ */
                 Docente docente;
 
                 Optional<Docente> docenteExistente = docenteRepository.findByCedula(cedula);
 
                 if (docenteExistente.isPresent()) {
 
+                    /*
+                     * ==================================================
+                     * DOCENTE YA EXISTENTE
+                     * ==================================================
+                     *
+                     * Gestión de Docentes es la fuente oficial de:
+                     *
+                     * - Nombres
+                     * - Apellidos
+                     * - Correo
+                     * - Facultad
+                     * - Carrera
+                     * - Estado
+                     *
+                     * La importación de capítulos NO modifica ninguno
+                     * de estos datos.
+                     */
                     docente = docenteExistente.get();
-
-                    docente.setNombres(nombres);
-                    docente.setApellidos(apellidos);
-                    docente.setCorreo(correo);
-
-                    // NO sobrescribir datos académicos existentes
-                    if (docente.getFacultad() == null || docente.getFacultad().isBlank()) {
-                        docente.setFacultad(facultad);
-                    }
-
-                    if (docente.getCarrera() == null || docente.getCarrera().isBlank()) {
-                        docente.setCarrera(carrera);
-                    }
 
                     docentesActualizados++;
 
                 } else {
 
+                    /*
+                     * ==================================================
+                     * DOCENTE NUEVO
+                     * ==================================================
+                     *
+                     * Se crea únicamente porque el docente no existe
+                     * en Gestión de Docentes.
+                     */
                     docente = new Docente();
 
                     docente.setCedula(cedula);
                     docente.setNombres(nombres);
                     docente.setApellidos(apellidos);
-                    docente.setCorreo(correo);
-                    docente.setFacultad(facultad);
-                    docente.setCarrera(carrera);
+
+                    /*
+                     * El Excel de capítulos no proporciona información
+                     * oficial de correo, facultad o carrera.
+                     */
+                    docente.setCorreo(null);
+                    docente.setFacultad(null);
+                    docente.setCarrera(null);
+
                     docente.setEstado(true);
+
+                    docente = docenteRepository.save(docente);
 
                     docentesInsertados++;
                 }
-
-                docente = docenteRepository.save(docente);
+                /*----------------------------------------------- */
 
                 LibroDocenteId idRelacion = new LibroDocenteId(
                         capitulo.getIdLibro(),
