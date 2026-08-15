@@ -24,8 +24,7 @@ public class ImportacionArticuloService {
     public ImportacionArticuloService(
             ArticuloRepository articuloRepository,
             DocenteRepository docenteRepository,
-            ArticuloDocenteRepository articuloDocenteRepository
-    ) {
+            ArticuloDocenteRepository articuloDocenteRepository) {
         this.articuloRepository = articuloRepository;
         this.docenteRepository = docenteRepository;
         this.articuloDocenteRepository = articuloDocenteRepository;
@@ -42,7 +41,7 @@ public class ImportacionArticuloService {
         int filasOmitidas = 0;
 
         try (InputStream inputStream = archivo.getInputStream();
-             Workbook workbook = WorkbookFactory.create(inputStream)) {
+                Workbook workbook = WorkbookFactory.create(inputStream)) {
 
             Sheet hoja = workbook.getSheetAt(0);
 
@@ -152,23 +151,31 @@ public class ImportacionArticuloService {
                  */
                 Docente docente = docenteRepository
                         .findByCedula(cedula)
-                        .orElse(new Docente());
+                        .orElse(null);
 
-                boolean docenteNuevo = docente.getIdDocente() == null;
+                boolean docenteNuevo = false;
 
-                docente.setCedula(cedula);
+                if (docente == null) {
 
-                String[] nombresSeparados = separarNombre(participante);
-                docente.setApellidos(nombresSeparados[0]);
-                docente.setNombres(nombresSeparados[1]);
+                    docente = new Docente();
 
-                docente.setCorreo(null);
-                docente.setFacultad(null);
-                docente.setCarrera(carrera);
-                docente.setEstado(true);
+                    docente.setCedula(cedula);
 
-                docente = docenteRepository.save(docente);
+                    String[] nombresSeparados = separarNombre(participante);
 
+                    docente.setApellidos(nombresSeparados[0]);
+                    docente.setNombres(nombresSeparados[1]);
+
+                    docente.setCorreo(null);
+                    docente.setFacultad(null);
+                    docente.setCarrera(null);
+                    docente.setEstado(true);
+
+                    docente = docenteRepository.save(docente);
+
+                    docenteNuevo = true;
+                }
+                /*** ---------------------------------------------------------------------- */
                 if (docenteNuevo) {
                     docentesInsertados++;
                 } else {
@@ -180,8 +187,7 @@ public class ImportacionArticuloService {
                  */
                 ArticuloDocenteId relacionId = new ArticuloDocenteId(
                         articulo.getIdArticulo(),
-                        docente.getIdDocente()
-                );
+                        docente.getIdDocente());
 
                 ArticuloDocente relacion = articuloDocenteRepository
                         .findById(relacionId)
@@ -323,7 +329,7 @@ public class ImportacionArticuloService {
                 nombres.append(partes[i]).append(" ");
             }
 
-            return new String[]{
+            return new String[] {
                     apellidos.trim(),
                     nombres.toString().trim()
             };
@@ -334,7 +340,7 @@ public class ImportacionArticuloService {
          * APELLIDO1 APELLIDO2 NOMBRE1
          */
         if (partes.length == 3) {
-            return new String[]{
+            return new String[] {
                     partes[0] + " " + partes[1],
                     partes[2]
             };
@@ -345,13 +351,13 @@ public class ImportacionArticuloService {
          * APELLIDO NOMBRE
          */
         if (partes.length == 2) {
-            return new String[]{
+            return new String[] {
                     partes[0],
                     partes[1]
             };
         }
 
-        return new String[]{
+        return new String[] {
                 "SIN APELLIDO",
                 limpio
         };

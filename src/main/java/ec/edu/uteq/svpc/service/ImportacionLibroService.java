@@ -72,7 +72,6 @@ public class ImportacionLibroService {
                 String rolParticipante = normalizarRol(valor(row, 12));
                 String participante = limpiar(valor(row, 13));
                 String periodo = limpiar(valor(row, 14));
-                String carrera = limpiar(valor(row, 15));
 
                 if (codigo.isBlank()
                         || titulo.isBlank()
@@ -101,19 +100,22 @@ public class ImportacionLibroService {
                 } else {
                     librosInsertados++;
                 }
+                /*------------------------------ */
+                Optional<Docente> docenteExistente = docenteRepository.findByCedula(cedula);
 
-                boolean docenteYaExiste = docenteRepository
-                        .findByCedula(cedula)
-                        .isPresent();
+                Docente docenteGuardado;
 
-                Docente docenteGuardado = guardarDocente(
-                        cedula,
-                        participante,
-                        carrera);
+                if (docenteExistente.isPresent()) {
 
-                if (docenteYaExiste) {
+                    docenteGuardado = docenteExistente.get();
                     docentesActualizados++;
+
                 } else {
+
+                    docenteGuardado = guardarDocente(
+                            cedula,
+                            participante);
+
                     docentesInsertados++;
                 }
 
@@ -202,31 +204,67 @@ public class ImportacionLibroService {
         return libroRepository.save(libro);
     }
 
+    /* -- -------------------------------------------- */
     private Docente guardarDocente(
             String cedula,
-            String participante,
-            String carrera) {
+            String participante) {
 
         Optional<Docente> docenteOpt = docenteRepository.findByCedula(cedula);
 
-        Docente docente;
-
+        /*
+         * ==================================================
+         * DOCENTE YA EXISTENTE
+         * ==================================================
+         *
+         * Si el docente ya existe en Gestión de Docentes,
+         * NO se modifica absolutamente ningún dato maestro.
+         *
+         * La importación de libros solamente necesita
+         * obtener el docente para crear la relación
+         * LIBRO_DOCENTE.
+         */
         if (docenteOpt.isPresent()) {
-            docente = docenteOpt.get();
-        } else {
-            docente = new Docente();
-            docente.setCedula(cedula);
+
+            return docenteOpt.get();
         }
+
+        /*
+         * ==================================================
+         * DOCENTE NUEVO
+         * ==================================================
+         *
+         * Si por alguna razón el docente no fue cargado
+         * previamente en Gestión de Docentes, se crea un
+         * registro mínimo.
+         */
+        Docente docente = new Docente();
+
+        docente.setCedula(cedula);
 
         String[] nombresApellidos = separarParticipante(participante);
 
-        docente.setApellidos(nombresApellidos[0]);
-        docente.setNombres(nombresApellidos[1]);
-        docente.setCarrera(carrera);
+        docente.setApellidos(
+                nombresApellidos[0]);
+
+        docente.setNombres(
+                nombresApellidos[1]);
+
+        /*
+         * Estos datos no deben obtenerse de la importación
+         * para un docente que ya exista.
+         *
+         * Para uno nuevo se dejan vacíos/null porque la
+         * información oficial debe administrarse desde
+         * Gestión de Docentes.
+         */
+        docente.setCorreo(null);
+        docente.setFacultad(null);
+        docente.setCarrera(null);
         docente.setEstado(true);
 
         return docenteRepository.save(docente);
     }
+    /*------------------------------------------------ */
 
     private String valor(Row row, int index) {
 

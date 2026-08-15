@@ -47,6 +47,11 @@ async function cargarModulo(nombre) {
                 "js/proyectos.js"
             ];
             break;
+             case "bonificaciones":
+            archivo = "modulos/bonificaciones.html";
+            scripts = ["js/bonificaciones.js"];
+            break;
+                
 
         case "docentes":
             archivo = "modulos/docentes.html";

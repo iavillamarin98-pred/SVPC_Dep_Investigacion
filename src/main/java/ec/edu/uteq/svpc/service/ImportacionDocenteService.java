@@ -32,7 +32,7 @@ public class ImportacionDocenteService {
 
             Sheet hoja = workbook.getSheetAt(0);
 
-            for (int i = 1; i <= hoja.getLastRowNum(); i++) {
+            for (int i = 3; i <= hoja.getLastRowNum(); i++) {
 
                 Row fila = hoja.getRow(i);
 
@@ -43,7 +43,7 @@ public class ImportacionDocenteService {
 
                 /*
                  * ==========================================
-                 * COLUMNAS DEL EXCEL MAESTRO
+                 * COLUMNAS DEL DISTRIBUTIVO
                  * ==========================================
                  *
                  * 0 N.
@@ -56,23 +56,64 @@ public class ImportacionDocenteService {
                  * 7 TIPO
                  * 8 CATEGORIA
                  * 9 ESCALAFON
-                 * ...
+                 * 10 TOTAL HORAS
+                 * 11 HORAS ACTIVIDADES PLANIFICADAS
+                 * 12 HORAS ACTIVIDADES SOLICITADAS
+                 * 13 ACTIVIDADES COMPLETAS
+                 * 14 TELEFONO
+                 * 15 CIUDAD
+                 * 16 DIRECCION
                  * 17 CARRERA
-                 * ...
+                 * 18 EMAIL PERSONAL
                  * 19 EMAIL INSTITUCIONAL
+                 * 20 TABLA PONDERATIVA
                  * 21 ACTIVO
+                 * 22 USUARIO
+                 * 23 PAIS_ORIGEN
+                 * 24 DISCAPACIDAD
+                 * 25 PORCENTAJE_DISCAPACIDAD
+                 * 26 NUMERO_CONADIS
+                 * 27 ETNIA
+                 * 28 NACIONALIDAD
                  */
 
-                String cedula = obtenerTexto(fila.getCell(2));
-                String nombreCompleto = obtenerTexto(fila.getCell(3));
-                String facultad = obtenerTexto(fila.getCell(5));
-                String carrera = obtenerTexto(fila.getCell(17));
-                String correo = obtenerTexto(fila.getCell(19));
-                String activo = obtenerTexto(fila.getCell(21));
+                String cedula = normalizarCedula(
+                        obtenerTexto(fila.getCell(2)));
+
+                String nombreCompleto = normalizarTexto(
+                        obtenerTexto(fila.getCell(3)));
+
+                String facultad = normalizarTexto(
+                        obtenerTexto(fila.getCell(5)));
+
+                String carrera = normalizarTexto(
+                        obtenerTexto(fila.getCell(17)));
+
+                String correo = obtenerTexto(
+                        fila.getCell(19));
+
+                String activo = normalizarTexto(
+                        obtenerTexto(fila.getCell(21)));
 
                 /*
-                 * La cédula es obligatoria porque es
-                 * nuestra clave para identificar al docente.
+                 * ==========================================
+                 * VALIDACIONES
+                 * ==========================================
+                 */
+
+                if (cedula.equalsIgnoreCase("IDENTIFICACIÓN")
+                        || nombreCompleto.equalsIgnoreCase("NOMBRES")) {
+
+                    omitidos++;
+
+                    System.out.println(
+                            "Fila de encabezados omitida: " + (i + 1));
+
+                    continue;
+                }
+
+                /*
+                 * La cédula y el nombre son obligatorios.
                  */
                 if (cedula.isBlank() || nombreCompleto.isBlank()) {
                     omitidos++;
@@ -81,15 +122,10 @@ public class ImportacionDocenteService {
 
                 /*
                  * ==========================================
-                 * BUSCAR POR CÉDULA
+                 * BUSCAR DOCENTE POR CÉDULA
                  * ==========================================
-                 *
-                 * Si existe:
-                 * actualizar.
-                 *
-                 * Si no existe:
-                 * crear.
                  */
+
                 Docente docente = docenteRepository
                         .findByCedula(cedula)
                         .orElse(new Docente());
@@ -98,7 +134,7 @@ public class ImportacionDocenteService {
 
                 /*
                  * ==========================================
-                 * DATOS BÁSICOS
+                 * DATOS DEL DOCENTE
                  * ==========================================
                  */
 
@@ -119,17 +155,17 @@ public class ImportacionDocenteService {
                  * ==========================================
                  */
 
-                if (!activo.isBlank()) {
+                if (activo.isBlank()) {
 
-                    docente.setEstado(
-                            activo.equalsIgnoreCase("SI")
-                                    || activo.equalsIgnoreCase("ACTIVO")
-                                    || activo.equalsIgnoreCase("TRUE")
-                                    || activo.equalsIgnoreCase("1"));
+                    docente.setEstado(true);
 
                 } else {
 
-                    docente.setEstado(true);
+                    docente.setEstado(
+                            activo.equals("SI")
+                                    || activo.equals("ACTIVO")
+                                    || activo.equals("TRUE")
+                                    || activo.equals("1"));
                 }
 
                 /*
@@ -147,7 +183,7 @@ public class ImportacionDocenteService {
                 }
             }
 
-            return "Importación finalizada. "
+            return "Importación de docentes finalizada. "
                     + "Insertados: " + insertados
                     + ", actualizados: " + actualizados
                     + ", omitidos: " + omitidos;
@@ -161,9 +197,6 @@ public class ImportacionDocenteService {
         }
     }
 
-    /**
-     * Obtiene el contenido de una celda como texto.
-     */
     private String obtenerTexto(Cell celda) {
 
         if (celda == null) {
@@ -177,18 +210,29 @@ public class ImportacionDocenteService {
                 .trim();
     }
 
-    /**
-     * Separa el nombre completo del Excel.
-     *
-     * Ejemplo:
-     *
-     * ABAD SUAREZ MANUEL ALBERTO
-     *
-     * Resultado:
-     *
-     * Apellidos: ABAD SUAREZ
-     * Nombres: MANUEL ALBERTO
-     */
+    private String normalizarCedula(String valor) {
+
+        if (valor == null || valor.isBlank()) {
+            return "";
+        }
+
+        return valor
+                .trim()
+                .replaceAll("\\s+", "");
+    }
+
+    private String normalizarTexto(String valor) {
+
+        if (valor == null || valor.isBlank()) {
+            return "";
+        }
+
+        return valor
+                .trim()
+                .replaceAll("\\s+", " ")
+                .toUpperCase();
+    }
+
     private String[] separarNombre(String nombreCompleto) {
 
         String nombre = nombreCompleto
@@ -196,6 +240,18 @@ public class ImportacionDocenteService {
                 .replaceAll("\\s+", " ");
 
         String[] palabras = nombre.split("\\s+");
+
+        /*
+         * Ejemplo:
+         *
+         * ABAD SUAREZ MANUEL ALBERTO
+         *
+         * Apellidos:
+         * ABAD SUAREZ
+         *
+         * Nombres:
+         * MANUEL ALBERTO
+         */
 
         if (palabras.length < 3) {
 
@@ -205,22 +261,13 @@ public class ImportacionDocenteService {
             };
         }
 
-        /*
-         * Regla utilizada para el catálogo maestro:
-         *
-         * Las primeras dos palabras corresponden
-         * a los apellidos y el resto a los nombres.
-         */
-        StringBuilder apellidos = new StringBuilder();
-        StringBuilder nombres = new StringBuilder();
+        String apellidos = palabras[0] + " " + palabras[1];
 
-        apellidos.append(palabras[0])
-                .append(" ")
-                .append(palabras[1]);
+        StringBuilder nombres = new StringBuilder();
 
         for (int i = 2; i < palabras.length; i++) {
 
-            if (i > 2) {
+            if (nombres.length() > 0) {
                 nombres.append(" ");
             }
 
@@ -228,7 +275,7 @@ public class ImportacionDocenteService {
         }
 
         return new String[] {
-                apellidos.toString(),
+                apellidos,
                 nombres.toString()
         };
     }
