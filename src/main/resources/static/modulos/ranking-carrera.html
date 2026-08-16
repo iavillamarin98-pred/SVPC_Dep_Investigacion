@@ -1,0 +1,65 @@
+<div class="module">
+
+    <div class="module-header">
+        <h2>
+            <i class="fa-solid fa-building-columns"></i>
+            Ranking por Facultad
+        </h2>
+        <p>
+            Ranking de docentes agrupado por facultad.
+        </p>
+    </div>
+
+    <div class="card ranking-card">
+
+        <div class="acciones" style="margin-top:0;">
+            <button type="button" class="btn btn-primary" onclick="refrescarRankingFacultad()">
+                <i class="fa-solid fa-rotate"></i>
+                Actualizar ranking
+            </button>
+            <button type="button" class="btn btn-success" onclick="exportarRankingFacultadPDF()">
+                <i class="fa-solid fa-file-pdf"></i>
+                Descargar PDF
+            </button>
+        </div>
+
+        <div class="filtros-ranking">
+
+            <input type="text" id="buscarRankingFacultad" placeholder="Buscar por cédula o docente..."
+                oninput="filtrarRankingFacultad()">
+
+            <select id="filtroFacultadRanking" onchange="cambiarFacultadRanking()">
+                <option value="">Todas las facultades</option>
+            </select>
+
+        </div>
+
+        <div class="ranking-scroll">
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Puesto</th>
+                        <th>Cédula</th>
+                        <th>Docente</th>
+                        <th>Facultad</th>
+                        <th>Carrera</th>
+                        <th>Artículos</th>
+                        <th>Proceedings</th>
+                        <th>Libros</th>
+                        <th>Capítulos</th>
+                        <th>Proyectos</th>
+                        <th>Bonificaciones</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaRankingFacultad">
+                    <tr>
+                        <td colspan="12" style="text-align:center;">Cargando...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>

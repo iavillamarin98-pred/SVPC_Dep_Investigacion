@@ -1,0 +1,60 @@
+<div class="module">
+
+    <div class="module-header">
+        <h2>
+            <i class="fa-solid fa-trophy"></i>
+            Ranking General de Docentes
+        </h2>
+        <p>
+            Consolidado de puntajes de producción científica: artículos, proceedings,
+            libros, capítulos de libro, proyectos y bonificaciones.
+        </p>
+    </div>
+
+    <div class="card ranking-card">
+
+        <div class="acciones" style="margin-top:0;">
+            <button type="button" class="btn btn-primary" onclick="refrescarRankingGeneral()">
+                <i class="fa-solid fa-rotate"></i>
+                Actualizar ranking
+            </button>
+            <button type="button" class="btn btn-success" onclick="exportarRankingGeneralPDF()">
+                <i class="fa-solid fa-file-pdf"></i>
+                Descargar PDF
+            </button>
+        </div>
+
+        <div class="filtros-ranking">
+            <input type="text" id="buscarRankingGeneral" placeholder="Buscar por cédula o docente..."
+                oninput="filtrarRankingGeneral()">
+        </div>
+
+        <div class="ranking-scroll">
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Puesto</th>
+                        <th>Cédula</th>
+                        <th>Docente</th>
+                        <th>Facultad</th>
+                        <th>Carrera</th>
+                        <th>Artículos</th>
+                        <th>Proceedings</th>
+                        <th>Libros</th>
+                        <th>Capítulos</th>
+                        <th>Proyectos</th>
+                        <th>Bonificaciones</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaRankingGeneral">
+                    <tr>
+                        <td colspan="12" style="text-align:center;">Cargando...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>

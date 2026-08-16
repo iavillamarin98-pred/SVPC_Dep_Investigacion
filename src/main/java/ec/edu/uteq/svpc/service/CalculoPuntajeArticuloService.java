@@ -6,9 +6,12 @@ import ec.edu.uteq.svpc.entity.ConfiguracionPuntaje;
 import ec.edu.uteq.svpc.repository.ArticuloDocenteRepository;
 import ec.edu.uteq.svpc.repository.ArticuloRepository;
 import ec.edu.uteq.svpc.repository.ConfiguracionPuntajeRepository;
+import ec.edu.uteq.svpc.repository.ReglaDistribucionAutoriaRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import ec.edu.uteq.svpc.entity.ReglaDistribucionAutoria;
+import ec.edu.uteq.svpc.repository.ReglaDistribucionAutoriaRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,16 +29,20 @@ public class CalculoPuntajeArticuloService {
     private final ArticuloRepository articuloRepository;
     private final ArticuloDocenteRepository articuloDocenteRepository;
     private final ConfiguracionPuntajeRepository configuracionPuntajeRepository;
+    private final ReglaDistribucionAutoriaRepository reglaDistribucionAutoriaRepository;
+
     private final JdbcTemplate jdbcTemplate;
 
     public CalculoPuntajeArticuloService(
             ArticuloRepository articuloRepository,
             ArticuloDocenteRepository articuloDocenteRepository,
             ConfiguracionPuntajeRepository configuracionPuntajeRepository,
+            ReglaDistribucionAutoriaRepository reglaDistribucionAutoriaRepository,
             JdbcTemplate jdbcTemplate) {
         this.articuloRepository = articuloRepository;
         this.articuloDocenteRepository = articuloDocenteRepository;
         this.configuracionPuntajeRepository = configuracionPuntajeRepository;
+        this.reglaDistribucionAutoriaRepository = reglaDistribucionAutoriaRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -101,7 +108,8 @@ public class CalculoPuntajeArticuloService {
                         puntajeBaseAutor,
                         puntajeBaseCoautor,
                         cantidadAutores,
-                        cantidadCoautores);
+                        cantidadCoautores,
+                        idProceso.intValue());
 
                 relacion.setPuntajeObtenido(puntajeCalculado);
                 articuloDocenteRepository.save(relacion);
@@ -123,12 +131,14 @@ public class CalculoPuntajeArticuloService {
                 ". Puntajes consolidados en valoraciones.puntaje_articulos.";
     }
 
+    /* ------------------------------------------------- */
     private BigDecimal calcularPuntajeDistribuido(
             ArticuloDocente relacion,
             BigDecimal puntajeBaseAutor,
             BigDecimal puntajeBaseCoautor,
             long cantidadAutores,
-            long cantidadCoautores) {
+            long cantidadCoautores,
+            Integer idProceso) {
 
         boolean esAutor = esAutor(relacion.getRolParticipante());
         boolean esCoautor = esCoautor(relacion.getRolParticipante());
@@ -137,71 +147,153 @@ public class CalculoPuntajeArticuloService {
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
 
-        /*
-         * Escenario 1:
-         * Autor UTEQ solo.
-         * Recibe 100% del puntaje base de autor.
-         */
-        if (cantidadAutores >= 1 && cantidadCoautores == 0) {
-            if (esAutor) {
-                return redondear(puntajeBaseAutor);
-            }
+        String escenario = determinarEscenario(
+                cantidadAutores,
+                cantidadCoautores);
+
+        if (escenario == null) {
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
 
-        /*
-         * Escenario 2:
-         * Autor UTEQ + 1 coautor UTEQ.
-         * Autor recibe 60%.
-         * Coautor recibe 40%.
-         */
-        if (cantidadAutores >= 1 && cantidadCoautores == 1) {
-            if (esAutor) {
-                return redondear(puntajeBaseAutor.multiply(new BigDecimal("0.60")));
-            }
+        ReglaDistribucionAutoria regla = obtenerReglaDistribucion(idProceso, escenario);
 
-            if (esCoautor) {
-                return redondear(puntajeBaseAutor.multiply(new BigDecimal("0.40")));
-            }
+        if (regla == null) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
 
-        /*
-         * Escenario 3:
-         * Autor UTEQ + 2 o más coautores UTEQ.
-         * Autor recibe 50%.
-         * El otro 50% se divide entre coautores.
-         */
-        if (cantidadAutores >= 1 && cantidadCoautores >= 2) {
-            if (esAutor) {
-                return redondear(puntajeBaseAutor.multiply(new BigDecimal("0.50")));
-            }
+        BigDecimal porcentaje;
 
-            if (esCoautor) {
+        /*
+         * ESCENARIOS CON AUTOR
+         *
+         * El porcentaje se aplica sobre el puntaje base del AUTOR.
+         */
+        if (cantidadAutores > 0) {
+
+            if (esAutor) {
+
+                porcentaje = regla.getPorcentajeAutor();
+
                 return redondear(
                         puntajeBaseAutor
-                                .multiply(new BigDecimal("0.50"))
-                                .divide(BigDecimal.valueOf(cantidadCoautores), 10, RoundingMode.HALF_UP));
+                                .multiply(porcentaje)
+                                .divide(
+                                        new BigDecimal("100"),
+                                        10,
+                                        RoundingMode.HALF_UP));
+            }
+
+            if (esCoautor) {
+
+                porcentaje = regla.getPorcentajeCoautor();
+
+                return redondear(
+                        puntajeBaseAutor
+                                .multiply(porcentaje)
+                                .divide(
+                                        new BigDecimal("100"),
+                                        10,
+                                        RoundingMode.HALF_UP));
             }
         }
 
         /*
-         * Escenario 4:
-         * Solo coautores UTEQ.
-         * El puntaje base de coautor se divide entre todos los coautores.
+         * ESCENARIOS SOLO COAUTORES
+         *
+         * Aquí el porcentaje se aplica sobre el puntaje
+         * base del COAUTOR.
+         *
+         * Ejemplo:
+         *
+         * Q3 = 5 puntos
+         * 2 coautores
+         * escenario 6 = 50%
+         *
+         * 5 × 50% = 2.50
          */
         if (cantidadAutores == 0 && cantidadCoautores > 0) {
+
             if (esCoautor) {
+
+                porcentaje = regla.getPorcentajeCoautor();
+
                 return redondear(
-                        puntajeBaseCoautor.divide(
-                                BigDecimal.valueOf(cantidadCoautores),
-                                10,
-                                RoundingMode.HALF_UP));
+                        puntajeBaseCoautor
+                                .multiply(porcentaje)
+                                .divide(
+                                        new BigDecimal("100"),
+                                        10,
+                                        RoundingMode.HALF_UP));
             }
         }
 
         return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
     }
 
+    /* --------------------------------------------------------- */
+    private ReglaDistribucionAutoria obtenerReglaDistribucion(
+            Integer idProceso,
+            String escenario) {
+
+        return reglaDistribucionAutoriaRepository
+                .findByIdProcesoAndEscenarioAndEstadoTrue(
+                        idProceso,
+                        escenario)
+                .orElse(null);
+    }
+
+    private String determinarEscenario(
+            long cantidadAutores,
+            long cantidadCoautores) {
+
+        /*
+         * AUTOR + COAUTORES
+         */
+        if (cantidadAutores > 0) {
+
+            if (cantidadCoautores == 0) {
+                return "1";
+            }
+
+            if (cantidadCoautores == 1) {
+                return "2";
+            }
+
+            if (cantidadCoautores == 2) {
+                return "3";
+            }
+
+            if (cantidadCoautores == 3) {
+                return "4";
+            }
+        }
+
+        /*
+         * SOLO COAUTORES
+         */
+        if (cantidadAutores == 0) {
+
+            if (cantidadCoautores == 1) {
+                return "5";
+            }
+
+            if (cantidadCoautores == 2) {
+                return "6";
+            }
+
+            if (cantidadCoautores == 3) {
+                return "7";
+            }
+
+            if (cantidadCoautores >= 4) {
+                return "8";
+            }
+        }
+
+        return null;
+    }
+
+    /* --------------------------------------------------------- */
     private void consolidarPuntajeArticulosEnValoraciones(Long idProceso) {
 
         List<Object[]> puntajesPorDocente = articuloDocenteRepository

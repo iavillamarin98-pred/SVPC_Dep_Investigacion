@@ -1,0 +1,212 @@
+<div class="module configuracion-puntajes-module">
+
+    <!-- ==========================================
+         CABECERA
+         ========================================== -->
+
+    <div class="module-header configuracion-header">
+
+        <div>
+            <h2>
+                <i class="fa-solid fa-sliders"></i>
+                Configuración de Puntajes
+            </h2>
+
+            <p>
+                Administre las ponderaciones de producción científica
+                y las reglas de distribución de autoría.
+            </p>
+        </div>
+
+        <div class="configuracion-proceso">
+
+            <label for="selectProceso">
+                Proceso de valoración
+            </label>
+
+            <select id="selectProceso">
+                <option value="">
+                    Seleccione un proceso
+                </option>
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         PESTAÑAS
+         ========================================== -->
+
+    <div class="card configuracion-card">
+
+        <div class="configuracion-tabs">
+
+            <button type="button" class="config-tab-btn activo" data-tab="tabPuntajes">
+
+                <i class="fa-solid fa-ranking-star"></i>
+
+                Ponderaciones de Producción Científica
+
+            </button>
+
+
+            <button type="button" class="config-tab-btn" data-tab="tabReglas">
+
+                <i class="fa-solid fa-users"></i>
+
+                Reglas de Distribución de Autoría
+
+            </button>
+
+        </div>
+
+
+        <!-- ======================================
+             TAB: PUNTAJES
+             ====================================== -->
+
+        <div id="tabPuntajes" class="config-tab-content activo">
+
+            <div class="configuracion-tab-header">
+
+                <div>
+
+                    <h3>
+                        Ponderaciones de Producción Científica
+                    </h3>
+
+                    <p>
+                        Configure el puntaje base correspondiente
+                        a cada categoría, criterio y rol.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div id="mensajePuntajes"></div>
+
+
+            <div class="table-responsive configuracion-tabla">
+
+                <table class="tabla">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Categoría</th>
+
+                            <th>Criterio</th>
+
+                            <th>Rol</th>
+
+                            <th>Puntaje base</th>
+
+                            <th>Estado</th>
+
+                            <th>Acción</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="tablaPuntajes">
+
+                        <tr>
+
+                            <td colspan="6" class="text-center">
+
+                                Seleccione un proceso
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================
+             TAB: REGLAS
+             ====================================== -->
+
+        <div id="tabReglas" class="config-tab-content">
+
+            <div class="configuracion-tab-header">
+
+                <div>
+
+                    <h3>
+                        Reglas de Distribución de Autoría
+                    </h3>
+
+                    <p>
+                        Estas reglas se aplican a artículos,
+                        proceedings, libros y capítulos de libros.
+                        No se aplican a proyectos.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div id="mensajeReglas"></div>
+
+
+            <div class="table-responsive configuracion-tabla">
+
+                <table class="tabla">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Escenario</th>
+
+                            <th>% Autor</th>
+
+                            <th>% Coautor</th>
+
+                            <th>Estado</th>
+
+                            <th>Acción</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="tablaReglas">
+
+                        <tr>
+
+                            <td colspan="5" class="text-center">
+
+                                Seleccione un proceso
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

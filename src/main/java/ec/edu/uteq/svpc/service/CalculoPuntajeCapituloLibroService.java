@@ -9,6 +9,8 @@ import ec.edu.uteq.svpc.repository.ConfiguracionPuntajeRepository;
 import ec.edu.uteq.svpc.repository.ValoracionCapituloLibroRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ec.edu.uteq.svpc.entity.ReglaDistribucionAutoria;
+import ec.edu.uteq.svpc.repository.ReglaDistribucionAutoriaRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,16 +23,19 @@ public class CalculoPuntajeCapituloLibroService {
     private final CapituloLibroDocenteRepository capituloLibroDocenteRepository;
     private final ConfiguracionPuntajeRepository configuracionPuntajeRepository;
     private final ValoracionCapituloLibroRepository valoracionCapituloLibroRepository;
+    private final ReglaDistribucionAutoriaRepository reglaDistribucionAutoriaRepository;
 
     public CalculoPuntajeCapituloLibroService(
             CapituloLibroRepository capituloLibroRepository,
             CapituloLibroDocenteRepository capituloLibroDocenteRepository,
             ConfiguracionPuntajeRepository configuracionPuntajeRepository,
-            ValoracionCapituloLibroRepository valoracionCapituloLibroRepository) {
+            ValoracionCapituloLibroRepository valoracionCapituloLibroRepository,
+            ReglaDistribucionAutoriaRepository reglaDistribucionAutoriaRepository) {
         this.capituloLibroRepository = capituloLibroRepository;
         this.capituloLibroDocenteRepository = capituloLibroDocenteRepository;
         this.configuracionPuntajeRepository = configuracionPuntajeRepository;
         this.valoracionCapituloLibroRepository = valoracionCapituloLibroRepository;
+        this.reglaDistribucionAutoriaRepository = reglaDistribucionAutoriaRepository;
     }
 
     @Transactional
@@ -73,12 +78,29 @@ public class CalculoPuntajeCapituloLibroService {
 
                 String rol = normalizarRol(participante.getRolParticipante());
 
-                BigDecimal puntaje = calcularPuntaje(
-                        rol,
+                String escenario = determinarEscenario(
                         cantidadAutores,
-                        cantidadCoautores,
-                        puntajeBaseAutor,
-                        puntajeBaseCoautor);
+                        cantidadCoautores);
+
+                ReglaDistribucionAutoria regla = obtenerReglaDistribucion(
+                        idProceso,
+                        escenario);
+
+                BigDecimal puntaje;
+
+                if (regla == null) {
+
+                    puntaje = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+
+                } else {
+
+                    puntaje = calcularPuntaje(
+                            rol,
+                            puntajeBaseAutor,
+                            puntajeBaseCoautor,
+                            regla,
+                            cantidadCoautores);
+                }
 
                 participante.setPuntajeObtenido(puntaje);
                 capituloLibroDocenteRepository.save(participante);
@@ -95,49 +117,94 @@ public class CalculoPuntajeCapituloLibroService {
                 "Capítulos procesados: " + capitulosProcesados +
                 ", relaciones procesadas: " + relacionesProcesadas + ".";
     }
-
+/*------------------------------------------- */
     private BigDecimal calcularPuntaje(
-            String rol,
-            long cantidadAutores,
-            long cantidadCoautores,
-            BigDecimal puntajeBaseAutor,
-            BigDecimal puntajeBaseCoautor) {
-        BigDecimal puntaje = BigDecimal.ZERO;
+        String rol,
+        BigDecimal puntajeBaseAutor,
+        BigDecimal puntajeBaseCoautor,
+        ReglaDistribucionAutoria regla,
+        long cantidadCoautores) {
 
-        if (cantidadAutores > 0) {
+    if ("AUTOR".equals(rol)) {
 
-            if (rol.equals("AUTOR")) {
-
-                if (cantidadCoautores == 0) {
-                    puntaje = puntajeBaseAutor;
-                } else if (cantidadCoautores == 1) {
-                    puntaje = puntajeBaseAutor.multiply(new BigDecimal("0.60"));
-                } else {
-                    puntaje = puntajeBaseAutor.multiply(new BigDecimal("0.50"));
-                }
-
-            } else if (rol.equals("COAUTOR")) {
-
-                if (cantidadCoautores == 1) {
-                    puntaje = puntajeBaseAutor.multiply(new BigDecimal("0.40"));
-                } else if (cantidadCoautores > 1) {
-                    puntaje = puntajeBaseAutor
-                            .multiply(new BigDecimal("0.50"))
-                            .divide(BigDecimal.valueOf(cantidadCoautores), 2, RoundingMode.HALF_UP);
-                }
-            }
-
-        } else {
-
-            if (rol.equals("COAUTOR") && cantidadCoautores > 0) {
-                puntaje = puntajeBaseCoautor
-                        .divide(BigDecimal.valueOf(cantidadCoautores), 2, RoundingMode.HALF_UP);
-            }
-        }
-
-        return puntaje.setScale(2, RoundingMode.HALF_UP);
+        return puntajeBaseAutor
+                .multiply(regla.getPorcentajeAutor())
+                .divide(
+                        new BigDecimal("100"),
+                        10,
+                        RoundingMode.HALF_UP)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
+    if ("COAUTOR".equals(rol)) {
+
+        /*
+         * Si existe porcentaje de coautor,
+         * se aplica sobre el puntaje base del autor.
+         */
+        if (regla.getPorcentajeCoautor()
+                .compareTo(BigDecimal.ZERO) > 0) {
+
+            return puntajeBaseAutor
+                    .multiply(regla.getPorcentajeCoautor())
+                    .divide(
+                            new BigDecimal("100"),
+                            10,
+                            RoundingMode.HALF_UP)
+                    .setScale(2, RoundingMode.HALF_UP);
+        }
+
+        /*
+         * Si no existe autor, el puntaje base
+         * corresponde al conjunto de coautores.
+         */
+        if (cantidadCoautores > 0) {
+
+            return puntajeBaseCoautor
+                    .divide(
+                            BigDecimal.valueOf(cantidadCoautores),
+                            10,
+                            RoundingMode.HALF_UP)
+                    .setScale(2, RoundingMode.HALF_UP);
+        }
+    }
+
+    return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+}
+
+    /*------------------------------------------- */
+
+    private String determinarEscenario(
+            long cantidadAutores,
+            long cantidadCoautores) {
+
+        long totalParticipantes = cantidadAutores + cantidadCoautores;
+
+        if (totalParticipantes <= 0) {
+            return null;
+        }
+
+        return String.valueOf(
+                Math.min(totalParticipantes, 10));
+    }
+
+
+    private ReglaDistribucionAutoria obtenerReglaDistribucion(
+            Integer idProceso,
+            String escenario) {
+
+        if (escenario == null) {
+            return null;
+        }
+
+        return reglaDistribucionAutoriaRepository
+                .findByIdProcesoAndEscenarioAndEstadoTrue(
+                        idProceso,
+                        escenario)
+                .orElse(null);
+    }
+
+    /*------------------------------------------- */
     private void consolidarCapitulosEnValoraciones(Integer idProceso) {
 
         List<Object[]> resultados = capituloLibroDocenteRepository.obtenerPuntajeCapitulosPorDocente(idProceso);

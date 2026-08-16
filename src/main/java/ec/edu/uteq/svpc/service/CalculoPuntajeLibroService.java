@@ -10,6 +10,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ec.edu.uteq.svpc.entity.ReglaDistribucionAutoria;
+import ec.edu.uteq.svpc.repository.ReglaDistribucionAutoriaRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,6 +23,7 @@ public class CalculoPuntajeLibroService {
     private final LibroRepository libroRepository;
     private final LibroDocenteRepository libroDocenteRepository;
     private final ConfiguracionPuntajeRepository configuracionPuntajeRepository;
+    private final ReglaDistribucionAutoriaRepository reglaDistribucionAutoriaRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -28,10 +31,12 @@ public class CalculoPuntajeLibroService {
     public CalculoPuntajeLibroService(
             LibroRepository libroRepository,
             LibroDocenteRepository libroDocenteRepository,
-            ConfiguracionPuntajeRepository configuracionPuntajeRepository) {
+            ConfiguracionPuntajeRepository configuracionPuntajeRepository,
+            ReglaDistribucionAutoriaRepository reglaDistribucionAutoriaRepository) {
         this.libroRepository = libroRepository;
         this.libroDocenteRepository = libroDocenteRepository;
         this.configuracionPuntajeRepository = configuracionPuntajeRepository;
+        this.reglaDistribucionAutoriaRepository = reglaDistribucionAutoriaRepository;
     }
 
     @Transactional
@@ -86,42 +91,25 @@ public class CalculoPuntajeLibroService {
             for (LibroDocente relacion : relaciones) {
 
                 BigDecimal puntajeCalculado = BigDecimal.ZERO;
+                /*------------------------------------------------------ */
 
-                if (cantidadAutores > 0) {
+                ReglaDistribucionAutoria regla = obtenerReglaDistribucion(
+                        idProceso,
+                        cantidadAutores,
+                        cantidadCoautores);
 
-                    if (esAutor(relacion.getRolParticipante())) {
+                if (regla != null) {
 
-                        if (cantidadCoautores == 0) {
-                            puntajeCalculado = puntajeBaseAutor;
-                        } else if (cantidadCoautores == 1) {
-                            puntajeCalculado = puntajeBaseAutor.multiply(new BigDecimal("0.60"));
-                        } else {
-                            puntajeCalculado = puntajeBaseAutor.multiply(new BigDecimal("0.50"));
-                        }
-
-                    } else if (esCoautor(relacion.getRolParticipante())) {
-
-                        if (cantidadCoautores == 1) {
-                            puntajeCalculado = puntajeBaseAutor.multiply(new BigDecimal("0.40"));
-                        } else if (cantidadCoautores >= 2) {
-                            puntajeCalculado = puntajeBaseAutor
-                                    .multiply(new BigDecimal("0.50"))
-                                    .divide(
-                                            BigDecimal.valueOf(cantidadCoautores),
-                                            2,
-                                            RoundingMode.HALF_UP);
-                        }
-                    }
-
-                } else {
-
-                    if (esCoautor(relacion.getRolParticipante()) && cantidadCoautores > 0) {
-                        puntajeCalculado = puntajeBaseCoautor.divide(
-                                BigDecimal.valueOf(cantidadCoautores),
-                                2,
-                                RoundingMode.HALF_UP);
-                    }
+                    puntajeCalculado = calcularPuntajeDistribuido(
+                            relacion,
+                            puntajeBaseAutor,
+                            puntajeBaseCoautor,
+                            cantidadAutores,
+                            cantidadCoautores,
+                            regla);
                 }
+
+                /*------------------------------------------------------ */
 
                 relacion.setPuntajeObtenido(
                         puntajeCalculado.setScale(2, RoundingMode.HALF_UP));
@@ -143,6 +131,114 @@ public class CalculoPuntajeLibroService {
                 ", libros sin relaciones: " + librosSinRelaciones +
                 ", libros sin configuración: " + librosSinConfiguracion +
                 ". Puntajes consolidados en valoraciones.puntaje_libros.";
+    }
+
+    private BigDecimal calcularPuntajeDistribuido(
+            LibroDocente relacion,
+            BigDecimal puntajeBaseAutor,
+            BigDecimal puntajeBaseCoautor,
+            long cantidadAutores,
+            long cantidadCoautores,
+            ReglaDistribucionAutoria regla) {
+
+        if (esAutor(relacion.getRolParticipante())) {
+
+            BigDecimal porcentaje = regla.getPorcentajeAutor()
+                    .divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP);
+
+            return puntajeBaseAutor
+                    .multiply(porcentaje)
+                    .setScale(2, RoundingMode.HALF_UP);
+        }
+
+        if (esCoautor(relacion.getRolParticipante())) {
+
+            BigDecimal porcentaje = regla.getPorcentajeCoautor()
+                    .divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP);
+
+            /*
+             * Cuando existe un autor:
+             * el porcentaje de coautor se aplica a cada coautor.
+             */
+            if (cantidadAutores > 0) {
+
+                return puntajeBaseAutor
+                        .multiply(porcentaje)
+                        .setScale(2, RoundingMode.HALF_UP);
+            }
+
+            /*
+             * Cuando solamente existen coautores:
+             * el porcentaje se aplica sobre el puntaje base de coautor.
+             */
+            return puntajeBaseCoautor
+                    .multiply(porcentaje)
+                    .setScale(2, RoundingMode.HALF_UP);
+        }
+
+        return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private ReglaDistribucionAutoria obtenerReglaDistribucion(
+            Integer idProceso,
+            long cantidadAutores,
+            long cantidadCoautores) {
+
+        String escenario = determinarEscenario(
+                cantidadAutores,
+                cantidadCoautores);
+
+        return reglaDistribucionAutoriaRepository
+                .findByIdProcesoAndEscenarioAndEstadoTrue(
+                        idProceso,
+                        escenario)
+                .orElse(null);
+    }
+
+    private String determinarEscenario(
+            long cantidadAutores,
+            long cantidadCoautores) {
+
+        /*
+         * Existe AUTOR UTEQ
+         */
+        if (cantidadAutores > 0) {
+
+            if (cantidadCoautores == 0) {
+                return "1";
+            }
+
+            if (cantidadCoautores == 1) {
+                return "2";
+            }
+
+            if (cantidadCoautores == 2) {
+                return "3";
+            }
+
+            return "4";
+        }
+
+        /*
+         * Solo existen COAUTORES UTEQ
+         */
+        if (cantidadCoautores == 1) {
+            return "5";
+        }
+
+        if (cantidadCoautores == 2) {
+            return "6";
+        }
+
+        if (cantidadCoautores == 3) {
+            return "7";
+        }
+
+        if (cantidadCoautores >= 4) {
+            return "8";
+        }
+
+        return null;
     }
 
     private BigDecimal obtenerPuntajeBase(

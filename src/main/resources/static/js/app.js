@@ -74,9 +74,14 @@ async function cargarModulo(nombre) {
             break;
 
         case "configuracion":
-            archivo = "modulos/configuracion.html";
-            scripts = ["js/configuracion.js"];
-            break;
+
+    archivo = "modulos/configuracion-puntajes.html";
+
+    scripts = [
+        "js/configuracion-puntajes.js"
+    ];
+
+    break;
 
         default:
             archivo = "modulos/dashboard.html";
@@ -105,6 +110,15 @@ async function cargarModulo(nombre) {
         ) {
 
             window.inicializarDocentes();
+
+        }
+
+        if (
+        nombre === "configuracion" &&
+        typeof window.inicializarConfiguracionPuntajes === "function"
+        ) {
+
+            window.inicializarConfiguracionPuntajes();
 
         }
 
