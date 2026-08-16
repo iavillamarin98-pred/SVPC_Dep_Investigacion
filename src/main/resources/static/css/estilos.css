@@ -2369,3 +2369,453 @@ PROCESOS
     justify-content: flex-end;
 }
 
+.ranking-top-10 {
+    background: #fff8dc;
+    font-weight: 600;
+}
+
+.ranking-puesto-1 {
+    background: #fff3cd;
+    font-weight: 700;
+}
+
+.ranking-puesto-2 {
+    background: #f1f3f5;
+    font-weight: 700;
+}
+
+.ranking-puesto-3 {
+    background: #f8e8dc;
+    font-weight: 700;
+}
+
+/* ==================================================
+   CONFIGURACIÓN DE PUNTAJES
+================================================== */
+
+.configuracion-puntajes-module {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+
+}
+
+
+/* ==================================================
+   CABECERA
+================================================== */
+
+.configuracion-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-end;
+
+    gap: 25px;
+
+}
+
+
+.configuracion-header h2 {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color: var(--verde);
+
+    margin-bottom: 6px;
+
+}
+
+
+.configuracion-header p {
+
+    margin: 0;
+
+    color: #666;
+
+}
+
+
+/* ==================================================
+   SELECTOR DE PROCESO
+================================================== */
+
+.configuracion-proceso {
+
+    min-width: 280px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+}
+
+
+.configuracion-proceso label {
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #444;
+
+}
+
+
+.configuracion-proceso select {
+
+    width: 100%;
+
+    padding: 10px 12px;
+
+    border: 1px solid var(--borde);
+
+    border-radius: 7px;
+
+    background: white;
+
+    color: #333;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+}
+
+
+.configuracion-proceso select:focus {
+
+    outline: none;
+
+    border-color: var(--verde);
+
+    box-shadow:
+        0 0 0 3px rgba(14, 122, 54, .12);
+
+}
+
+
+/* ==================================================
+   TARJETA PRINCIPAL
+================================================== */
+
+.configuracion-card {
+
+    padding: 0;
+
+    overflow: hidden;
+
+}
+
+
+/* ==================================================
+   PESTAÑAS
+================================================== */
+
+.configuracion-tabs {
+
+    display: flex;
+
+    border-bottom: 1px solid var(--borde);
+
+    background: #f8faf9;
+
+    padding: 0 15px;
+
+}
+
+
+.config-tab-btn {
+
+    position: relative;
+
+    border: none;
+
+    background: transparent;
+
+    color: #666;
+
+    padding: 16px 20px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    transition: .25s;
+
+}
+
+
+.config-tab-btn:hover {
+
+    color: var(--verde);
+
+    background: #f0f7f2;
+
+}
+
+
+.config-tab-btn.activo {
+
+    color: var(--verde);
+
+    background: white;
+
+}
+
+
+.config-tab-btn.activo::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 15px;
+
+    right: 15px;
+
+    bottom: -1px;
+
+    height: 3px;
+
+    background: var(--verde);
+
+    border-radius:
+        3px 3px 0 0;
+
+}
+
+
+/* ==================================================
+   CONTENIDO DE PESTAÑAS
+================================================== */
+
+.config-tab-content {
+
+    display: none;
+
+    padding: 22px;
+
+}
+
+
+.config-tab-content.activo {
+
+    display: block;
+
+}
+
+
+/* ==================================================
+   CABECERA INTERNA
+================================================== */
+
+.configuracion-tab-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 18px;
+
+}
+
+
+.configuracion-tab-header h3 {
+
+    margin: 0 0 5px;
+
+    color: var(--verde);
+
+    font-size: 18px;
+
+}
+
+
+.configuracion-tab-header p {
+
+    margin: 0;
+
+    color: #666;
+
+    font-size: 13px;
+
+}
+
+
+/* ==================================================
+   TABLAS
+================================================== */
+
+.configuracion-tabla {
+
+    border: 1px solid var(--borde);
+
+    border-radius: 8px;
+
+    overflow-x: auto;
+
+}
+
+
+.configuracion-tabla .tabla {
+
+    margin: 0;
+
+}
+
+
+.configuracion-tabla .tabla th {
+
+    padding: 12px 14px;
+
+    background: var(--verde);
+
+    color: white;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+
+}
+
+
+.configuracion-tabla .tabla td {
+
+    padding: 11px 14px;
+
+    font-size: 14px;
+
+    vertical-align: middle;
+
+}
+
+
+.configuracion-tabla .tabla tbody tr:hover {
+
+    background: #edf8f0;
+
+}
+
+
+/* ==================================================
+   INPUTS DE PUNTAJE
+================================================== */
+
+.configuracion-tabla input[type="number"] {
+
+    width: 130px;
+
+    padding: 8px 10px;
+
+    border: 1px solid var(--borde);
+
+    border-radius: 6px;
+
+    font-size: 14px;
+
+}
+
+
+.configuracion-tabla input[type="number"]:focus {
+
+    outline: none;
+
+    border-color: var(--verde);
+
+    box-shadow:
+        0 0 0 3px rgba(14, 122, 54, .10);
+
+}
+
+
+/* ==================================================
+   BOTONES DE GUARDAR
+================================================== */
+
+.configuracion-tabla .btn {
+
+    padding: 8px 13px;
+
+    font-size: 13px;
+
+}
+
+
+/* ==================================================
+   RESPONSIVE
+================================================== */
+
+@media (max-width: 800px) {
+
+    .configuracion-header {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .configuracion-proceso {
+
+        min-width: 0;
+
+        width: 100%;
+
+    }
+
+
+    .configuracion-tabs {
+
+        overflow-x: auto;
+
+    }
+
+
+    .config-tab-btn {
+
+        white-space: nowrap;
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .configuracion-tab-content {
+
+        padding: 15px;
+
+    }
+
+
+    .configuracion-tab-header h3 {
+
+        font-size: 16px;
+
+    }
+
+}

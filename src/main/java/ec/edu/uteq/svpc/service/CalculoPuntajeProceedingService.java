@@ -6,9 +6,11 @@ import ec.edu.uteq.svpc.entity.ConfiguracionPuntaje;
 import ec.edu.uteq.svpc.repository.ArticuloDocenteRepository;
 import ec.edu.uteq.svpc.repository.ArticuloRepository;
 import ec.edu.uteq.svpc.repository.ConfiguracionPuntajeRepository;
+import ec.edu.uteq.svpc.repository.ReglaDistribucionAutoriaRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import ec.edu.uteq.svpc.entity.ReglaDistribucionAutoria;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,17 +28,20 @@ public class CalculoPuntajeProceedingService {
     private final ArticuloRepository articuloRepository;
     private final ArticuloDocenteRepository articuloDocenteRepository;
     private final ConfiguracionPuntajeRepository configuracionPuntajeRepository;
+    private final ReglaDistribucionAutoriaRepository reglaDistribucionAutoriaRepository;
     private final JdbcTemplate jdbcTemplate;
 
     public CalculoPuntajeProceedingService(
             ArticuloRepository articuloRepository,
             ArticuloDocenteRepository articuloDocenteRepository,
             ConfiguracionPuntajeRepository configuracionPuntajeRepository,
+            ReglaDistribucionAutoriaRepository reglaDistribucionAutoriaRepository,
             JdbcTemplate jdbcTemplate) {
 
         this.articuloRepository = articuloRepository;
         this.articuloDocenteRepository = articuloDocenteRepository;
         this.configuracionPuntajeRepository = configuracionPuntajeRepository;
+        this.reglaDistribucionAutoriaRepository = reglaDistribucionAutoriaRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -95,6 +100,19 @@ public class CalculoPuntajeProceedingService {
                     .filter(r -> esCoautor(r.getRolParticipante()))
                     .count();
 
+            String escenario = determinarEscenario(
+                    cantidadAutores,
+                    cantidadCoautores);
+
+            ReglaDistribucionAutoria regla = obtenerReglaDistribucion(idProceso, escenario);
+
+            if (regla == null) {
+                ponerPuntajeCero(relaciones);
+                proceedingsSinConfiguracion++;
+                proceedingsProcesados++;
+                continue;
+            }
+
             for (ArticuloDocente relacion : relaciones) {
 
                 BigDecimal puntajeCalculado = calcularPuntajeDistribuido(
@@ -102,10 +120,13 @@ public class CalculoPuntajeProceedingService {
                         puntajeBaseAutor,
                         puntajeBaseCoautor,
                         cantidadAutores,
-                        cantidadCoautores);
+                        cantidadCoautores,
+                        regla);
 
                 relacion.setPuntajeObtenido(puntajeCalculado);
+
                 articuloDocenteRepository.save(relacion);
+
                 relacionesProcesadas++;
             }
 
@@ -129,7 +150,8 @@ public class CalculoPuntajeProceedingService {
             BigDecimal puntajeBaseAutor,
             BigDecimal puntajeBaseCoautor,
             long cantidadAutores,
-            long cantidadCoautores) {
+            long cantidadCoautores,
+            ReglaDistribucionAutoria regla) {
 
         boolean esAutor = esAutor(relacion.getRolParticipante());
         boolean esCoautor = esCoautor(relacion.getRolParticipante());
@@ -138,71 +160,60 @@ public class CalculoPuntajeProceedingService {
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
 
-        /*
-         * Escenario 1:
-         * Autor UTEQ solo.
-         * Recibe 100% del puntaje base de autor.
-         */
-        if (cantidadAutores >= 1 && cantidadCoautores == 0) {
-            if (esAutor) {
-                return redondear(puntajeBaseAutor);
-            }
-            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
-        }
+        BigDecimal porcentajeAutor = regla.getPorcentajeAutor()
+                .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
+
+        BigDecimal porcentajeCoautor = regla.getPorcentajeCoautor()
+                .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
 
         /*
-         * Escenario 2:
-         * Autor UTEQ + 1 coautor UTEQ.
-         * Autor recibe 60%.
-         * Coautor recibe 40%.
+         * Autor UTEQ.
          */
-        if (cantidadAutores >= 1 && cantidadCoautores == 1) {
+        if (cantidadAutores >= 1) {
+
             if (esAutor) {
-                return redondear(puntajeBaseAutor.multiply(new BigDecimal("0.60")));
-            }
-
-            if (esCoautor) {
-                return redondear(puntajeBaseAutor.multiply(new BigDecimal("0.40")));
-            }
-        }
-
-        /*
-         * Escenario 3:
-         * Autor UTEQ + 2 o más coautores UTEQ.
-         * Autor recibe 50%.
-         * El otro 50% se divide entre coautores.
-         */
-        if (cantidadAutores >= 1 && cantidadCoautores >= 2) {
-            if (esAutor) {
-                return redondear(puntajeBaseAutor.multiply(new BigDecimal("0.50")));
-            }
-
-            if (esCoautor) {
                 return redondear(
-                        puntajeBaseAutor
-                                .multiply(new BigDecimal("0.50"))
-                                .divide(BigDecimal.valueOf(cantidadCoautores), 10, RoundingMode.HALF_UP));
+                        puntajeBaseAutor.multiply(porcentajeAutor));
+            }
+
+            if (esCoautor) {
+
+                if (cantidadCoautores == 1) {
+                    return redondear(
+                            puntajeBaseAutor.multiply(porcentajeCoautor));
+                }
+
+                if (cantidadCoautores >= 2) {
+                    return redondear(
+                            puntajeBaseAutor
+                                    .multiply(porcentajeCoautor)
+                                    .divide(
+                                            BigDecimal.valueOf(cantidadCoautores),
+                                            10,
+                                            RoundingMode.HALF_UP));
+                }
             }
         }
 
         /*
-         * Escenario 4:
          * Solo coautores UTEQ.
-         * El puntaje base de coautor se divide entre todos los coautores.
          */
         if (cantidadAutores == 0 && cantidadCoautores > 0) {
+
             if (esCoautor) {
                 return redondear(
-                        puntajeBaseCoautor.divide(
-                                BigDecimal.valueOf(cantidadCoautores),
-                                10,
-                                RoundingMode.HALF_UP));
+                        puntajeBaseCoautor
+                                .divide(
+                                        BigDecimal.valueOf(cantidadCoautores),
+                                        10,
+                                        RoundingMode.HALF_UP));
             }
         }
 
         return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
     }
 
+    /* ----------------------------------------------------------- */
     private void consolidarPuntajeProceedingsEnValoraciones(Long idProceso) {
 
         List<Object[]> puntajesPorDocente = articuloDocenteRepository
@@ -272,6 +283,44 @@ public class CalculoPuntajeProceedingService {
                         criterio,
                         rol)
                 .map(ConfiguracionPuntaje::getPuntajeBase)
+                .orElse(null);
+    }
+
+    private String determinarEscenario(
+            long cantidadAutores,
+            long cantidadCoautores) {
+
+        if (cantidadAutores >= 1 && cantidadCoautores == 0) {
+            return "1";
+        }
+
+        if (cantidadAutores >= 1 && cantidadCoautores == 1) {
+            return "2";
+        }
+
+        if (cantidadAutores >= 1 && cantidadCoautores >= 2) {
+            return "3";
+        }
+
+        if (cantidadAutores == 0 && cantidadCoautores > 0) {
+            return "4";
+        }
+
+        return null;
+    }
+
+    private ReglaDistribucionAutoria obtenerReglaDistribucion(
+            Long idProceso,
+            String escenario) {
+
+        if (escenario == null) {
+            return null;
+        }
+
+        return reglaDistribucionAutoriaRepository
+                .findByIdProcesoAndEscenarioAndEstadoTrue(
+                        idProceso.intValue(),
+                        escenario)
                 .orElse(null);
     }
 

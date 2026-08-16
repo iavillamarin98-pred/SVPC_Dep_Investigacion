@@ -17,146 +17,268 @@ import java.util.List;
 @Transactional
 public class CalculoPuntajeProyectoService {
 
-    private final ProyectoRepository proyectoRepository;
-    private final ProyectoDocenteRepository proyectoDocenteRepository;
-    private final ConfiguracionPuntajeProyectoRepository configuracionRepository;
-    private final JdbcTemplate jdbcTemplate;
+        private final ProyectoRepository proyectoRepository;
+        private final ProyectoDocenteRepository proyectoDocenteRepository;
+        private final ConfiguracionPuntajeProyectoRepository configuracionRepository;
+        private final JdbcTemplate jdbcTemplate;
 
-    public CalculoPuntajeProyectoService(
-            ProyectoRepository proyectoRepository,
-            ProyectoDocenteRepository proyectoDocenteRepository,
-            ConfiguracionPuntajeProyectoRepository configuracionRepository,
-            JdbcTemplate jdbcTemplate) {
+        public CalculoPuntajeProyectoService(
+                        ProyectoRepository proyectoRepository,
+                        ProyectoDocenteRepository proyectoDocenteRepository,
+                        ConfiguracionPuntajeProyectoRepository configuracionRepository,
+                        JdbcTemplate jdbcTemplate) {
 
-        this.proyectoRepository = proyectoRepository;
-        this.proyectoDocenteRepository = proyectoDocenteRepository;
-        this.configuracionRepository = configuracionRepository;
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    public String calcular(Integer idProceso) {
-
-        int proyectosProcesados = 0;
-        int relacionesProcesadas = 0;
-        int proyectosSinConfiguracion = 0;
-
-        List<Proyecto> proyectos = proyectoRepository.findByIdProcesoAndEstadoIgnoreCase(
-                idProceso,
-                "APROBADO");
-
-        for (Proyecto proyecto : proyectos) {
-
-            ConfiguracionPuntajeProyecto config = configuracionRepository
-                    .findByTipoFinanciamientoIgnoreCase(
-                            proyecto.getTipoFinanciamiento())
-                    .orElse(null);
-
-            if (config == null) {
-
-                for (ProyectoDocente participante : proyectoDocenteRepository
-                        .findByIdIdProyecto(proyecto.getIdProyecto())) {
-
-                    participante.setPuntajeObtenido(0.0);
-
-                    proyectoDocenteRepository.save(participante);
-                }
-
-                proyectosSinConfiguracion++;
-
-                continue;
-            }
-
-            List<ProyectoDocente> participantes = proyectoDocenteRepository.findByIdIdProyecto(
-                    proyecto.getIdProyecto());
-
-            for (ProyectoDocente participante : participantes) {
-
-                if ("DIRECTOR".equalsIgnoreCase(participante.getRolParticipante())) {
-
-                    participante.setPuntajeObtenido(
-                            config.getPuntajeDirector());
-
-                } else {
-
-                    participante.setPuntajeObtenido(
-                            config.getPuntajeIntegrante());
-
-                }
-
-                proyectoDocenteRepository.save(participante);
-                relacionesProcesadas++;
-            }
-
-            proyectosProcesados++;
+                this.proyectoRepository = proyectoRepository;
+                this.proyectoDocenteRepository = proyectoDocenteRepository;
+                this.configuracionRepository = configuracionRepository;
+                this.jdbcTemplate = jdbcTemplate;
         }
 
-        consolidarValoraciones(idProceso);
+        @Transactional
+        public String calcular(Integer idProceso) {
 
-        return """
-                Cálculo de puntajes de proyectos finalizado.
+                int proyectosEncontrados = 0;
+                int proyectosProcesados = 0;
+                int relacionesProcesadas = 0;
+                int proyectosSinParticipantes = 0;
+                int proyectosSinConfiguracion = 0;
 
-                Proyectos procesados: %d
-                Relaciones procesadas: %d
-                Proyectos sin configuración: %d
-                """
-                .formatted(
-                        proyectosProcesados,
-                        relacionesProcesadas,
-                        proyectosSinConfiguracion);
-    }
+                /*
+                 * 1. Obtener únicamente proyectos APROBADOS
+                 */
+                List<Proyecto> proyectos = proyectoRepository.findByIdProcesoAndEstadoIgnoreCase(
+                                idProceso,
+                                "APROBADO");
 
-    private void consolidarValoraciones(Integer idProceso) {
+                proyectosEncontrados = proyectos.size();
 
-        List<Object[]> puntajes = proyectoDocenteRepository
-                .sumarPuntajeProyectosPorDocente(idProceso);
+                /*
+                 * 2. Procesar cada proyecto
+                 */
+                for (Proyecto proyecto : proyectos) {
 
-        for (Object[] fila : puntajes) {
+                        /*
+                         * Buscar configuración según el tipo
+                         * de financiamiento.
+                         */
+                        String tipoFinanciamiento = normalizarTipoFinanciamiento(
+                                        proyecto.getTipoFinanciamiento());
 
-            Long idDocente = ((Number) fila[0]).longValue();
-            Double puntaje = ((Number) fila[1]).doubleValue();
+                        ConfiguracionPuntajeProyecto config = configuracionRepository
+                                        .findByTipoFinanciamientoIgnoreCase(
+                                                        tipoFinanciamiento)
+                                        .orElse(null);
 
-            Integer existe = jdbcTemplate.queryForObject(
-                    """
-                            SELECT COUNT(*)
-                            FROM valoraciones
-                            WHERE id_proceso = ?
-                            AND id_docente = ?
-                            """,
-                    Integer.class,
-                    idProceso,
-                    idDocente);
+                        /*
+                         * Obtener participantes
+                         */
+                        List<ProyectoDocente> participantes = proyectoDocenteRepository
+                                        .findByIdIdProyecto(
+                                                        proyecto.getIdProyecto());
 
-            if (existe != null && existe > 0) {
+                        if (participantes.isEmpty()) {
 
-                jdbcTemplate.update(
-                        """
-                                UPDATE valoraciones
-                                SET puntaje_proyectos = ?
-                                WHERE id_proceso = ?
-                                AND id_docente = ?
-                                """,
-                        puntaje,
-                        idProceso,
-                        idDocente);
+                                proyectosSinParticipantes++;
 
-            } else {
+                                continue;
+                        }
 
-                jdbcTemplate.update(
-                        """
-                                INSERT INTO valoraciones
-                                (id_proceso,
-                                 id_docente,
-                                 puntaje_proyectos)
-                                VALUES (?,?,?)
-                                """,
-                        idProceso,
-                        idDocente,
-                        puntaje);
+                        /*
+                         * Si no existe configuración,
+                         * todos los participantes reciben 0.
+                         */
+                        if (config == null) {
 
-            }
+                                for (ProyectoDocente participante : participantes) {
 
+                                        participante.setPuntajeObtenido(0.0);
+
+                                        proyectoDocenteRepository.save(participante);
+                                }
+
+                                proyectosSinConfiguracion++;
+
+                                continue;
+                        }
+
+                        /*
+                         * 3. Asignar puntajes según el rol
+                         */
+                        for (ProyectoDocente participante : participantes) {
+
+                                String rol = normalizarRol(
+                                                participante.getRolParticipante());
+
+                                if ("DIRECTOR".equals(rol)) {
+
+                                        participante.setPuntajeObtenido(
+                                                        config.getPuntajeDirector());
+
+                                } else if ("INTEGRANTE".equals(rol)) {
+
+                                        participante.setPuntajeObtenido(
+                                                        config.getPuntajeIntegrante());
+
+                                } else {
+
+                                        /*
+                                         * Rol desconocido.
+                                         * No se asignan puntos.
+                                         */
+                                        participante.setPuntajeObtenido(0.0);
+                                }
+
+                                proyectoDocenteRepository.save(participante);
+
+                                relacionesProcesadas++;
+                        }
+
+                        proyectosProcesados++;
+                }
+
+                /*
+                 * 4. Consolidar puntajes por docente
+                 */
+                consolidarValoraciones(idProceso);
+
+                /*
+                 * 5. Mensaje de resultado
+                 */
+                return """
+                                Cálculo de puntajes de proyectos finalizado.
+
+                                Proyectos aprobados encontrados: %d
+                                Proyectos procesados: %d
+                                Relaciones procesadas: %d
+                                Proyectos sin participantes: %d
+                                Proyectos sin configuración: %d
+
+                                Puntajes consolidados en valoraciones.puntaje_proyectos.
+                                """
+                                .formatted(
+                                                proyectosEncontrados,
+                                                proyectosProcesados,
+                                                relacionesProcesadas,
+                                                proyectosSinParticipantes,
+                                                proyectosSinConfiguracion);
         }
 
-    }
+        /*
+         * ==========================================================
+         * CONSOLIDACIÓN
+         * ==========================================================
+         */
 
+        private void consolidarValoraciones(Integer idProceso) {
+
+                List<Object[]> puntajes = proyectoDocenteRepository
+                                .sumarPuntajeProyectosPorDocente(idProceso);
+
+                for (Object[] fila : puntajes) {
+
+                        Long idDocente = ((Number) fila[0]).longValue();
+
+                        Double puntaje = ((Number) fila[1]).doubleValue();
+
+                        Integer existe = jdbcTemplate.queryForObject(
+                                        """
+                                                        SELECT COUNT(*)
+                                                        FROM valoraciones
+                                                        WHERE id_proceso = ?
+                                                          AND id_docente = ?
+                                                        """,
+                                        Integer.class,
+                                        idProceso,
+                                        idDocente);
+
+                        if (existe != null && existe > 0) {
+
+                                jdbcTemplate.update(
+                                                """
+                                                                UPDATE valoraciones
+                                                                SET puntaje_proyectos = ?
+                                                                WHERE id_proceso = ?
+                                                                  AND id_docente = ?
+                                                                """,
+                                                puntaje,
+                                                idProceso,
+                                                idDocente);
+
+                        } else {
+
+                                jdbcTemplate.update(
+                                                """
+                                                                INSERT INTO valoraciones
+                                                                (
+                                                                    id_proceso,
+                                                                    id_docente,
+                                                                    puntaje_proyectos
+                                                                )
+                                                                VALUES (?, ?, ?)
+                                                                """,
+                                                idProceso,
+                                                idDocente,
+                                                puntaje);
+                        }
+                }
+        }
+
+        /*
+         * ==========================================================
+         * NORMALIZACIÓN
+         * ==========================================================
+         */
+
+        private String normalizarTipoFinanciamiento(String tipo) {
+
+                if (tipo == null || tipo.isBlank()) {
+                        return "";
+                }
+
+                String valor = tipo.trim()
+                                .toUpperCase()
+                                .replace("Á", "A")
+                                .replace("É", "E")
+                                .replace("Í", "I")
+                                .replace("Ó", "O")
+                                .replace("Ú", "U");
+
+                /*
+                 * Financiamiento externo / en red
+                 */
+                if (valor.contains("EXTERNO")) {
+                        return "EXTERNO";
+                }
+
+                /*
+                 * Financiamiento conjunto
+                 */
+                if (valor.contains("CONJUNTO")) {
+                        return "CONJUNTO";
+                }
+
+                /*
+                 * Financiamiento interno
+                 */
+                if (valor.contains("INTERNO")) {
+                        return "INTERNO";
+                }
+
+                return valor;
+        }
+
+        private String normalizarRol(String rol) {
+
+                if (rol == null || rol.isBlank()) {
+                        return "";
+                }
+
+                return rol.trim()
+                                .toUpperCase()
+                                .replace("Á", "A")
+                                .replace("É", "E")
+                                .replace("Í", "I")
+                                .replace("Ó", "O")
+                                .replace("Ú", "U");
+        }
 }
