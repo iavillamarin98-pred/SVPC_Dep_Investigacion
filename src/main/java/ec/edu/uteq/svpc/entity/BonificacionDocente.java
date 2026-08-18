@@ -13,9 +13,25 @@ public class BonificacionDocente {
     @Column(name = "id_bonificacion")
     private Integer idBonificacion;
 
+    // =========================================================
+    // DOCENTE
+    // =========================================================
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_docente", nullable = false)
     private Docente docente;
+
+    // =========================================================
+    // PROCESO DE VALORACIÓN
+    // =========================================================
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_proceso", nullable = false)
+    private ProcesoValoracion proceso;
+
+    // =========================================================
+    // DATOS DE BONIFICACIÓN
+    // =========================================================
 
     @Column(name = "criterio_asignacion", nullable = false, length = 50)
     private String criterioAsignacion;
@@ -31,6 +47,10 @@ public class BonificacionDocente {
         fechaAsignacion = LocalDateTime.now();
     }
 
+    // =========================================================
+    // GETTERS / SETTERS
+    // =========================================================
+
     public Integer getIdBonificacion() {
         return idBonificacion;
     }
@@ -45,6 +65,14 @@ public class BonificacionDocente {
 
     public void setDocente(Docente docente) {
         this.docente = docente;
+    }
+
+    public ProcesoValoracion getProceso() {
+        return proceso;
+    }
+
+    public void setProceso(ProcesoValoracion proceso) {
+        this.proceso = proceso;
     }
 
     public String getCriterioAsignacion() {

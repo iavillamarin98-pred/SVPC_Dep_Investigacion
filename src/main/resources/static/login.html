@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - SVPC</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body class="login-page">
+    <main class="login-layout">
+        <section class="login-carousel" aria-label="Información institucional">
+            <article class="login-slide activo">
+                <img src="/img/dep1.jpg" alt="UTEQ Investigación">
+                <div class="login-slide-overlay"></div>
+                <div class="login-slide-content"><span>UTEQ · Investigación</span><h1>Producción científica que transforma</h1><p>Gestione y valore la producción académica de nuestra comunidad universitaria.</p></div>
+            </article>
+            <article class="login-slide">
+                <img src="/img/dep2.jpg" alt="Producción científica UTEQ">
+                <div class="login-slide-overlay"></div>
+                <div class="login-slide-content"><span>Conocimiento e innovación</span><h1>Impulsamos la investigación</h1><p>Reconocemos el trabajo que fortalece el desarrollo científico y tecnológico.</p></div>
+            </article>
+            <article class="login-slide">
+                <img src="/img/dep3.jpg" alt="Campus de la Universidad Técnica Estatal de Quevedo">
+                <div class="login-slide-overlay"></div>
+                <div class="login-slide-content"><span>Universidad Técnica Estatal de Quevedo</span><h1>Una comunidad que crea futuro</h1><p>Accede al Sistema de Valoración de Producción Científica.</p></div>
+            </article>
+            <div class="login-carousel-controls" aria-label="Controles del carrusel">
+                <button class="login-carousel-dot activo" type="button" aria-label="Ver imagen 1"></button>
+                <button class="login-carousel-dot" type="button" aria-label="Ver imagen 2"></button>
+                <button class="login-carousel-dot" type="button" aria-label="Ver imagen 3"></button>
+            </div>
+        </section>
+        <aside class="login-panel">
+            <section class="login-container">
+                <div class="login-brand"><span>SVPC</span><p>Universidad Técnica Estatal de Quevedo</p></div>
+                <div class="login-heading"><h1>Bienvenido de nuevo</h1><p>Ingresa tus credenciales para continuar.</p></div>
+                <form action="/login" method="post">
+                    <div><label for="correo">Correo institucional</label><input type="email" id="correo" name="correo" autocomplete="username" required autofocus></div>
+                    <div><label for="contrasena">Contraseña</label><input type="password" id="contrasena" name="contrasena" autocomplete="current-password" required></div>
+                    <button type="submit">Iniciar sesión</button>
+                </form>
+                <p id="mensaje-error" class="login-error" role="alert" hidden>Correo o contraseña incorrectos.</p>
+                <p class="login-footer">Sistema de Valoración de Producción Científica</p>
+            </section>
+        </aside>
+    </main>
+    <script>
+        const slides = document.querySelectorAll('.login-slide');
+        const dots = document.querySelectorAll('.login-carousel-dot');
+        let activeSlide = 0;
+        function mostrarSlide(index) {
+            activeSlide = (index + slides.length) % slides.length;
+            slides.forEach((slide, i) => slide.classList.toggle('activo', i === activeSlide));
+            dots.forEach((dot, i) => dot.classList.toggle('activo', i === activeSlide));
+        }
+        dots.forEach((dot, index) => dot.addEventListener('click', () => mostrarSlide(index)));
+        setInterval(() => mostrarSlide(activeSlide + 1), 6000);
+        if (new URLSearchParams(window.location.search).get('error')) document.getElementById('mensaje-error').hidden = false;
+    </script>
+</body>
+</html>

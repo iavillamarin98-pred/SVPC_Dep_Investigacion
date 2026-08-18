@@ -2,11 +2,11 @@
 // BONIFICACIONES POR DOCENTE
 // ==================================================
 
-const API_BONIFICACIONES = "/api/bonificaciones";
+var API_BONIFICACIONES = "/api/bonificaciones";
 
-let bonificaciones = [];
-let docentesBonificacion = [];
-let idBonificacionEditando = null;
+var bonificaciones = [];
+var docentesBonificacion = [];
+var idBonificacionEditando = null;
 
 
 // ==================================================
@@ -235,29 +235,17 @@ function crearBadgeCriterio(criterio) {
     let clase =
         "criterio-bonificacion";
 
-    if (
-        criterio ===
-        "POR MERITO ACADEMICO"
-    ) {
+    if (criterio === "Propiedad Industrial") {
 
-        clase +=
-            " criterio-merito";
+        clase += " criterio-propiedad-industrial";
 
-    } else if (
-        criterio ===
-        "RECONOCIMIENTO"
-    ) {
+    } else if (criterio === "Derecho de Autor y Derechos Conexos") {
 
-        clase +=
-            " criterio-reconocimiento";
+        clase += " criterio-derecho-autor";
 
-    } else if (
-        criterio ===
-        "POR UTILIDAD"
-    ) {
+    } else if (criterio === "Obtenciones Vegetales y Conocimientos Tradicionales") {
 
-        clase +=
-            " criterio-utilidad";
+        clase += " criterio-obtenciones-vegetales";
 
     }
 
@@ -313,8 +301,12 @@ async function abrirModalDocenteBonificacion() {
     }
 
     modal.classList.remove("oculto");
+    document.body.classList.add("modal-abierto");
+    document.addEventListener("keydown", manejarTecladoModalBonificacion);
 
     await cargarDocentesBonificacion();
+
+    document.getElementById("buscarDocenteBonificacion")?.focus();
 
 }
 
@@ -329,7 +321,41 @@ function cerrarModalDocenteBonificacion() {
     if (modal) {
 
         modal.classList.add("oculto");
+        document.body.classList.remove("modal-abierto");
+        document.removeEventListener("keydown", manejarTecladoModalBonificacion);
 
+    }
+
+}
+
+function manejarTecladoModalBonificacion(evento) {
+
+    const modal = document.getElementById("modalDocenteBonificacion");
+
+    if (!modal || modal.classList.contains("oculto")) return;
+
+    if (evento.key === "Escape") {
+        cerrarModalDocenteBonificacion();
+        return;
+    }
+
+    if (evento.key !== "Tab") return;
+
+    const elementos = modal.querySelectorAll(
+        'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (!elementos.length) return;
+
+    const primero = elementos[0];
+    const ultimo = elementos[elementos.length - 1];
+
+    if (evento.shiftKey && document.activeElement === primero) {
+        evento.preventDefault();
+        ultimo.focus();
+    } else if (!evento.shiftKey && document.activeElement === ultimo) {
+        evento.preventDefault();
+        primero.focus();
     }
 
 }
@@ -1167,17 +1193,3 @@ function mostrarResultadoBonificacion(
 // INICIALIZACIÓN
 // ==================================================
 
-if (
-    document.readyState === "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        inicializarBonificaciones
-    );
-
-} else {
-
-    inicializarBonificaciones();
-
-}
