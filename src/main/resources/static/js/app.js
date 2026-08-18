@@ -10,8 +10,9 @@ async function cargarModulo(nombre) {
     switch (nombre) {
 
         case "dashboard":
-            archivo = "modulos/dashboard.html";
-            break;
+    archivo = "modulos/dashboard.html";
+    scripts = ["js/dashboard.js"];
+    break;
 
         case "procesos":
             archivo = "modulos/procesos.html";
@@ -105,6 +106,15 @@ async function cargarModulo(nombre) {
         // =========================================
 
         if (
+            nombre === "dashboard" &&
+            typeof window.inicializarDashboard === "function"
+        ) {
+
+            window.inicializarDashboard();
+
+        }
+
+        if (
             nombre === "docentes" &&
             typeof window.inicializarDocentes === "function"
         ) {
@@ -119,6 +129,15 @@ async function cargarModulo(nombre) {
         ) {
 
             window.inicializarConfiguracionPuntajes();
+
+        }
+
+        if (
+            nombre === "bonificaciones" &&
+            typeof window.inicializarBonificaciones === "function"
+        ) {
+
+            await window.inicializarBonificaciones();
 
         }
 

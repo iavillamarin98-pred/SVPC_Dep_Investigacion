@@ -1,38 +1,197 @@
-<h1>Dashboard</h1>
+<div class="dashboard-container">
 
-<br>
+    <!-- ==========================================
+         ENCABEZADO
+         ========================================== -->
 
-<div class="cards">
+    <div class="dashboard-header">
+        <div>
+            <h1>Dashboard</h1>
+            <p>
+                Resumen general de la producción científica
+                y resultados de valoración.
+            </p>
+        </div>
 
-    <div class="card">
+        <div class="dashboard-actualizacion">
+            <span>Última actualización</span>
+            <strong id="ultimaActualizacion">--</strong>
+        </div>
+    </div>
 
-        <h2>Artículos</h2>
 
-        <h1>0</h1>
+    <!-- ==========================================
+         TARJETAS DE PRODUCCIÓN
+         ========================================== -->
+
+    <div class="dashboard-cards">
+
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon">📄</div>
+
+            <div class="dashboard-card-info">
+                <span>Artículos</span>
+                <strong id="totalArticulos">0</strong>
+            </div>
+        </div>
+
+
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon">🎤</div>
+
+            <div class="dashboard-card-info">
+                <span>Proceedings</span>
+                <strong id="totalProceedings">0</strong>
+            </div>
+        </div>
+
+
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon">📚</div>
+
+            <div class="dashboard-card-info">
+                <span>Libros</span>
+                <strong id="totalLibros">0</strong>
+            </div>
+        </div>
+
+
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon">📖</div>
+
+            <div class="dashboard-card-info">
+                <span>Capítulos de libros</span>
+                <strong id="totalCapitulos">0</strong>
+            </div>
+        </div>
+
+
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon">🔬</div>
+
+            <div class="dashboard-card-info">
+                <span>Proyectos</span>
+                <strong id="totalProyectos">0</strong>
+            </div>
+        </div>
+
+
+        <div class="dashboard-card dashboard-card-bonificacion">
+            <div class="dashboard-card-icon">⭐</div>
+
+            <div class="dashboard-card-info">
+                <span>Bonificación</span>
+                <strong id="totalBonificacion">0.00</strong>
+                <small>puntos</small>
+            </div>
+        </div>
 
     </div>
 
-    <div class="card">
 
-        <h2>Libros</h2>
+    <!-- ==========================================
+         RESUMEN DE RANKINGS
+         ========================================== -->
 
-        <h1>0</h1>
+    <div class="dashboard-section-grid">
+
+        <!-- Ranking general -->
+
+        <div class="dashboard-panel">
+
+            <div class="dashboard-panel-header">
+
+                <div>
+                    <h2>🏆 Ranking general</h2>
+
+                    <p>
+                        Investigadores con mayor puntuación
+                    </p>
+                </div>
+
+                <button class="dashboard-link" onclick="irRankingGeneral()">
+
+                    Ver ranking
+
+                </button>
+
+            </div>
+
+
+            <div id="rankingGeneral">
+
+                <div class="dashboard-loading">
+                    Cargando ranking...
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Ranking por facultad -->
+
+        <div class="dashboard-panel">
+
+            <div class="dashboard-panel-header">
+
+                <div>
+                    <h2>🏫 Ranking por facultad</h2>
+
+                    <p>
+                        Resumen de puntuación institucional
+                    </p>
+                </div>
+
+                <button class="dashboard-link" onclick="irRankingFacultad()">
+
+                    Ver ranking
+
+                </button>
+
+            </div>
+
+
+            <div id="rankingFacultad">
+
+                <div class="dashboard-loading">
+                    Cargando ranking...
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
-    <div class="card">
 
-        <h2>Capítulos</h2>
+    <!-- ==========================================
+         GRÁFICA
+         ========================================== -->
 
-        <h1>0</h1>
+    <div class="dashboard-panel dashboard-chart-panel">
 
-    </div>
+        <div class="dashboard-panel-header">
 
-    <div class="card">
+            <div>
 
-        <h2>Proyectos</h2>
+                <h2>Puntaje por facultad</h2>
 
-        <h1>0</h1>
+                <p>
+                    Comparación del puntaje acumulado
+                    por facultad.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-chart-container">
+
+            <canvas id="graficoFacultades"></canvas>
+
+        </div>
 
     </div>
 
