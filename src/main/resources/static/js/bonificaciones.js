@@ -243,7 +243,7 @@ function crearBadgeCriterio(criterio) {
 
         clase += " criterio-derecho-autor";
 
-    } else if (criterio === "Obtenciones Vegetales y Conocimientos Tradicionales") {
+    } else if (criterio === "Conocimientos Tradicionales") {
 
         clase += " criterio-obtenciones-vegetales";
 

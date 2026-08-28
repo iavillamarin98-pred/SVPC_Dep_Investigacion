@@ -212,7 +212,7 @@ public class BonificacionDocenteService {
 
                 if (!criterio.equals("Propiedad Industrial")
                                 && !criterio.equals("Derecho de Autor y Derechos Conexos")
-                                && !criterio.equals("Obtenciones Vegetales y Conocimientos Tradicionales")) {
+                                && !criterio.equals("Conocimientos Tradicionales")) {
 
                         throw new RuntimeException(
                                         "Criterio de asignación no válido.");

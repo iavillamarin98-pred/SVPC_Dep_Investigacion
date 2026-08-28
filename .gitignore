@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+# Archivos locales de Docker y respaldos
+postgres18.tar
+svpc-app.tar
+svpc_dbv1.backup

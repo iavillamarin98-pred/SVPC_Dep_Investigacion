@@ -1,0 +1,41 @@
+services:
+
+  postgres:
+    image: postgres:18
+    container_name: svpc-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: svpc_dbv1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - svpc_postgres_data:/var/lib/postgresql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d svpc_dbv1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+
+  svpc:
+    image: svpc-svpc:latest
+    container_name: svpc-app
+    restart: unless-stopped
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    ports:
+      - "8080:8080"
+
+
+volumes:
+  svpc_postgres_data:
