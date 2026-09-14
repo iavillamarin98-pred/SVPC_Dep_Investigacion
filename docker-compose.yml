@@ -6,8 +6,8 @@ services:
     restart: unless-stopped
 
     environment:
-      POSTGRES_DB: svpc_dbv1
-      POSTGRES_USER: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-svpc_dbv1}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
     ports:
@@ -17,7 +17,7 @@ services:
       - svpc_postgres_data:/var/lib/postgresql
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d svpc_dbv1"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-svpc_dbv1}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,6 +32,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-svpc_dbv1}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
 
     ports:
       - "8080:8080"

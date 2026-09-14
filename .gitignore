@@ -31,7 +31,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
 # Archivos locales de Docker y respaldos
 postgres18.tar
 svpc-app.tar
 svpc_dbv1.backup
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Dumps o respaldos sensibles
+*.backup
+*.dump
+svpc_db_limpia.sql
